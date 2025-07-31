@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+
+	<style type="text/css">
+		body,div,table,thead,tbody,tfoot,tr,th,td,p { font-family:"Calibri"; font-size:x-small }
+		a.comment-indicator:hover + comment { background:#ffd; position:absolute; display:block; border:1px solid black; padding:0.5em;  } 
+		a.comment-indicator { background:red; display:inline-block; border:1px solid black; width:0.5em; height:0.5em;  } 
+		comment { display:none;  } 
+	</style>
+	
+</head>
+
+<body>
+<table align="left" cellspacing="0" border="0">
+	<colgroup width="67"></colgroup>
+	<colgroup width="126"></colgroup>
+	<colgroup width="95"></colgroup>
+	<colgroup width="118"></colgroup>
+	<colgroup width="58"></colgroup>
+	<colgroup width="49"></colgroup>
+	<colgroup width="70"></colgroup>
+	<colgroup span="2" width="64"></colgroup>
+	<tr>
+		<td colspan=8 height="29" align="center" valign=bottom bgcolor="#000000" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;VALE PALLET&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF">VALE PALLET</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="31" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><i><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></i></b></td>
+		<td colspan=6 rowspan=3 align="center" valign=middle bgcolor="#FFFFFF" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;GRU8&quot;}"><b><font face="Amazon Ember Cd RC" size=7 color="#000000">GRU8</font></b></td>
+
+	</tr>
+	<tr>
+		<td height="29" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><i><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></i></b></td>
+				<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="31" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="36" align="left" valign=top data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td colspan=6 align="center" valign=top data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;GLP III&quot;}"><font face="Amazon Ember Cd RC" size=6 color="#000000">GLP III</font></td>
+		<td align="left" valign=top data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="30" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" colspan=2 align="center" valign=bottom sdnum="1033;0;H:MM" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;AZLBR &quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">AZLBR </font></b></td>
+		<td align="left" valign=bottom bgcolor="#FFFFFF" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="29" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;DATA:&quot;}"><b><font face="Amazon Ember Cd RC" size=4 color="#000000">DATA:</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom sdval="45869.2765574268" sdnum="1033;0;DD/MM/YY;@" data-sheets-formula="=NOW()" data-sheets-value="{ &quot;1&quot;: 3, &quot;3&quot;: 45869}" data-sheets-numberformat="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;DD\/MM\/YY;@&quot;, &quot;3&quot;: 1}"><font face="Amazon Ember Cd RC" size=5 color="#000000">31/07/25</font></td>
+		<td align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;HORA:&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">HORA:</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom sdval="45869.2765574309" sdnum="1033;0;H:MM;@" data-sheets-formula="=NOW()" data-sheets-value="{ &quot;1&quot;: 3, &quot;3&quot;: 45869}" data-sheets-numberformat="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;H:MM;@&quot;, &quot;3&quot;: 1}"><font face="Amazon Ember Cd RC" size=5 color="#000000">6:38</font></td>
+		<td colspan=2 align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td style="border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" colspan=2 align="center" valign=bottom sdnum="1033;0;H:MM" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;AZUL&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">AZUL</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="29" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom sdnum="1033;0;H:MM;@" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="29" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;PLACA:&quot;}"><b><font face="Amazon Ember Cd RC" size=4 color="#000000">PLACA:</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom sdnum="1033;0;H:MM;@" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;GAD4134&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000">GAD4134</font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font size=5 color="#000000"><br></font></td>
+		<td align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;MOTORISTA:&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">MOTORISTA:</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" colspan=4 align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;ANDERSON&quot;}"><b><font face="Amazon Ember Cd RC" size=4 color="#000000">ANDERSON</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="31" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td colspan=8 height="29" align="center" valign=bottom bgcolor="#000000" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;SAÍDA&quot;}"><b><i><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF">SAÍDA</font></i></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="10" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td colspan=2 rowspan=2 height="59" align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;PALLETS PLÁSTICO&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">PALLETS PLÁSTICO</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;QTD.&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">QTD.</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td colspan=2 rowspan=2 align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;SCUTTLES PLÁSTICO&quot;}"><b><font face="Amazon Ember Cd RC" size=4 color="#000000">SCUTTLES PLÁSTICO</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;QTD.&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">QTD.</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td style="border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom sdval="8" sdnum="1033;"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">8</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td style="border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom sdval="7" sdnum="1033;"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">7</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="15" align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot; &quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"> </font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot; &quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"> </font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td colspan=2 rowspan=2 height="59" align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;PALLETS PBR&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">PALLETS PBR</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;QTD.&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">QTD.</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td colspan=2 rowspan=2 align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;SCUTTLES PAPELÃO&quot;}"><b><font face="Amazon Ember Cd RC" size=4 color="#000000">SCUTTLES PAPELÃO</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;QTD.&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">QTD.</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td style="border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;x&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">x</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td style="border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;x&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">x</font></b></td>
+		<td align="left" valign=top data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="15" align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=top data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=top data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=top data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=top data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td colspan=8 height="29" align="center" valign=middle bgcolor="#000000" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;RETORNO&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF">RETORNO</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="12" align="left" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF"><br></font></b></td>
+		<td align="left" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF"><br></font></b></td>
+		<td align="left" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF"><br></font></b></td>
+		<td align="left" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF"><br></font></b></td>
+		<td align="left" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF"><br></font></b></td>
+		<td align="left" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF"><br></font></b></td>
+		<td align="right" valign=middle sdval="5390" sdnum="1033;"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF">5390</font></b></td>
+		<td align="left" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#FFFFFF"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td colspan=2 rowspan=2 height="59" align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;PALLETS PLÁSTICO&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">PALLETS PLÁSTICO</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;QTD.&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">QTD.</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td colspan=2 rowspan=2 align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;SCUTTLES PLÁSTICO&quot;}"><b><font face="Amazon Ember Cd RC" size=4 color="#000000">SCUTTLES PLÁSTICO</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;QTD.&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">QTD.</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td style="border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;X&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">X</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td style="border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;x&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">x</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="29" align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot; &quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"> </font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td colspan=2 rowspan=2 height="59" align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;PALLETS PBR&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">PALLETS PBR</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;QTD.&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">QTD.</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td colspan=2 rowspan=2 align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;SCUTTLES PAPELÃO&quot;}"><b><font face="Amazon Ember Cd RC" size=4 color="#000000">SCUTTLES PAPELÃO</font></b></td>
+		<td style="border-top: 2px solid #000000; border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;QTD.&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">QTD.</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td style="border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;x&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">x</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td style="border-bottom: 2px solid #000000; border-left: 2px solid #000000; border-right: 2px solid #000000" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;x&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">x</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="14" align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=4 color="#000000"><br></font></b></td>
+		<td align="center" valign=middle data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=4 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="32" align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;TOM:&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">TOM:</font></b></td>
+		<td colspan="2" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;JHONNY L SANTOS&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000">JHONNY L SANTOS</font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td style="border-bottom: 1px solid #000000" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Ass:&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">Ass:</font></b></td>
+		<td style="border-bottom: 1px solid #000000" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Times New Roman" size=4 color="#000000"><br></font></b></td>
+		<td style="border-bottom: 1px solid #000000" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td style="border-bottom: 1px solid #000000" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="39" align="right" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;MOT:&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">MOT:</font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;ANDERSON&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000">ANDERSON</font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td style="border-bottom: 1px solid #000000" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Ass:&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000">Ass:</font></b></td>
+		<td style="border-bottom: 1px solid #000000" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></td>
+		<td style="border-bottom: 1px solid #000000" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td style="border-bottom: 1px solid #000000" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><b><font face="Amazon Ember Cd RC" size=5 color="#000000"><br></font></b></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td height="19" align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+	<tr>
+		<td colspan=8 height="19" align="center" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Endereço: Av. Doutor Antônio João Abdalla, nº 2.010, Cajamar, SP.&quot;}"><font color="#000000">Endereço: Av. Doutor Antônio João Abdalla, nº 2.010, Cajamar, SP.</font></td>
+		<td align="left" valign=bottom data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;&quot;}"><font color="#000000"><br></font></td>
+	</tr>
+</table>
+<img src="https://i.imgur.com/ARYj3hj.png" width=140 height=134>
+<img src="https://i.imgur.com/txFUTfG.png" width=164 height=20>
+<img src="https://i.imgur.com/us3UcOO.png" width=131 height=128>
+<br clear=left>
+<!-- ************************************************************************** -->
+</body>
+
+</html>
