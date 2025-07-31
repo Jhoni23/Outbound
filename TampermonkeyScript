@@ -1,0 +1,184 @@
+// ==UserScript==
+// @name         Outbound Firebase Integration
+// @namespace    http://tampermonkey.net/
+// @version      2025-07-31
+// @description  Integração com Firebase no sistema da Amazon
+// @author       rsanjhon
+// @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
+// @grant        none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    const firebaseScripts = [
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"
+    ];
+
+    function loadFirebaseScripts(callback) {
+        let loaded = 0;
+        firebaseScripts.forEach(src => {
+            const script = document.createElement("script");
+            script.src = src;
+            script.onload = () => {
+                loaded++;
+                if (loaded === firebaseScripts.length) callback();
+            };
+            document.head.appendChild(script);
+        });
+    }
+
+    loadFirebaseScripts(() => {
+        const firebaseConfig = {
+            apiKey: "AIzaSyB6IcAguk-JBzHTKGgrMyYcz_mYM8lljIE",
+            authDomain: "outbound-82fe7.firebaseapp.com",
+            databaseURL: "https://outbound-82fe7-default-rtdb.firebaseio.com",
+            projectId: "outbound-82fe7",
+            storageBucket: "outbound-82fe7.firebasestorage.app",
+            messagingSenderId: "581083999271",
+            appId: "1:581083999271:web:0f1fcf44cb5e7f9cb37202"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const traducoes = {
+            "Progress": "Progreso",
+            "twenty six foot box truck": "TRUCK",
+            "forty eight foot truck": "CARRETA",
+            "twenty foot box truck": "TOCO",
+            "forty foot truck": "VUC",
+            "fourteen foot van": "3/4",
+        };
+
+        function traduzirCampos() {
+            document.querySelectorAll('.DataTables_sort_wrapper').forEach(el => {
+                for (let node of el.childNodes) {
+                    if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Equipment Type')) {
+                        node.textContent = node.textContent.replace('Equipment Type', 'Tipologia');
+                        break;
+                    }
+                }
+            });
+
+            document.querySelectorAll('div.capitalizeWord').forEach(div => {
+                const texto = div.textContent.trim();
+                if (traducoes[texto]) {
+                    div.textContent = traducoes[texto];
+                }
+            });
+        }
+
+        function removerTermos() {
+            document.querySelectorAll('td div[title][alt]').forEach(div => {
+                if (div.textContent.trim() === '[ATS_CONTRACTED]') {
+                    div.remove();
+                }
+            });
+
+            document.querySelectorAll('span.trailerNo').forEach(span => {
+                if (span.textContent.includes('OTHR')) {
+                    span.textContent = span.textContent.replace('OTHR', '').trim();
+                }
+            });
+        }
+
+        function adicionarColunaMotorista() {
+            const tabela = document.querySelector('table#dashboard');
+            if (!tabela) return;
+
+            const thTrailer = tabela.querySelector('thead th.trailerIdCol');
+            if (thTrailer && !tabela.querySelector('th.motoristaCol')) {
+                const thMotorista = document.createElement('th');
+                thMotorista.className = 'motoristaCol ui-state-default';
+                thMotorista.style.width = '10%';
+                thMotorista.innerHTML = `
+                    <div class="DataTables_sort_wrapper">
+                        Motorista
+                        <span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span>
+                    </div>`;
+                thTrailer.insertAdjacentElement('afterend', thMotorista);
+            }
+
+            tabela.querySelectorAll('tbody tr').forEach(tr => {
+                if (!tr.querySelector('td.motoristaCol')) {
+                    const tdMotorista = document.createElement('td');
+                    tdMotorista.className = 'motoristaCol';
+                    tdMotorista.textContent = '—';
+
+                    const tdTrailer = tr.querySelector('td.trailerNumCol');
+                    if (tdTrailer) {
+                        tdTrailer.insertAdjacentElement('afterend', tdMotorista);
+
+                        const trailerId = tdTrailer.querySelector('span.trailerNo')?.textContent.trim();
+                        if (trailerId) {
+                            // Carrega valor salvo no Firebase
+                            db.ref("motoristas/" + trailerId).once("value").then(snapshot => {
+                                const nome = snapshot.val();
+                                if (nome) {
+                                    tdMotorista.textContent = nome;
+                                }
+                            });
+                        }
+
+                        tdMotorista.addEventListener('click', () => {
+                            const trailerId = tdTrailer.querySelector('span.trailerNo')?.textContent.trim();
+                            if (!trailerId) return;
+
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.value = tdMotorista.textContent !== '—' ? tdMotorista.textContent : '';
+                            input.style.width = '90%';
+
+                            tdMotorista.textContent = '';
+                            tdMotorista.appendChild(input);
+                            input.focus();
+
+                            function salvar(nome) {
+                                const nomeUpper = nome.trim().toUpperCase();
+                                if (nomeUpper) {
+                                    db.ref("motoristas/" + trailerId).set(nomeUpper).then(() => {
+                                        console.log(`Salvo no Firebase: ${trailerId} = ${nomeUpper}`);
+                                    });
+                                } else {
+                                    db.ref("motoristas/" + trailerId).remove().then(() => {
+                                        console.log(`Removido do Firebase: ${trailerId}`);
+                                    });
+                                }
+                                tdMotorista.textContent = nomeUpper || '—';
+                            }
+
+                            input.addEventListener('keydown', async (e) => {
+                                if (e.key === 'Enter') {
+                                    salvar(input.value);
+                                } else if (e.key === 'Escape') {
+                                    tdMotorista.textContent = input.value || '—';
+                                }
+                            });
+
+                            input.addEventListener('blur', () => {
+                                salvar(input.value);
+                            });
+                        });
+                    }
+                }
+            });
+        }
+
+        async function processarPagina() {
+            traduzirCampos();
+            removerTermos();
+            adicionarColunaMotorista();
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(processarPagina, 1000);
+        });
+
+        const observer = new MutationObserver(() => {
+            processarPagina();
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+})();
