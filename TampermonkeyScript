@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name         Outbound Firebase Integration
+// @name         Outbound Script Tampermonkey
 // @namespace    http://tampermonkey.net/
-// @version      2025-07-31
-// @description  Integração com Firebase no sistema da Amazon
+// @version      2025-08-03
+// @description  Integração com Firebase no sistema da Amazon com seleção de linha
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
-// @grant        none
+// @grant        GM_xmlhttpRequest
+// @connect      trans-logistics.amazon.com
 // ==/UserScript==
 
 (function () {
@@ -15,6 +16,16 @@
         "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
         "https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"
     ];
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB6IcAguk-JBzHTKGgrMyYcz_mYM8lljIE",
+        authDomain: "outbound-82fe7.firebaseapp.com",
+        databaseURL: "https://outbound-82fe7-default-rtdb.firebaseio.com",
+        projectId: "outbound-82fe7",
+        storageBucket: "outbound-82fe7.appspot.com",
+        messagingSenderId: "581083999271",
+        appId: "1:581083999271:web:0f1fcf44cb5e7f9cb37202"
+    };
 
     function loadFirebaseScripts(callback) {
         let loaded = 0;
@@ -30,26 +41,121 @@
     }
 
     loadFirebaseScripts(() => {
-        const firebaseConfig = {
-            apiKey: "AIzaSyB6IcAguk-JBzHTKGgrMyYcz_mYM8lljIE",
-            authDomain: "outbound-82fe7.firebaseapp.com",
-            databaseURL: "https://outbound-82fe7-default-rtdb.firebaseio.com",
-            projectId: "outbound-82fe7",
-            storageBucket: "outbound-82fe7.firebasestorage.app",
-            messagingSenderId: "581083999271",
-            appId: "1:581083999271:web:0f1fcf44cb5e7f9cb37202"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        const traducoes = {
-            "Progress": "Progreso",
-            "twenty six foot box truck": "TRUCK",
-            "forty eight foot truck": "CARRETA",
-            "twenty foot box truck": "TOCO",
-            "forty foot truck": "VUC",
-            "fourteen foot van": "3/4",
-        };
+        criarCookieDadosLinha();
+
+        function criarCookieDadosLinha() {
+            const nomeCookie = "dadosLinha";
+            const cookieExiste = document.cookie
+                .split("; ")
+                .some(row => row.startsWith(nomeCookie + "="));
+
+            if (!cookieExiste) {
+                const dadosIniciais = {
+                    Transportadora: "",
+                    Rota: "",
+                    Placa: "",
+                    Motorista: "",
+                    Pallet: "",
+                    Scuttles: "",
+                    Yard: ""
+                };
+                const valor = encodeURIComponent(JSON.stringify(dadosIniciais));
+                const dias = 7;
+                const expira = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toUTCString();
+                document.cookie = `${nomeCookie}=${valor}; expires=${expira}; path=/`;
+                console.log("✅ Cookie 'dadosLinha' criado com os valores:");
+                console.table(dadosIniciais);
+            }
+        }
+
+        function lerCookieDadosLinha() {
+            const nomeCookie = "dadosLinha";
+            const cookieStr = document.cookie
+                .split("; ")
+                .find(row => row.startsWith(nomeCookie + "="));
+
+            if (cookieStr) {
+                try {
+                    const valorCodificado = cookieStr.split("=")[1];
+                    const dados = JSON.parse(decodeURIComponent(valorCodificado));
+                    console.table(dados);
+                    return dados;
+                } catch (e) {
+                    console.error("❌ Erro ao decodificar cookie:", e);
+                    return {};
+                }
+            } else {
+                console.warn("⚠️ Cookie 'dadosLinha' não encontrado.");
+                return {};
+            }
+        }
+
+        function monitorarSelecao() {
+            const linhas = document.querySelectorAll('tr');
+
+            linhas.forEach(linha => {
+                const observer = new MutationObserver(mutations => {
+                    mutations.forEach(mutation => {
+                        if (mutation.attributeName === 'class') {
+                            const hasSelected = linha.classList.contains('selectedTableRow');
+                            if (hasSelected) {
+                                const goodLaneSpan = linha.querySelector('span.goodLane');
+                                const rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
+
+                                const tdLoadId = linha.querySelector('td.loadIdCol');
+                                const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+                                const transportadora = tdTransportadora?.textContent.trim() || "";
+
+                                const spanPlaca = linha.querySelector('span.trailerNo');
+                                let placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
+
+                                const tdMotorista = linha.querySelector('td.motoristaCol');
+                                const motorista = tdMotorista?.textContent.trim() || "";
+
+                                const nomeCookie = "dadosLinha";
+                                const cookieStr = document.cookie
+                                    .split("; ")
+                                    .find(row => row.startsWith(nomeCookie + "="));
+
+                                let dados = {
+                                    Transportadora: "",
+                                    Rota: "",
+                                    Placa: "",
+                                    Motorista: "",
+                                    Pallet: "",
+                                    Scuttles: "",
+                                    Yard: ""
+                                };
+
+                                if (cookieStr) {
+                                    try {
+                                        dados = JSON.parse(decodeURIComponent(cookieStr.split("=")[1]));
+                                    } catch (e) {
+                                        console.error("Erro ao ler cookie:", e);
+                                    }
+                                }
+
+                                dados.Transportadora = transportadora;
+                                dados.Rota = rota;
+                                dados.Placa = placa;
+                                dados.Motorista = motorista;
+
+                                const valor = encodeURIComponent(JSON.stringify(dados));
+                                const dias = 7;
+                                const expira = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toUTCString();
+                                document.cookie = `${nomeCookie}=${valor}; expires=${expira}; path=/`;
+
+                                console.table(dados);
+                            }
+                        }
+                    });
+                });
+
+                observer.observe(linha, { attributes: true });
+            });
+        }
 
         function traduzirCampos() {
             document.querySelectorAll('.DataTables_sort_wrapper').forEach(el => {
@@ -63,6 +169,14 @@
 
             document.querySelectorAll('div.capitalizeWord').forEach(div => {
                 const texto = div.textContent.trim();
+                const traducoes = {
+                    "Progress": "Progreso",
+                    "twenty six foot box truck": "TRUCK",
+                    "forty eight foot truck": "CARRETA",
+                    "twenty foot box truck": "TOCO",
+                    "forty foot truck": "VUC",
+                    "fourteen foot van": "3/4",
+                };
                 if (traducoes[texto]) {
                     div.textContent = traducoes[texto];
                 }
@@ -112,8 +226,7 @@
 
                         const trailerId = tdTrailer.querySelector('span.trailerNo')?.textContent.trim();
                         if (trailerId) {
-                            // Carrega valor salvo no Firebase
-                            db.ref("motoristas/" + trailerId).once("value").then(snapshot => {
+                            firebase.database().ref("motoristas/" + trailerId).once("value").then(snapshot => {
                                 const nome = snapshot.val();
                                 if (nome) {
                                     tdMotorista.textContent = nome;
@@ -137,11 +250,11 @@
                             function salvar(nome) {
                                 const nomeUpper = nome.trim().toUpperCase();
                                 if (nomeUpper) {
-                                    db.ref("motoristas/" + trailerId).set(nomeUpper).then(() => {
+                                    firebase.database().ref("motoristas/" + trailerId).set(nomeUpper).then(() => {
                                         console.log(`Salvo no Firebase: ${trailerId} = ${nomeUpper}`);
                                     });
                                 } else {
-                                    db.ref("motoristas/" + trailerId).remove().then(() => {
+                                    firebase.database().ref("motoristas/" + trailerId).remove().then(() => {
                                         console.log(`Removido do Firebase: ${trailerId}`);
                                     });
                                 }
@@ -169,6 +282,7 @@
             traduzirCampos();
             removerTermos();
             adicionarColunaMotorista();
+            monitorarSelecao();
         }
 
         window.addEventListener('load', () => {
