@@ -1,6 +1,8 @@
 // ==UserScript==
 // @name         Outbound Script Tampermonkey
 // @namespace    http://tampermonkey.net/
+// @updateURL    https://github.com/Jhoni23/Outbound/blob/main/outboundScriptTampermonkey.user.js
+// @downloadURL  https://github.com/Jhoni23/Outbound/blob/main/outboundScriptTampermonkey.user.js
 // @version      2025-08-03
 // @description  Integração com Firebase no sistema da Amazon com seleção de linha e impressão customizada
 // @author       rsanjhon
