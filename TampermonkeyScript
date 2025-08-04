@@ -2,11 +2,12 @@
 // @name         Outbound Script Tampermonkey
 // @namespace    http://tampermonkey.net/
 // @version      2025-08-03
-// @description  Integração com Firebase no sistema da Amazon com seleção de linha
+// @description  Integração com Firebase no sistema da Amazon com seleção de linha e impressão customizada
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
 // @grant        GM_xmlhttpRequest
 // @connect      trans-logistics.amazon.com
+// @connect      jhoni23.github.io
 // ==/UserScript==
 
 (function () {
@@ -43,9 +44,9 @@
     loadFirebaseScripts(() => {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        criarCookieDadosLinha();
+        criarCookie();
 
-        function criarCookieDadosLinha() {
+        function criarCookie() {
             const nomeCookie = "dadosLinha";
             const cookieExiste = document.cookie
                 .split("; ")
@@ -65,12 +66,10 @@
                 const dias = 7;
                 const expira = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toUTCString();
                 document.cookie = `${nomeCookie}=${valor}; expires=${expira}; path=/`;
-                console.log("✅ Cookie 'dadosLinha' criado com os valores:");
-                console.table(dadosIniciais);
             }
         }
 
-        function lerCookieDadosLinha() {
+        function lerCookie() {
             const nomeCookie = "dadosLinha";
             const cookieStr = document.cookie
                 .split("; ")
@@ -79,81 +78,167 @@
             if (cookieStr) {
                 try {
                     const valorCodificado = cookieStr.split("=")[1];
-                    const dados = JSON.parse(decodeURIComponent(valorCodificado));
-                    console.table(dados);
-                    return dados;
+                    return JSON.parse(decodeURIComponent(valorCodificado));
                 } catch (e) {
                     console.error("❌ Erro ao decodificar cookie:", e);
-                    return {};
+                    return null;
                 }
             } else {
                 console.warn("⚠️ Cookie 'dadosLinha' não encontrado.");
-                return {};
+                return null;
             }
         }
 
-        function monitorarSelecao() {
-            const linhas = document.querySelectorAll('tr');
+        function buscarNomeYard(callback) {
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "https://trans-logistics.amazon.com/dashboard/v2",
+                onload: function(response) {
+                    const htmlDaPagina = response.responseText;
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlDaPagina, "text/html");
+                    const inputFullName = doc.querySelector('input#fullName');
+                    const nome = inputFullName ? inputFullName.value.toUpperCase() : null;
+                    callback(nome);
+                },
+                onerror: function(err) {
+                    console.error("Erro ao buscar a página:", err);
+                    callback(null);
+                }
+            });
+        }
 
-            linhas.forEach(linha => {
-                const observer = new MutationObserver(mutations => {
-                    mutations.forEach(mutation => {
-                        if (mutation.attributeName === 'class') {
-                            const hasSelected = linha.classList.contains('selectedTableRow');
-                            if (hasSelected) {
-                                const goodLaneSpan = linha.querySelector('span.goodLane');
-                                const rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
+        function adicionarBotaoValePallet() {
+            const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
+            if (!container || container.querySelector(".btnValePallet")) return;
 
-                                const tdLoadId = linha.querySelector('td.loadIdCol');
-                                const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-                                const transportadora = tdTransportadora?.textContent.trim() || "";
+            const novoBotao = document.createElement("a");
+            novoBotao.href = "javascript:void(0)";
+            novoBotao.title = "Vale Pallet";
+            novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
+            novoBotao.textContent = "Vale Pallet";
 
-                                const spanPlaca = linha.querySelector('span.trailerNo');
-                                let placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
+            novoBotao.addEventListener("click", () => {
+                const dados = lerCookie();
+                if (!dados || !dados.Transportadora) {
+                    alert("⚠️ Nenhuma linha selecionada.");
+                    return;
+                }
 
-                                const tdMotorista = linha.querySelector('td.motoristaCol');
-                                const motorista = tdMotorista?.textContent.trim() || "";
+                GM_xmlhttpRequest({
+                    method: "GET",
+                    url: "https://jhoni23.github.io/Outbound/",
+                    onload: function (response) {
+                        let html = response.responseText;
 
-                                const nomeCookie = "dadosLinha";
-                                const cookieStr = document.cookie
-                                    .split("; ")
-                                    .find(row => row.startsWith(nomeCookie + "="));
+                        html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
+                            .replace(/{{ROTA}}/gi, dados.Rota || "")
+                            .replace(/{{PLACA}}/gi, dados.Placa || "")
+                            .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
+                            .replace(/{{YARD}}/gi, dados.Yard || "")
+                            .replace(/{{PALLET}}/gi, dados.Pallet || "")
+                            .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
 
-                                let dados = {
-                                    Transportadora: "",
-                                    Rota: "",
-                                    Placa: "",
-                                    Motorista: "",
-                                    Pallet: "",
-                                    Scuttles: "",
-                                    Yard: ""
-                                };
+                        // Cria um iframe oculto para impressão
+                        const iframe = document.createElement("iframe");
+                        iframe.style.position = "fixed";
+                        iframe.style.right = "0";
+                        iframe.style.bottom = "0";
+                        iframe.style.width = "0";
+                        iframe.style.height = "0";
+                        iframe.style.border = "0";
+                        document.body.appendChild(iframe);
 
-                                if (cookieStr) {
-                                    try {
-                                        dados = JSON.parse(decodeURIComponent(cookieStr.split("=")[1]));
-                                    } catch (e) {
-                                        console.error("Erro ao ler cookie:", e);
-                                    }
+                        const doc = iframe.contentWindow.document;
+                        doc.open();
+                        doc.write(html);
+                        doc.close();
+
+                        iframe.onload = function () {
+                            iframe.contentWindow.focus();
+                            iframe.contentWindow.print();
+                            setTimeout(() => document.body.removeChild(iframe), 1000);
+                        };
+                    },
+                    onerror: function (err) {
+                        console.error("Erro ao buscar HTML para impressão:", err);
+                        alert("Erro ao carregar conteúdo da impressão.");
+                    }
+                });
+            });
+
+            container.appendChild(novoBotao);
+        }
+
+        function contarGaylords(linha) {
+            return new Promise((resolve, reject) => {
+                const linhaSelecionada = linha;
+                const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+                const loadId = tdLoadId?.textContent.trim() || "";
+
+                const trailerSpan = linhaSelecionada.querySelector('span.trailerNo');
+                const trailerId = trailerSpan?.getAttribute("rel") || "";
+
+                const planId = linhaSelecionada.getAttribute("data-planid") || "";
+                const loadGroupId = linhaSelecionada.getAttribute("data-loadgroupid") || "";
+                const vrId = linhaSelecionada.getAttribute("data-vrid") || "";
+
+                const params = new URLSearchParams({
+                    entity: "getOutboundLoadContainerDetails",
+                    nodeId: "GRU8",
+                    loadGroupId: loadGroupId,
+                    planId: planId,
+                    vrId: vrId,
+                    status: "",
+                    trailerId: trailerId,
+                    trailerNumber: ""
+                }).toString();
+
+                GM_xmlhttpRequest({
+                    method: "POST",
+                    url: "https://trans-logistics.amazon.com/ssp/dock/hrz/ob/fetchdata",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    data: params,
+                    onload: function(response) {
+                        try {
+                            const responseText = response.responseText;
+                            const responseJSON = typeof responseText === "string" ? JSON.parse(responseText) : responseText;
+
+                            function contarPalletsEGaylords(nodes) {
+                                let gaylordCount = 0;
+
+                                function percorrer(lista) {
+                                    lista.forEach(node => {
+                                        if (node.container) {
+                                            const tipo = node.container.contType || "";
+                                            if (tipo === "GAYLORD") {
+                                                gaylordCount++;
+                                            }
+                                        }
+                                        if (node.childNodes && node.childNodes.length > 0) {
+                                            percorrer(node.childNodes);
+                                        }
+                                    });
                                 }
 
-                                dados.Transportadora = transportadora;
-                                dados.Rota = rota;
-                                dados.Placa = placa;
-                                dados.Motorista = motorista;
-
-                                const valor = encodeURIComponent(JSON.stringify(dados));
-                                const dias = 7;
-                                const expira = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toUTCString();
-                                document.cookie = `${nomeCookie}=${valor}; expires=${expira}; path=/`;
-
-                                console.table(dados);
+                                percorrer(nodes);
+                                return { gaylordCount };
                             }
-                        }
-                    });
-                });
 
-                observer.observe(linha, { attributes: true });
+                            const nodes = responseJSON.ret?.aaData?.ROOT_NODE || [];
+                            const total = contarPalletsEGaylords(nodes);
+                            resolve(total); // <- Aqui resolve a Promise
+                        } catch (e) {
+                            reject(e); // Se JSON falhar
+                        }
+                    },
+                    onerror: function(err) {
+                        reject(err); // <- Aqui rejeita a Promise
+                    }
+                });
             });
         }
 
@@ -206,11 +291,7 @@
                 const thMotorista = document.createElement('th');
                 thMotorista.className = 'motoristaCol ui-state-default';
                 thMotorista.style.width = '10%';
-                thMotorista.innerHTML = `
-                    <div class="DataTables_sort_wrapper">
-                        Motorista
-                        <span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span>
-                    </div>`;
+                thMotorista.innerHTML = '<div class="DataTables_sort_wrapper">Motorista<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>';
                 thTrailer.insertAdjacentElement('afterend', thMotorista);
             }
 
@@ -278,19 +359,83 @@
             });
         }
 
+        function adicionarEventoCliqueNasLinhas() {
+            const linhas = document.querySelectorAll("table#dashboard tbody tr");
+
+            linhas.forEach(linha => {
+                if (linha.dataset.listenerAdicionado === "true") return; // Evita múltiplos binds
+
+                linha.dataset.listenerAdicionado = "true"; // Marca a linha como tratada
+
+                linha.addEventListener("click", () => {
+                    setTimeout(() => {
+                        const linhaSelecionada = document.querySelector('tr.selectedTableRow');
+                        if (!linhaSelecionada) return;
+
+                        const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
+                        const rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
+
+                        const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+                        const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+                        const transportadora = tdTransportadora?.textContent.trim() || "";
+
+                        const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
+                        const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
+
+                        const tdMotorista = linhaSelecionada.querySelector('td.motoristaCol');
+                        const motorista = tdMotorista?.textContent.trim() || "";
+
+                        const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
+                        const tdAnterior = tdTRT?.previousElementSibling;
+                        let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
+                        if (pallet === "") pallet = "0";
+
+                        contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
+                            const scuttles = gaylordCount;
+
+                            buscarNomeYard(function(nomeYard) {
+                                const dados = {
+                                    Transportadora: transportadora,
+                                    Rota: rota,
+                                    Placa: placa,
+                                    Motorista: motorista,
+                                    Pallet: pallet,
+                                    Scuttles: scuttles,
+                                    Yard: nomeYard || ""
+                                };
+
+                                const nomeCookie = "dadosLinha";
+                                const valor = encodeURIComponent(JSON.stringify(dados));
+                                const dias = 7;
+                                const expira = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toUTCString();
+                                document.cookie = `${nomeCookie}=${valor}; expires=${expira}; path=/`;
+
+                                console.table(dados);
+                                adicionarBotaoValePallet();
+                            });
+                        });
+                    }, 100);
+                });
+            });
+        }
+
         async function processarPagina() {
             traduzirCampos();
             removerTermos();
             adicionarColunaMotorista();
-            monitorarSelecao();
+            adicionarEventoCliqueNasLinhas();
         }
 
         window.addEventListener('load', () => {
             setTimeout(processarPagina, 1000);
         });
 
+        let debounceTimer = null;
         const observer = new MutationObserver(() => {
-            processarPagina();
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                processarPagina();
+            }, 300);
         });
 
         observer.observe(document.body, { childList: true, subtree: true });
