@@ -101,7 +101,7 @@
                     const doc = parser.parseFromString(htmlDaPagina, "text/html");
                     const inputFullName = doc.querySelector('input#fullName');
                     const nome = inputFullName ? inputFullName.value.toUpperCase() : null;
-                    callback(nome);
+                    callback(nome.replace(/\[C\]/g, ""));
                 },
                 onerror: function(err) {
                     console.error("Erro ao buscar a página:", err);
@@ -111,8 +111,15 @@
         }
 
         function adicionarBotaoValePallet() {
+            const linhaSelecionada = document.querySelector('tr.selectedTableRow');
+            const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
+            const temSpan = tdTrailerNum?.querySelector('span');
+
             const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
-            if (!container || container.querySelector(".btnValePallet")) return;
+            if (!container || container.querySelector(".btnValePallet") || !temSpan) return;
+
+            const spans = tdTrailerNum?.querySelectorAll('span');
+            if(Array.from(spans || []).some(span => span.classList.contains("sealIndicator"))) return;
 
             const novoBotao = document.createElement("a");
             novoBotao.href = "javascript:void(0)";
