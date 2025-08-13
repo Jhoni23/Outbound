@@ -10,6 +10,7 @@
 // @grant        GM_xmlhttpRequest
 // @connect      trans-logistics.amazon.com
 // @connect      jhoni23.github.io
+// @require      https://github.com/Jhoni23/Outbound/raw/refs/heads/main/cloudscape-style.js
 // ==/UserScript==
 
 (function () {
@@ -253,6 +254,7 @@
             });
         }
 
+
         function adicionarColunaMotorista() {
             const tabela = document.querySelector('table#dashboard');
             if (!tabela) return;
@@ -285,6 +287,19 @@
                                 }
                             });
                         }
+
+                        const observer = new MutationObserver(mutations => {
+                            mutations.forEach(mutation => {
+                                if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                    const texto = tdMotorista.textContent.trim();
+                                    if (!isNaN(texto) && texto !== '') {
+                                        console.log(`Texto do motorista mudou para um número: ${texto} no trailer ${trailerId}`);
+                                        document.getElementById('manualRefresh').click();
+                                    }
+                                }
+                            });
+                        });
+                        observer.observe(tdMotorista, { characterData: true, subtree: true, childList: true });
 
                         tdMotorista.addEventListener('click', () => {
                             const trailerId = tdTrailer.querySelector('span.trailerNo')?.textContent.trim();
@@ -384,23 +399,13 @@
             });
         }
 
-        function escutarCliqueFinish() {
-            const botaoFinish = document.getElementById('finishLoadingLink');
-            if (!botaoFinish) return;
-
-            botaoFinish.addEventListener('click', () => {
-                setTimeout(() => {
-                    //adicionarColunaMotorista();
-                    console.log("Finish clicado");
-                }, 500);
-            });
-        }
 
         async function processarPagina() {
             traduzirCampos();
             removerTermos();
             adicionarColunaMotorista();
             adicionarEventoCliqueNasLinhas();
+            //aplicarCloudscapeDesign();
         }
 
         window.addEventListener('load', () => {
