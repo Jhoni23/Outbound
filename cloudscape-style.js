@@ -1,8 +1,9 @@
 // cloudscape-style.js
 function aplicarCloudscapeDesign() {
   function removerElementos() {
-        const elems = document.querySelectorAll('.classe-para-remover');
-        elems.forEach(el => el.remove());
+      document.querySelectorAll('div.originalStatusCheck[data-status="READY_FOR_LOADING"]').forEach(div => {
+        div.remove();
+      });
     }
 
     function adicionarElementos() {
