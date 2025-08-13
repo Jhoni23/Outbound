@@ -46,51 +46,6 @@
     loadFirebaseScripts(() => {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        criarCookie();
-
-        function criarCookie() {
-            const nomeCookie = "dadosLinha";
-            const cookieExiste = document.cookie
-                .split("; ")
-                .some(row => row.startsWith(nomeCookie + "="));
-
-            if (!cookieExiste) {
-                const dadosIniciais = {
-                    Transportadora: "",
-                    Rota: "",
-                    Placa: "",
-                    Motorista: "",
-                    Pallet: "",
-                    Scuttles: "",
-                    Yard: ""
-                };
-                const valor = encodeURIComponent(JSON.stringify(dadosIniciais));
-                const dias = 7;
-                const expira = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toUTCString();
-                document.cookie = `${nomeCookie}=${valor}; expires=${expira}; path=/`;
-            }
-        }
-
-        function lerCookie() {
-            const nomeCookie = "dadosLinha";
-            const cookieStr = document.cookie
-                .split("; ")
-                .find(row => row.startsWith(nomeCookie + "="));
-
-            if (cookieStr) {
-                try {
-                    const valorCodificado = cookieStr.split("=")[1];
-                    return JSON.parse(decodeURIComponent(valorCodificado));
-                } catch (e) {
-                    console.error("❌ Erro ao decodificar cookie:", e);
-                    return null;
-                }
-            } else {
-                console.warn("⚠️ Cookie 'dadosLinha' não encontrado.");
-                return null;
-            }
-        }
-
         function buscarNomeYard(callback) {
             GM_xmlhttpRequest({
                 method: "GET",
@@ -110,16 +65,18 @@
             });
         }
 
-        function adicionarBotaoValePallet() {
+        function adicionarBotaoValePallet(dados) {
             const linhaSelecionada = document.querySelector('tr.selectedTableRow');
             const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
             const temSpan = tdTrailerNum?.querySelector('span');
 
             const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
-            if (!container || container.querySelector(".btnValePallet") || !temSpan) return;
 
-            const spans = tdTrailerNum?.querySelectorAll('span');
-            if(Array.from(spans || []).some(span => span.classList.contains("sealIndicator"))) return;
+            const divColMd = document.querySelectorAll('div.backGroundNone > div.col-md-12.backGroundNone')[1];
+            const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
+            const botaoView = actionDivs[1].querySelector('a#viewDocButton');
+
+            if ( container.querySelector(".btnValePallet") || !temSpan) return;
 
             const novoBotao = document.createElement("a");
             novoBotao.href = "javascript:void(0)";
@@ -128,7 +85,7 @@
             novoBotao.textContent = "Vale Pallet";
 
             novoBotao.addEventListener("click", () => {
-                const dados = lerCookie();
+                console.log(dados);
                 if (!dados || !dados.Transportadora) {
                     alert("⚠️ Nenhuma linha selecionada.");
                     return;
@@ -176,7 +133,11 @@
                 });
             });
 
-            container.appendChild(novoBotao);
+            if (botaoView.classList.contains('hidden')) {
+                container.appendChild(novoBotao);
+            } else {
+                botaoView.insertAdjacentElement('afterend', novoBotao);
+            }
         }
 
         function contarGaylords(linha) {
@@ -215,6 +176,7 @@
                         try {
                             const responseText = response.responseText;
                             const responseJSON = typeof responseText === "string" ? JSON.parse(responseText) : responseText;
+                            //console.log("Resposta POST:", responseJSON);
 
                             function contarPalletsEGaylords(nodes) {
                                 let gaylordCount = 0;
@@ -413,18 +375,24 @@
                                     Yard: nomeYard || ""
                                 };
 
-                                const nomeCookie = "dadosLinha";
-                                const valor = encodeURIComponent(JSON.stringify(dados));
-                                const dias = 7;
-                                const expira = new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toUTCString();
-                                document.cookie = `${nomeCookie}=${valor}; expires=${expira}; path=/`;
-
                                 console.table(dados);
-                                adicionarBotaoValePallet();
+                                adicionarBotaoValePallet(dados);
                             });
                         });
                     }, 100);
                 });
+            });
+        }
+
+        function escutarCliqueFinish() {
+            const botaoFinish = document.getElementById('finishLoadingLink');
+            if (!botaoFinish) return;
+
+            botaoFinish.addEventListener('click', () => {
+                setTimeout(() => {
+                    //adicionarColunaMotorista();
+                    console.log("Finish clicado");
+                }, 500);
             });
         }
 
