@@ -10,11 +10,179 @@
 // @grant        GM_xmlhttpRequest
 // @connect      trans-logistics.amazon.com
 // @connect      jhoni23.github.io
-// @require      https://github.com/Jhoni23/Outbound/raw/refs/heads/main/cloudscape-style.js
 // ==/UserScript==
+
 
 (function () {
     'use strict';
+
+    //
+    // DESIGN
+    //
+
+    function aplicarCloudscapeDesign() {
+        function removerElementos() {
+            //Need help?
+            document.querySelectorAll('div.floatL.topHelpLinks, span.floatL.relatedUI, span.floatL.textBold')
+                .forEach(el => el.remove());
+
+            //Textos na coluna Status
+            const statusParaRemover = [
+                "READY_FOR_LOADING",
+                "LOADING_IN_PROGRESS",
+                "TRAILER_ATTACHED"
+            ];
+            document.querySelectorAll('div.originalStatusCheck').forEach(div => {
+                const status = div.getAttribute("data-status");
+                if (statusParaRemover.includes(status)) {
+                    div.remove();
+                }
+            });
+        }
+
+        function adicionarElementos() {
+
+        }
+
+        function alterarEstilos() {
+            document.body.style.fontFamily = '"Open Sans", Helvetica, Arial, sans-serif';
+
+            const tabela = document.querySelector('table.dataTable');
+            if (!tabela) return;
+
+            // Tamanho do texto
+            tabela.querySelectorAll('th, td').forEach(cell => {
+                cell.style.fontSize = '12px';
+            });
+
+            //Botões superiores
+            const botoes = document.querySelectorAll('.topButtonLinks input[type="button"]');
+            botoes.forEach((input, index) => {
+                input.style.boxSizing = 'border-box';
+                input.style.paddingTop = '4px';
+                input.style.paddingBottom = '4px';
+                input.style.minWidth = '100px';
+                input.style.textAlign = 'center';
+                input.style.height = '32px';
+                input.style.display = 'inline-block';
+                input.style.borderRadius = '50px';
+                input.style.border = '2px solid #006ce0';
+                input.style.color = '#006ce0';
+                input.style.backgroundColor = 'transparent';
+            });
+            const botaoRefresh = document.getElementById('disableRefresh');
+            if (botaoRefresh) {
+                botaoRefresh.style.minWidth = '160px';
+                botaoRefresh.style.width = 'auto';
+            }
+
+            //Bordas divs superiores
+            document.querySelectorAll('.topDetailPane table').forEach(table => {
+                table.removeAttribute('border');
+                table.style.border = 'none';
+            });
+            const topDetail = document.querySelector('#topDetailList');
+            topDetail.style.display = 'flex';
+            topDetail.style.gap = '10px';
+            topDetail.style.flexWrap = 'nowrap';
+            topDetail.style.alignItems = 'stretch';
+            document.querySelectorAll('#topDetailList > div').forEach(div => {
+                div.style.height = '190px';
+                div.style.borderRadius = '16px';
+                div.style.border = '1px solid #c6c6cd';
+                div.style.padding = '20px';
+                div.style.display = 'flex';
+                div.style.flexDirection = 'column';
+            });
+
+            //Overdue Packages
+            const td = document.getElementById('selectedUt');
+            if (td && !td.innerHTML.includes('<br>Packages')) {
+                td.innerHTML = td.innerHTML.replace('Packages', '<br>Packages');
+            }
+            const overDueDiv = document.getElementById('overDueCount');
+            if (overDueDiv) {
+                overDueDiv.style.fontSize = '42px';
+                overDueDiv.style.fontWeight = '700';
+                overDueDiv.style.color = '#006ce0';
+            }
+            const titulo = document.getElementById('selectedUt');
+            if (titulo) {
+                const textoSpan = document.createElement('span');
+                textoSpan.textContent = 'Pacotes Atrasados';
+                textoSpan.style.fontSize = '14px';
+                textoSpan.style.fontWeight = '700';
+                textoSpan.style.display = 'block';
+                textoSpan.style.marginBottom = '25px';
+                textoSpan.style.color = '#0f141a';
+
+                const overDueDiv = titulo.querySelector('#overDueCount');
+                titulo.innerHTML = '';
+                titulo.appendChild(textoSpan);
+                if (overDueDiv) {
+                    titulo.appendChild(overDueDiv);
+                }
+            }
+
+            //TABELA
+            tabela.style.border = 'none';
+            let container = tabela.parentElement;
+            container.style.overflow = 'hidden';
+            container.style.borderRadius = '16px';
+            container.style.border = '1px solid #c6c6cd';
+            container.style.padding = '20px';
+
+            //CABEÇALHO
+            tabela.querySelectorAll('thead tr:first-child th').forEach(th => {
+                //texto
+                th.style.fontSize = '14px';
+                th.style.lineHeight = '18px';
+                th.style.fontWeight = 'Bold';
+                th.style.letterSpacing = 'normal';
+                th.style.border = 'none';
+                th.style.backgroundColor = '#fff';
+                th.style.color = '#424650';
+
+                // largura da coluna Location
+                if (th.textContent.includes('Location')) {
+                    th.style.width = '8%';
+                }
+            });
+
+            // Linhas cinzas
+            document.querySelectorAll('tr.even').forEach(tr => {
+                tr.classList.remove('even');
+                tr.classList.add('odd');
+            });
+        }
+
+        alterarEstilos();
+        removerElementos();
+        adicionarElementos();
+    }
+
+    //
+    // FIM DESIGN ⤴
+    //
+
+    function formatarDatas() {
+        const meses = {
+            Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+            Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+        };
+
+        document.querySelectorAll('td').forEach(td => {
+            const texto = td.textContent.trim();
+            const match = texto.match(/^(\d{2})-([A-Za-z]{3})-(\d{2})\s+(\d{2}:\d{2})$/);
+            if (match) {
+                const dia = match[1];
+                const mes = meses[match[2]];
+                const ano = match[3];
+                const hora = match[4];
+                td.textContent = `${dia}/${mes}/${ano} ${hora}`;
+            }
+        });
+    }
 
     const firebaseScripts = [
         "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
@@ -401,11 +569,12 @@
 
 
         async function processarPagina() {
+            formatarDatas();
             traduzirCampos();
             removerTermos();
             adicionarColunaMotorista();
             adicionarEventoCliqueNasLinhas();
-            //aplicarCloudscapeDesign();
+            aplicarCloudscapeDesign();
         }
 
         window.addEventListener('load', () => {
