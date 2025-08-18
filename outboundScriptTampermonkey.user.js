@@ -3,19 +3,73 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2025-08-03
+// @version      2.0
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
 // @grant        GM_xmlhttpRequest
 // @connect      trans-logistics.amazon.com
 // @connect      jhoni23.github.io
+// @connect      raw.githubusercontent.com
 // @require      https://sdk.amazonaws.com/js/aws-sdk-2.1480.0.min.js
 // ==/UserScript==
 
 
 (function () {
     'use strict';
+
+    //Verificação de atuaçização
+    GM_xmlhttpRequest({
+        method: "GET",
+        url: "https://raw.githubusercontent.com/Jhoni23/Outbound/main/outboundScriptTampermonkey.user.js",
+        onload: function(response) {
+            if (response.status === 200) {
+                const text = response.responseText;
+                const match = text.match(/@version\s+([^\s]+)/);
+                if (GM_info.script.version.toString() != match[1].toString()) {
+                    const container = document.createElement("div");
+                    container.style.position = "fixed";
+                    container.style.top = "20px";
+                    container.style.left = "50%";
+                    container.style.transform = "translateX(-50%)";
+                    container.style.background = "#0f141a";
+                    container.style.color = "white";
+                    container.style.padding = "15px 20px";
+                    container.style.borderRadius = "10px";
+                    container.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
+                    container.style.zIndex = "999999";
+                    container.style.fontFamily = "Arial, sans-serif";
+                    container.style.fontSize = "15px";
+                    container.style.textAlign = "center";
+
+                    container.innerHTML = `<div style="margin-bottom: 10px;">🚀 Nova versão do script disponível!</div>`;
+                    const button = document.createElement("button");
+                    button.textContent = "Atualizar";
+                    button.style.background = "#2F6EE2";
+                    button.style.color = "white";
+                    button.style.border = "none";
+                    button.style.padding = "8px 12px";
+                    button.style.borderRadius = "6px";
+                    button.style.cursor = "pointer";
+                    button.style.fontWeight = "bold";
+
+                    button.addEventListener("click", () => {
+                        window.open(
+                            "https://github.com/Jhoni23/Outbound/raw/main/outboundScriptTampermonkey.user.js",
+                            "_blank"
+                        );
+                        container.remove();
+                    });
+
+                    container.appendChild(button);
+                    document.body.appendChild(container);
+                }
+            }
+        },
+        onerror: function(err) {
+            console.error("Erro na requisição GM_xmlhttpRequest:", err);
+        }
+    });
 
     //
     // DESIGN
@@ -56,10 +110,12 @@
             nodeTimeDiv.style.marginTop = '5px';
             nodeTimeDiv.style.marginLeft = '0';
             const selectEl = document.getElementById('availableNodeName');
+            if(selectEl) {
             selectEl.style.height = '29px';
             selectEl.style.backgroundColor = '#ffffff';
             selectEl.style.border = '1px solid #8c8c94';
             selectEl.style.borderRadius = '8px';
+            }
 
             //Refresh
             const el = document.getElementById('manualRefresh');
@@ -105,18 +161,20 @@
                 table.style.border = 'none';
             });
             const topDetail = document.querySelector('#topDetailList');
-            topDetail.style.display = 'flex';
-            topDetail.style.gap = '10px';
-            topDetail.style.flexWrap = 'nowrap';
-            topDetail.style.alignItems = 'stretch';
-            document.querySelectorAll('#topDetailList > div').forEach(div => {
-                div.style.height = '190px';
-                div.style.borderRadius = '16px';
-                div.style.border = '1px solid #c6c6cd';
-                div.style.padding = '20px';
-                div.style.display = 'flex';
-                div.style.flexDirection = 'column';
-            });
+            if(topDetail){
+                topDetail.style.display = 'flex';
+                topDetail.style.gap = '10px';
+                topDetail.style.flexWrap = 'nowrap';
+                topDetail.style.alignItems = 'stretch';
+                document.querySelectorAll('#topDetailList > div').forEach(div => {
+                    div.style.height = '190px';
+                    div.style.borderRadius = '16px';
+                    div.style.border = '1px solid #c6c6cd';
+                    div.style.padding = '20px';
+                    div.style.display = 'flex';
+                    div.style.flexDirection = 'column';
+                });
+            }
 
             //Next CPT
             const spans = document.querySelectorAll('#nextPrevCptData span');
@@ -132,19 +190,21 @@
 
             //Load Issues
             const load = document.querySelector('div.col-md-4.topDetailPane table tbody tr td.loadHead');
-            load.childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Load Issues')) {
-                    // Cria um span com o texto
-                    const span = document.createElement('span');
-                    span.textContent = 'Problemas de Carga ';
-                    span.style.fontSize = '19px';
-                    span.style.fontWeight = '700';
-                    span.style.color = '#0f141a';
+            if (load) {
+                load.childNodes.forEach(node => {
+                    if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Load Issues')) {
+                        // Cria um span com o texto
+                        const span = document.createElement('span');
+                        span.textContent = 'Problemas de Carga ';
+                        span.style.fontSize = '19px';
+                        span.style.fontWeight = '700';
+                        span.style.color = '#0f141a';
 
-                    // Substitui o nó de texto pelo span estilizado
-                    load.replaceChild(span, node);
-                }
-            });
+                        // Substitui o nó de texto pelo span estilizado
+                        load.replaceChild(span, node);
+                    }
+                });
+            }
 
             //Notification
             document.querySelectorAll('.specialEventsDiv').forEach(el => {
@@ -170,9 +230,11 @@
                 td.innerHTML = td.innerHTML.replace('Packages', '<br>Packages');
             }
             const overDueDiv = document.getElementById('overDueCount');
-            overDueDiv.style.fontSize = '42px';
-            overDueDiv.style.fontWeight = '700';
-            overDueDiv.style.color = '#006ce0';
+            if (overDueDiv) {
+                overDueDiv.style.fontSize = '42px';
+                overDueDiv.style.fontWeight = '700';
+                overDueDiv.style.color = '#006ce0';
+            }
             const titulo = document.getElementById('selectedUt');
             if (titulo) {
                 const textoSpan = document.createElement('span');
@@ -668,7 +730,6 @@
             });
         });
     }
-
 
     async function processarPagina() {
         formatarDatas();
