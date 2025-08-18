@@ -24,7 +24,7 @@
     function aplicarCloudscapeDesign() {
         function removerElementos() {
             //Need help?
-            document.querySelectorAll('div.floatL.topHelpLinks, span.floatL.relatedUI, span.floatL.textBold')
+            document.querySelectorAll('div.floatL.topHelpLinks, span.floatL.relatedUI, #topPaneContent span.floatL.textBold')
                 .forEach(el => el.remove());
 
             //Textos na coluna Status
@@ -50,6 +50,28 @@
 
             const tabela = document.querySelector('table.dataTable');
             if (!tabela) return;
+
+            //GRU8 Select
+            const nodeTimeDiv = document.querySelector('.floatL.nodeTime');
+            nodeTimeDiv.style.marginTop = '5px';
+            nodeTimeDiv.style.marginLeft = '0';
+            const selectEl = document.getElementById('availableNodeName');
+            selectEl.style.height = '29px';
+            selectEl.style.backgroundColor = '#ffffff';
+            selectEl.style.border = '1px solid #8c8c94';
+            selectEl.style.borderRadius = '8px';
+
+            //Refresh
+            const el = document.getElementById('manualRefresh');
+            el.classList.remove('ui-icon-refresh', 'floatR');
+            el.innerHTML = '⟳';
+            el.style.lineHeight = '1.1';
+            el.style.fontSize = '35px';
+            el.style.color = '#006ce0';
+            el.style.cursor = 'pointer';
+            el.style.marginLeft = '5px';
+            const man = document.querySelector('.refreshButton');
+            man.style.paddingRight = '25px';
 
             // Tamanho do texto
             tabela.querySelectorAll('th, td').forEach(cell => {
@@ -96,17 +118,61 @@
                 div.style.flexDirection = 'column';
             });
 
+            //Next CPT
+            const spans = document.querySelectorAll('#nextPrevCptData span');
+            spans.forEach(span => {
+                if (span.textContent.trim() === 'Next CPT') {
+                    span.textContent = 'Próximo CPT';
+                    span.style.fontSize = '19px';
+                    span.style.fontWeight = '700';
+                    span.style.color = '#0f141a';
+                    span.style.marginBottom = '8px';
+                }
+            });
+
+            //Load Issues
+            const load = document.querySelector('div.col-md-4.topDetailPane table tbody tr td.loadHead');
+            load.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Load Issues')) {
+                    // Cria um span com o texto
+                    const span = document.createElement('span');
+                    span.textContent = 'Problemas de Carga ';
+                    span.style.fontSize = '19px';
+                    span.style.fontWeight = '700';
+                    span.style.color = '#0f141a';
+
+                    // Substitui o nó de texto pelo span estilizado
+                    load.replaceChild(span, node);
+                }
+            });
+
+            //Notification
+            document.querySelectorAll('.specialEventsDiv').forEach(el => {
+                el.classList.remove('specialEventsDiv');
+                el.classList.remove('col-md-4');
+                el.style.width = '36%';
+                el.style.padding = '20px';
+                el.style.textAlign = 'left';
+                el.firstElementChild.style.backgroundColor = "#FFFFFF";
+                el.firstElementChild.style.paddingBottom = "10px";
+                el.firstElementChild.style.border = "none";
+                const span = el.firstElementChild.querySelector('span');
+                span.textContent = "Notificações";
+                span.style.fontSize = '19px';
+                span.style.fontWeight = '700';
+                span.style.color = '#0f141a';
+                span.style.padding = '0px';
+            });
+
             //Overdue Packages
             const td = document.getElementById('selectedUt');
             if (td && !td.innerHTML.includes('<br>Packages')) {
                 td.innerHTML = td.innerHTML.replace('Packages', '<br>Packages');
             }
             const overDueDiv = document.getElementById('overDueCount');
-            if (overDueDiv) {
-                overDueDiv.style.fontSize = '42px';
-                overDueDiv.style.fontWeight = '700';
-                overDueDiv.style.color = '#006ce0';
-            }
+            overDueDiv.style.fontSize = '42px';
+            overDueDiv.style.fontWeight = '700';
+            overDueDiv.style.color = '#006ce0';
             const titulo = document.getElementById('selectedUt');
             if (titulo) {
                 const textoSpan = document.createElement('span');
@@ -144,8 +210,8 @@
                 th.style.backgroundColor = '#fff';
                 th.style.color = '#424650';
 
-                // largura da coluna Location
-                if (th.textContent.includes('Location')) {
+                // Largura das colunas
+                if (th.textContent.includes('Doca')) {
                     th.style.width = '8%';
                 }
             });
@@ -155,6 +221,13 @@
                 tr.classList.remove('even');
                 tr.classList.add('odd');
             });
+
+            //Linhas grupos
+            document.querySelectorAll('td.group').forEach(tdGroup => {
+                tdGroup.style.background = "#F7F7F7";
+                tdGroup.style.lineHeight = "28px";
+            });
+
         }
 
         alterarEstilos();
@@ -359,26 +432,53 @@
         });
     }
 
+    const traducoes = {
+        "Equipment Type": "Tipologia",
+        "Location": "Doca",
+        "Sort/Route": "Rota",
+
+        "Scheduled Departure Window": "Janela de Partida Programada",
+
+        "twenty six foot box truck": "TRUCK",
+        "forty eight foot truck": "CARRETA",
+        "twenty foot box truck": "TOCO",
+        "forty foot truck": "VUC",
+        "fourteen foot van": "3/4",
+    };
+
     function traduzirCampos() {
+        //Notifications
+        const el = document.querySelector('.seStatus.alertContentHeight');
+        if (el && el.textContent.trim() === "No events impacting the operations") {
+            el.textContent = "Sem eventos impactando a operação";
+        }
+
+        //Títulos tabela
         document.querySelectorAll('.DataTables_sort_wrapper').forEach(el => {
             for (let node of el.childNodes) {
-                if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Equipment Type')) {
-                    node.textContent = node.textContent.replace('Equipment Type', 'Tipologia');
-                    break;
+                if (node.nodeType === Node.TEXT_NODE) {
+                    for (const [origem, traducao] of Object.entries(traducoes)) {
+                        if (node.textContent.includes(origem)) {
+                            node.textContent = node.textContent.replace(origem, traducao);
+                            break;
+                        }
+                    }
                 }
             }
         });
 
+        //Schedule departure window
+        document.querySelectorAll('.sdtGroupWindow').forEach(div => {
+            div.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE && node.nodeValue.includes('Scheduled Departure Window')) {
+                    node.nodeValue = node.nodeValue.replace('Scheduled Departure Window', 'Janela de Partida Programada');
+                }
+            });
+        });
+
+        //Tipologias
         document.querySelectorAll('div.capitalizeWord').forEach(div => {
             const texto = div.textContent.trim();
-            const traducoes = {
-                "Progress": "Progreso",
-                "twenty six foot box truck": "TRUCK",
-                "forty eight foot truck": "CARRETA",
-                "twenty foot box truck": "TOCO",
-                "forty foot truck": "VUC",
-                "fourteen foot van": "3/4",
-            };
             if (traducoes[texto]) {
                 div.textContent = traducoes[texto];
             }
