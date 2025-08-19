@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.0
+// @version      2.1
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -17,8 +17,9 @@
 
 (function () {
     'use strict';
+    let aaData;
 
-    //Verificação de atuaçização
+    //Verificação de atualização
     GM_xmlhttpRequest({
         method: "GET",
         url: "https://raw.githubusercontent.com/Jhoni23/Outbound/main/outboundScriptTampermonkey.user.js",
@@ -328,6 +329,7 @@
     });
     const docClient = new AWS.DynamoDB.DocumentClient();
 
+
     function buscarNomeYard(callback) {
         GM_xmlhttpRequest({
             method: "GET",
@@ -347,79 +349,116 @@
         });
     }
 
-    function adicionarBotaoValePallet(dados) {
-        const linhaSelecionada = document.querySelector('tr.selectedTableRow');
-        const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
-        const temSpan = tdTrailerNum?.querySelector('span');
+    function adicionarBotaoValePallet() {
+        const divRight = document.getElementById("rightContent");
 
-        const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
+        const observer = new MutationObserver(() => {
+            if (!divRight.classList.contains("displaynone")) {
+                const linhaSelecionada = document.querySelector('tr.selectedTableRow');
+                const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
+                const temSpan = tdTrailerNum?.querySelector('span');
 
-        const divColMd = document.querySelectorAll('div.backGroundNone > div.col-md-12.backGroundNone')[1];
-        const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
-        const botaoView = actionDivs[1].querySelector('a#viewDocButton');
+                const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
 
-        if ( container.querySelector(".btnValePallet") || !temSpan) return;
+                const divColMd = document.querySelectorAll('div.backGroundNone > div.col-md-12.backGroundNone')[1];
+                const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
+                const botaoView = actionDivs[1].querySelector('a#viewDocButton');
 
-        const novoBotao = document.createElement("a");
-        novoBotao.href = "javascript:void(0)";
-        novoBotao.title = "Vale Pallet";
-        novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
-        novoBotao.textContent = "Vale Pallet";
+                if ( container.querySelector(".btnValePallet") || !temSpan) return;
 
-        novoBotao.addEventListener("click", () => {
-            console.log(dados);
-            if (!dados || !dados.Transportadora) {
-                alert("⚠️ Nenhuma linha selecionada.");
-                return;
-            }
+                const novoBotao = document.createElement("a");
+                novoBotao.href = "javascript:void(0)";
+                novoBotao.title = "Vale Pallet";
+                novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
+                novoBotao.textContent = "Vale Pallet";
 
-            GM_xmlhttpRequest({
-                method: "GET",
-                url: "https://jhoni23.github.io/Outbound/",
-                onload: function (response) {
-                    let html = response.responseText;
+                novoBotao.addEventListener("click", () => {
+                    const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
+                    const rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
 
-                    html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
-                        .replace(/{{ROTA}}/gi, dados.Rota || "")
-                        .replace(/{{PLACA}}/gi, dados.Placa || "")
-                        .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
-                        .replace(/{{YARD}}/gi, dados.Yard || "")
-                        .replace(/{{PALLET}}/gi, dados.Pallet || "")
-                        .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
+                    const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+                    const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+                    const transportadora = tdTransportadora?.textContent.trim() || "";
 
-                    // Cria um iframe oculto para impressão
-                    const iframe = document.createElement("iframe");
-                    iframe.style.position = "fixed";
-                    iframe.style.right = "0";
-                    iframe.style.bottom = "0";
-                    iframe.style.width = "0";
-                    iframe.style.height = "0";
-                    iframe.style.border = "0";
-                    document.body.appendChild(iframe);
+                    const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
+                    const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
 
-                    const doc = iframe.contentWindow.document;
-                    doc.open();
-                    doc.write(html);
-                    doc.close();
+                    const tdMotorista = linhaSelecionada.querySelector('td.motoristaCol');
+                    const motorista = tdMotorista?.textContent.trim() || "";
 
-                    iframe.onload = function () {
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                        setTimeout(() => document.body.removeChild(iframe), 1000);
-                    };
-                },
-                onerror: function (err) {
-                    console.error("Erro ao buscar HTML para impressão:", err);
-                    alert("Erro ao carregar conteúdo da impressão.");
+                    const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
+                    const tdAnterior = tdTRT?.previousElementSibling;
+                    let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
+                    if (pallet === "") pallet = "0";
+
+                    contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
+                        const scuttles = gaylordCount;
+
+                        buscarNomeYard(function(nomeYard) {
+                            let dados = {
+                                Transportadora: transportadora,
+                                Rota: rota,
+                                Placa: placa,
+                                Motorista: motorista,
+                                Pallet: pallet,
+                                Scuttles: scuttles,
+                                Yard: nomeYard || ""
+                            };
+
+                            GM_xmlhttpRequest({
+                                method: "GET",
+                                url: "https://jhoni23.github.io/Outbound/",
+                                onload: function (response) {
+                                    let html = response.responseText;
+
+                                    html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
+                                        .replace(/{{ROTA}}/gi, dados.Rota || "")
+                                        .replace(/{{PLACA}}/gi, dados.Placa || "")
+                                        .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
+                                        .replace(/{{YARD}}/gi, dados.Yard || "")
+                                        .replace(/{{PALLET}}/gi, dados.Pallet || "")
+                                        .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
+
+                                    // Cria um iframe oculto para impressão
+                                    const iframe = document.createElement("iframe");
+                                    iframe.style.position = "fixed";
+                                    iframe.style.right = "0";
+                                    iframe.style.bottom = "0";
+                                    iframe.style.width = "0";
+                                    iframe.style.height = "0";
+                                    iframe.style.border = "0";
+                                    document.body.appendChild(iframe);
+
+                                    const doc = iframe.contentWindow.document;
+                                    doc.open();
+                                    doc.write(html);
+                                    doc.close();
+
+                                    iframe.onload = function () {
+                                        iframe.contentWindow.focus();
+                                        iframe.contentWindow.print();
+                                        setTimeout(() => document.body.removeChild(iframe), 1000);
+                                    };
+                                },
+                                onerror: function (err) {
+                                    console.error("Erro ao buscar HTML para impressão:", err);
+                                    alert("Erro ao carregar conteúdo da impressão.");
+                                }
+                            });
+                        });
+                    });
+                });
+
+                if (botaoView.classList.contains('hidden')) {
+                    container.appendChild(novoBotao);
+                } else {
+                    botaoView.insertAdjacentElement('afterend', novoBotao);
                 }
-            });
+            }
         });
 
-        if (botaoView.classList.contains('hidden')) {
-            container.appendChild(novoBotao);
-        } else {
-            botaoView.insertAdjacentElement('afterend', novoBotao);
-        }
+        observer.observe(divRight, { attributes: true, attributeFilter: ["class"] });
+
     }
 
     function contarGaylords(linha) {
@@ -593,10 +632,9 @@
                         };
 
                         docClient.get(params, (err, data) => {
-                            if (err) {
-                                console.error("Erro ao buscar no DynamoDB:", err);
-                            } else if (data.Item && data.Item.nome) {
+                            if (data.Item && data.Item.nome) {
                                 tdMotorista.textContent = data.Item.nome;
+                                console.log("Puxei do banco meo");
                             }
                         });
                     }
@@ -607,6 +645,20 @@
                             if (mutation.type === 'characterData' || mutation.type === 'childList') {
                                 const texto = tdMotorista.textContent.trim();
                                 if (!isNaN(texto) && texto !== '') {
+                                    GM_xmlhttpRequest({
+                                        method: "POST",
+                                        url: "https://trans-logistics.amazon.com/ssp/dock/hrz/ob/fetchdata",
+                                        headers: {
+                                            "Content-Type": "application/x-www-form-urlencoded"
+                                        },
+                                        data: `entity=getDefaultOutboundDockView&nodeId=GRU8`,
+                                        onload: function(response) {
+                                            if (response.status === 200) {
+                                                const dados = JSON.parse(response.responseText);
+                                                aaData = dados.ret.aaData;
+                                            }
+                                        }
+                                    });
                                     document.getElementById('manualRefresh').click();
                                 }
                             }
@@ -677,58 +729,34 @@
         });
     }
 
-    function adicionarEventoCliqueNasLinhas() {
-        const linhas = document.querySelectorAll("table#dashboard tbody tr");
+    GM_xmlhttpRequest({
+        method: "POST",
+        url: "https://trans-logistics.amazon.com/ssp/dock/hrz/ob/fetchdata",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        data: `entity=getDefaultOutboundDockView&nodeId=GRU8`,
+        onload: function(response) {
+            if (response.status === 200) {
+                const dados = JSON.parse(response.responseText);
+                aaData = dados.ret.aaData;
+            }
+        }
+    });
 
-        linhas.forEach(linha => {
-            if (linha.dataset.listenerAdicionado === "true") return;
-
-            linha.dataset.listenerAdicionado = "true";
-
-            linha.addEventListener("click", () => {
-                setTimeout(() => {
-                    const linhaSelecionada = document.querySelector('tr.selectedTableRow');
-                    if (!linhaSelecionada) return;
-
-                    const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
-                    const rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
-
-                    const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-                    const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-                    const transportadora = tdTransportadora?.textContent.trim() || "";
-
-                    const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
-                    const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
-
-                    const tdMotorista = linhaSelecionada.querySelector('td.motoristaCol');
-                    const motorista = tdMotorista?.textContent.trim() || "";
-
-                    const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
-                    const tdAnterior = tdTRT?.previousElementSibling;
-                    let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
-                    if (pallet === "") pallet = "0";
-
-                    contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
-                        const scuttles = gaylordCount;
-
-                        buscarNomeYard(function(nomeYard) {
-                            const dados = {
-                                Transportadora: transportadora,
-                                Rota: rota,
-                                Placa: placa,
-                                Motorista: motorista,
-                                Pallet: pallet,
-                                Scuttles: scuttles,
-                                Yard: nomeYard || ""
-                            };
-
-                            console.table(dados);
-                            adicionarBotaoValePallet(dados);
-                        });
-                    });
-                }, 100);
+    function checkStart() {
+        if (aaData) {
+            aaData.forEach(item => {
+                const vrId = item.load.vrId;
+                const status = item.load.status;
+                const seal = item.load.seal;
+                if (status === "LOADING_IN_PROGRESS" && typeof seal === "object") {
+                    const loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
+                    const locationWarp = loadSpan.closest('tr').querySelector('span.locationWarp');
+                    locationWarp.style.border = "2px solid #00802f";
+                }
             });
-        });
+        }
     }
 
     async function processarPagina() {
@@ -736,8 +764,9 @@
         traduzirCampos();
         removerTermos();
         adicionarColunaMotorista();
-        adicionarEventoCliqueNasLinhas();
+        adicionarBotaoValePallet();
         aplicarCloudscapeDesign();
+        checkStart();
     }
 
     window.addEventListener('load', () => {
