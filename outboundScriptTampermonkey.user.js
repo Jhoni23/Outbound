@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.1
+// @version      2.2
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -364,10 +364,11 @@
                 const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
                 const botaoView = actionDivs[1].querySelector('a#viewDocButton');
 
-                if ( container.querySelector(".btnValePallet") || !temSpan) return;
+                if (document.getElementById("novoBotao") || !temSpan) return;
 
                 const novoBotao = document.createElement("a");
                 novoBotao.href = "javascript:void(0)";
+                novoBotao.id = "novoBotao";
                 novoBotao.title = "Vale Pallet";
                 novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
                 novoBotao.textContent = "Vale Pallet";
@@ -750,7 +751,7 @@
                 const vrId = item.load.vrId;
                 const status = item.load.status;
                 const seal = item.load.seal;
-                if (status === "LOADING_IN_PROGRESS" && typeof seal === "object") {
+                if (status === "LOADING_IN_PROGRESS" && seal != null) {
                     const loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
                     const locationWarp = loadSpan.closest('tr').querySelector('span.locationWarp');
                     locationWarp.style.border = "2px solid #00802f";
