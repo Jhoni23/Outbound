@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.2
+// @version      2.3
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -188,6 +188,9 @@
                     span.style.marginBottom = '8px';
                 }
             });
+            document.querySelectorAll("#nextCPT, #prevCPT").forEach(el => {
+                el.classList.remove("standardBtn");
+            });
 
             //Load Issues
             const load = document.querySelector('div.col-md-4.topDetailPane table tbody tr td.loadHead');
@@ -205,6 +208,21 @@
                         load.replaceChild(span, node);
                     }
                 });
+            }
+            const aView = document.querySelector('a#viewAlertTable');
+            if (aView) {
+                aView.classList.remove("aluiBtn", "standardBtn");
+                aView.style.boxSizing = 'border-box';
+                aView.style.paddingTop = '8px';
+                aView.style.marginLeft = '10px';
+                aView.style.minWidth = '100px';
+                aView.style.textAlign = 'center';
+                aView.style.height = '27px';
+                aView.style.display = 'inline-block';
+                aView.style.borderRadius = '50px';
+                aView.style.border = '2px solid #006ce0';
+                aView.style.backgroundColor = 'transparent';
+                aView.textContent = "Ver na Tabela";
             }
 
             //Notification
@@ -261,6 +279,21 @@
             container.style.borderRadius = '16px';
             container.style.border = '1px solid #c6c6cd';
             container.style.padding = '20px';
+
+            const search = document.querySelector('input.filterSearchLoads');
+            search.style.appearance = "none";
+            search.style.MozAppearance = "none";
+            search.style.height = "30px";
+            search.style.lineHeight = "30px";
+            search.style.padding = "0 10px";
+            search.style.border = "1px solid #8c8c9";
+            search.style.borderRadius = "6px";
+            search.style.boxSizing = "border-box";
+            search.placeholder = "Pesquisar";
+
+            const conf = document.querySelector('button#alui-columnToggle-btn');
+            conf.style.backgroundColor = '#fff';
+            conf.style.border = "1px solid #DDDDDD";
 
             //CABEÇALHO
             tabela.querySelectorAll('thead tr:first-child th').forEach(th => {
@@ -646,20 +679,6 @@
                             if (mutation.type === 'characterData' || mutation.type === 'childList') {
                                 const texto = tdMotorista.textContent.trim();
                                 if (!isNaN(texto) && texto !== '') {
-                                    GM_xmlhttpRequest({
-                                        method: "POST",
-                                        url: "https://trans-logistics.amazon.com/ssp/dock/hrz/ob/fetchdata",
-                                        headers: {
-                                            "Content-Type": "application/x-www-form-urlencoded"
-                                        },
-                                        data: `entity=getDefaultOutboundDockView&nodeId=GRU8`,
-                                        onload: function(response) {
-                                            if (response.status === 200) {
-                                                const dados = JSON.parse(response.responseText);
-                                                aaData = dados.ret.aaData;
-                                            }
-                                        }
-                                    });
                                     document.getElementById('manualRefresh').click();
                                 }
                             }
@@ -730,22 +749,21 @@
         });
     }
 
-    GM_xmlhttpRequest({
-        method: "POST",
-        url: "https://trans-logistics.amazon.com/ssp/dock/hrz/ob/fetchdata",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        data: `entity=getDefaultOutboundDockView&nodeId=GRU8`,
-        onload: function(response) {
-            if (response.status === 200) {
-                const dados = JSON.parse(response.responseText);
-                aaData = dados.ret.aaData;
-            }
-        }
-    });
-
     function checkStart() {
+        GM_xmlhttpRequest({
+            method: "POST",
+            url: "https://trans-logistics.amazon.com/ssp/dock/hrz/ob/fetchdata",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            data: `entity=getDefaultOutboundDockView&nodeId=GRU8`,
+            onload: function(response) {
+                if (response.status === 200) {
+                    const dados = JSON.parse(response.responseText);
+                    aaData = dados.ret.aaData;
+                }
+            }
+        });
         if (aaData) {
             aaData.forEach(item => {
                 const vrId = item.load.vrId;
