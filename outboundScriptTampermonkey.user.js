@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.3
+// @version      2.4
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -43,7 +43,7 @@
                     container.style.fontSize = "15px";
                     container.style.textAlign = "center";
 
-                    container.innerHTML = `<div style="margin-bottom: 10px;">🚀 Nova versão do script disponível!</div>`;
+                    container.innerHTML = `<div style="margin-bottom: 10px;">🚀 Nova versão do plugin disponível!</div>`;
                     const button = document.createElement("button");
                     button.textContent = "Atualizar";
                     button.style.background = "#2F6EE2";
@@ -112,11 +112,14 @@
             nodeTimeDiv.style.marginLeft = '0';
             const selectEl = document.getElementById('availableNodeName');
             if(selectEl) {
-            selectEl.style.height = '29px';
+            selectEl.style.height = '26px';
             selectEl.style.backgroundColor = '#ffffff';
             selectEl.style.border = '1px solid #8c8c94';
             selectEl.style.borderRadius = '8px';
             }
+            const departDiv = document.querySelector('.pageHeaderNode');
+            departDiv.classList.remove('marL20');
+            departDiv.style.marginLeft = '40px';
 
             //Refresh
             const el = document.getElementById('manualRefresh');
@@ -193,18 +196,21 @@
             });
 
             //Load Issues
+            const loaDiv = document.querySelector('div.col-md-4.topDetailPane');
             const load = document.querySelector('div.col-md-4.topDetailPane table tbody tr td.loadHead');
+            if (loaDiv) {
+                loaDiv.classList.remove("col-md-4");
+                loaDiv.style.width = '33%';
+            }
             if (load) {
+                load.classList.remove(".col-md-4");
                 load.childNodes.forEach(node => {
                     if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Load Issues')) {
-                        // Cria um span com o texto
                         const span = document.createElement('span');
                         span.textContent = 'Problemas de Carga ';
                         span.style.fontSize = '19px';
                         span.style.fontWeight = '700';
                         span.style.color = '#0f141a';
-
-                        // Substitui o nó de texto pelo span estilizado
                         load.replaceChild(span, node);
                     }
                 });
@@ -224,6 +230,19 @@
                 aView.style.backgroundColor = 'transparent';
                 aView.textContent = "Ver na Tabela";
             }
+            document.querySelectorAll(".lateDetailsHeight").forEach(el => {
+                el.style.margin = "0px 0px 10px 0px";
+            });
+            document.querySelectorAll(".topPaneFontBig").forEach(el => {
+                el.classList.remove('topPaneFontBig');
+                el.style.fontSize = "40px";
+            });
+            document.querySelectorAll(".alertBg2").forEach(el => {
+                el.style.backgroundColor = "#FFF";
+                el.style.color = "#666666";
+                const span = el.querySelector("span");
+                span.style.color = "#db0000";
+            });
 
             //Notification
             document.querySelectorAll('.specialEventsDiv').forEach(el => {
@@ -247,6 +266,7 @@
             const td = document.getElementById('selectedUt');
             if (td && !td.innerHTML.includes('<br>Packages')) {
                 td.innerHTML = td.innerHTML.replace('Packages', '<br>Packages');
+                td.classList.remove('textCenter');
             }
             const overDueDiv = document.getElementById('overDueCount');
             if (overDueDiv) {
@@ -290,10 +310,31 @@
             search.style.borderRadius = "6px";
             search.style.boxSizing = "border-box";
             search.placeholder = "Pesquisar";
+            search.style.boxShadow = "none";
+            search.style.marginTop = "0px";
 
             const conf = document.querySelector('button#alui-columnToggle-btn');
             conf.style.backgroundColor = '#fff';
             conf.style.border = "1px solid #DDDDDD";
+            conf.style.height = "30px";
+
+            const selectPage = document.querySelector('select[name="dashboard_length"]');
+            selectPage.style.setProperty('background-color', '#fff', 'important');
+            selectPage.style.height = '24px';
+            selectPage.style.border = '1px solid #DDDDDD';
+            selectPage.style.borderRadius = '8px';
+
+            const label = document.querySelector('label[for="dashboard_length"]')
+            || document.querySelector('label:has(select[name="dashboard_length"])');
+            label.childNodes[0].textContent = "";
+            label.lastChild.textContent = " Linhas";
+
+            document.querySelectorAll(
+                '.alui-skin .tabletoolbar .dataTables_paginate .previous.ui-button, ' +
+                '.alui-skin .tabletoolbar .dataTables_paginate .next.ui-button'
+            ).forEach(el => {
+                el.style.setProperty('border', 'none', 'important');
+            });
 
             //CABEÇALHO
             tabela.querySelectorAll('thead tr:first-child th').forEach(th => {
@@ -322,6 +363,9 @@
             document.querySelectorAll('td.group').forEach(tdGroup => {
                 tdGroup.style.background = "#F7F7F7";
                 tdGroup.style.lineHeight = "28px";
+                const span = tdGroup.firstElementChild.querySelector('span');
+                span.style.fontWeight = '200';
+                span.style.color = '#000000';
             });
 
         }
@@ -572,7 +616,7 @@
         "Location": "Doca",
         "Sort/Route": "Rota",
 
-        "Scheduled Departure Window": "Janela de Partida Programada",
+        "Scheduled Departure Window": "Janela de Partida",
 
         "twenty six foot box truck": "TRUCK",
         "forty eight foot truck": "CARRETA",
@@ -606,7 +650,7 @@
         document.querySelectorAll('.sdtGroupWindow').forEach(div => {
             div.childNodes.forEach(node => {
                 if (node.nodeType === Node.TEXT_NODE && node.nodeValue.includes('Scheduled Departure Window')) {
-                    node.nodeValue = node.nodeValue.replace('Scheduled Departure Window', 'Janela de Partida Programada');
+                    node.nodeValue = node.nodeValue.replace('Scheduled Departure Window', 'Janela de Partida');
                 }
             });
         });
@@ -668,7 +712,6 @@
                         docClient.get(params, (err, data) => {
                             if (data.Item && data.Item.nome) {
                                 tdMotorista.textContent = data.Item.nome;
-                                console.log("Puxei do banco meo");
                             }
                         });
                     }
