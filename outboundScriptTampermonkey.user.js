@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.4
+// @version      2.5
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -43,7 +43,11 @@
                     container.style.fontSize = "15px";
                     container.style.textAlign = "center";
 
-                    container.innerHTML = `<div style="margin-bottom: 10px;">🚀 Nova versão do plugin disponível!</div>`;
+                    const message = document.createElement("div");
+                    message.style.marginBottom = "10px";
+                    message.textContent = "🚀 Nova versão disponível!";
+                    container.appendChild(message);
+
                     const button = document.createElement("button");
                     button.textContent = "Atualizar";
                     button.style.background = "#2F6EE2";
@@ -55,11 +59,34 @@
                     button.style.fontWeight = "bold";
 
                     button.addEventListener("click", () => {
+                        // abre o link para atualizar
                         window.open(
                             "https://github.com/Jhoni23/Outbound/raw/main/outboundScriptTampermonkey.user.js",
                             "_blank"
                         );
-                        container.remove();
+
+                        // altera o texto e cria botão para recarregar
+                        message.textContent = "🔄 Recarregue a página!";
+
+                        const reloadBtn = document.createElement("button");
+                        reloadBtn.textContent = "Recarregar";
+                        reloadBtn.style.background = "#2F6EE2";
+                        reloadBtn.style.color = "white";
+                        reloadBtn.style.border = "none";
+                        reloadBtn.style.padding = "8px 12px";
+                        reloadBtn.style.borderRadius = "6px";
+                        reloadBtn.style.cursor = "pointer";
+                        reloadBtn.style.fontWeight = "bold";
+                        reloadBtn.style.marginLeft = "10px";
+
+                        reloadBtn.addEventListener("click", () => {
+                            location.reload();
+                        });
+
+                        container.appendChild(reloadBtn);
+
+                        // opcional: remover botão "Atualizar" antigo
+                        button.remove();
                     });
 
                     container.appendChild(button);
@@ -237,6 +264,12 @@
                 el.classList.remove('topPaneFontBig');
                 el.style.fontSize = "40px";
             });
+            document.querySelectorAll(".alertBg1").forEach(el => {
+                el.style.backgroundColor = "#FFF";
+                el.style.color = "#666666";
+                const span = el.querySelector("span");
+                span.style.color = "#f2cd54";
+            });
             document.querySelectorAll(".alertBg2").forEach(el => {
                 el.style.backgroundColor = "#FFF";
                 el.style.color = "#666666";
@@ -368,6 +401,20 @@
                 span.style.color = '#000000';
             });
 
+            //Status
+            document.querySelectorAll(".dwellProgressStatusTime").forEach(el => {
+                let texto = el.textContent.trim();
+                if (texto.includes("Since")) {
+                    el.textContent = texto.replace("Since", "Desde");
+                } else if (texto.includes(" Hour")) {
+                    el.textContent = texto.replace(" Hour", "h");
+                }
+            });
+            document.querySelectorAll('[data-status="SCHEDULED"]').forEach(el => {
+                if (el.textContent.trim() === "Scheduled") {
+                    el.textContent = "Programado";
+                }
+            });
         }
 
         alterarEstilos();
@@ -743,20 +790,23 @@
                         input.focus();
 
                         function salvar(nome) {
+                            const now = Math.floor(Date.now() / 1000);
+                            const expireAt = now + 9 * 60 * 60;
                             const nomeUpper = nome.trim().toUpperCase();
                             if (nomeUpper) {
                                 const params = {
                                     TableName: 'nome-motoristas',
                                     Item: {
                                         placa: trailerId,
-                                        nome: nomeUpper
+                                        nome: nomeUpper,
+                                        expireAt: expireAt
                                     }
                                 };
                                 docClient.put(params, (err) => {
                                     if (err) {
-                                        console.error("Erro ao salvar no DynamoDB:", err);
+                                        console.error("Erro ao salvar:", err);
                                     } else {
-                                        console.log(`Salvo no DynamoDB: ${trailerId} = ${nomeUpper}`);
+                                        console.log(`Salvo: ${trailerId} = ${nomeUpper}`);
                                     }
                                 });
                             } else {
@@ -766,9 +816,9 @@
                                 };
                                 docClient.delete(params, (err) => {
                                     if (err) {
-                                        console.error("Erro ao remover no DynamoDB:", err);
+                                        console.error("Erro ao remover:", err);
                                     } else {
-                                        console.log(`Removido do DynamoDB: ${trailerId}`);
+                                        console.log(`Removido: ${trailerId}`);
                                     }
                                 });
                             }
@@ -792,34 +842,34 @@
         });
     }
 
-    function checkStart() {
-        GM_xmlhttpRequest({
-            method: "POST",
-            url: "https://trans-logistics.amazon.com/ssp/dock/hrz/ob/fetchdata",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            data: `entity=getDefaultOutboundDockView&nodeId=GRU8`,
-            onload: function(response) {
-                if (response.status === 200) {
-                    const dados = JSON.parse(response.responseText);
-                    aaData = dados.ret.aaData;
+    //CheckStart
+    const open = XMLHttpRequest.prototype.open;
+    const send = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+        this._url = url;
+        return open.apply(this, [method, url, ...rest]);
+    };
+    XMLHttpRequest.prototype.send = function(body) {
+        this.addEventListener("load", function() {
+            if (this._url.includes("/ssp/dock/hrz/ob/fetchdata")) {
+                const dados = JSON.parse(this.responseText);
+                if (dados && dados.ret && Array.isArray(dados.ret.aaData)) {
+                    const aaData = dados.ret.aaData;
+                    aaData.forEach(item => {
+                        const vrId = item.load.vrId;
+                        const status = item.load.status;
+                        const seal = item.load.seal;
+                        if (status === "LOADING_IN_PROGRESS" && seal != null) {
+                            const loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
+                            const locationWarp = loadSpan.closest('tr').querySelector('span.locationWarp');
+                            locationWarp.style.border = "2px solid #00802f";
+                        }
+                    });
                 }
             }
         });
-        if (aaData) {
-            aaData.forEach(item => {
-                const vrId = item.load.vrId;
-                const status = item.load.status;
-                const seal = item.load.seal;
-                if (status === "LOADING_IN_PROGRESS" && seal != null) {
-                    const loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
-                    const locationWarp = loadSpan.closest('tr').querySelector('span.locationWarp');
-                    locationWarp.style.border = "2px solid #00802f";
-                }
-            });
-        }
-    }
+        return send.apply(this, [body]);
+    };
 
     async function processarPagina() {
         formatarDatas();
@@ -828,7 +878,6 @@
         adicionarColunaMotorista();
         adicionarBotaoValePallet();
         aplicarCloudscapeDesign();
-        checkStart();
     }
 
     window.addEventListener('load', () => {
