@@ -129,6 +129,8 @@
 
         function alterarEstilos() {
             document.body.style.fontFamily = '"Open Sans", Helvetica, Arial, sans-serif';
+            const divPrincipal = document.querySelector('div#container');
+            divPrincipal.style.backgroundColor = '#fcfcfd';
 
             const tabela = document.querySelector('table.dataTable');
             if (!tabela) return;
@@ -208,6 +210,8 @@
             }
 
             //Next CPT
+            const nextCPT = document.querySelector('#nextPrevCptData');
+            nextCPT.style.backgroundColor = '#FFFFFF';
             const spans = document.querySelectorAll('#nextPrevCptData span');
             spans.forEach(span => {
                 if (span.textContent.trim() === 'Next CPT') {
@@ -226,6 +230,7 @@
             const loaDiv = document.querySelector('div.col-md-4.topDetailPane');
             const load = document.querySelector('div.col-md-4.topDetailPane table tbody tr td.loadHead');
             if (loaDiv) {
+                loaDiv.style.backgroundColor = '#FFFFFF';
                 loaDiv.classList.remove("col-md-4");
                 loaDiv.style.width = '33%';
             }
@@ -265,13 +270,13 @@
                 el.style.fontSize = "40px";
             });
             document.querySelectorAll(".alertBg1").forEach(el => {
-                el.style.backgroundColor = "#FFF";
+                el.style.backgroundColor = "transparent";
                 el.style.color = "#666666";
                 const span = el.querySelector("span");
                 span.style.color = "#f2cd54";
             });
             document.querySelectorAll(".alertBg2").forEach(el => {
-                el.style.backgroundColor = "#FFF";
+                el.style.backgroundColor = "transparent";
                 el.style.color = "#666666";
                 const span = el.querySelector("span");
                 span.style.color = "#db0000";
@@ -284,7 +289,7 @@
                 el.style.width = '36%';
                 el.style.padding = '20px';
                 el.style.textAlign = 'left';
-                el.firstElementChild.style.backgroundColor = "#FFFFFF";
+                el.firstElementChild.style.backgroundColor = "transparent";
                 el.firstElementChild.style.paddingBottom = "10px";
                 el.firstElementChild.style.border = "none";
                 const span = el.firstElementChild.querySelector('span');
@@ -297,6 +302,9 @@
 
             //Overdue Packages
             const td = document.getElementById('selectedUt');
+            const divPai = td.closest("div.col-md-1.topDetailPane");
+            divPai.style.width = '10%';
+            divPai.style.backgroundColor = "#FFFFFF";
             if (td && !td.innerHTML.includes('<br>Packages')) {
                 td.innerHTML = td.innerHTML.replace('Packages', '<br>Packages');
                 td.classList.remove('textCenter');
@@ -305,7 +313,7 @@
             if (overDueDiv) {
                 overDueDiv.style.fontSize = '42px';
                 overDueDiv.style.fontWeight = '700';
-                overDueDiv.style.color = '#006ce0';
+                //overDueDiv.style.color = '#006ce0';
             }
             const titulo = document.getElementById('selectedUt');
             if (titulo) {
@@ -415,6 +423,17 @@
                     el.textContent = "Programado";
                 }
             });
+
+            //Div Right
+            const rightContent = document.getElementById("rightContent");
+            if (rightContent) {
+                rightContent.style.borderRadius = "16px";
+                rightContent.style.border = "1px solid #c6c6cd";
+                //rightContent.style.padding = "20px";
+                rightContent.style.paddingTop = "20px";
+                rightContent.style.fontSize = '14px';
+            }
+
         }
 
         alterarEstilos();
