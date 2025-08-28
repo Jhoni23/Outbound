@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.5
+// @version      2.6
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -129,6 +129,7 @@
 
         function alterarEstilos() {
             document.body.style.fontFamily = '"Open Sans", Helvetica, Arial, sans-serif';
+            const divPrincipal = document.querySelector('div#container');
 
             const tabela = document.querySelector('table.dataTable');
             if (!tabela) return;
@@ -204,10 +205,13 @@
                     div.style.padding = '20px';
                     div.style.display = 'flex';
                     div.style.flexDirection = 'column';
+                    div.style.backgroundColor = '#FFFFFF';
                 });
             }
 
             //Next CPT
+            const nextCPT = document.querySelector('#nextPrevCptData');
+            nextCPT.style.backgroundColor = '#FFFFFF';
             const spans = document.querySelectorAll('#nextPrevCptData span');
             spans.forEach(span => {
                 if (span.textContent.trim() === 'Next CPT') {
@@ -226,6 +230,7 @@
             const loaDiv = document.querySelector('div.col-md-4.topDetailPane');
             const load = document.querySelector('div.col-md-4.topDetailPane table tbody tr td.loadHead');
             if (loaDiv) {
+                loaDiv.style.backgroundColor = '#FFFFFF';
                 loaDiv.classList.remove("col-md-4");
                 loaDiv.style.width = '33%';
             }
@@ -265,13 +270,13 @@
                 el.style.fontSize = "40px";
             });
             document.querySelectorAll(".alertBg1").forEach(el => {
-                el.style.backgroundColor = "#FFF";
+                el.style.backgroundColor = "transparent";
                 el.style.color = "#666666";
                 const span = el.querySelector("span");
                 span.style.color = "#f2cd54";
             });
             document.querySelectorAll(".alertBg2").forEach(el => {
-                el.style.backgroundColor = "#FFF";
+                el.style.backgroundColor = "transparent";
                 el.style.color = "#666666";
                 const span = el.querySelector("span");
                 span.style.color = "#db0000";
@@ -284,7 +289,7 @@
                 el.style.width = '36%';
                 el.style.padding = '20px';
                 el.style.textAlign = 'left';
-                el.firstElementChild.style.backgroundColor = "#FFFFFF";
+                el.firstElementChild.style.backgroundColor = "transparent";
                 el.firstElementChild.style.paddingBottom = "10px";
                 el.firstElementChild.style.border = "none";
                 const span = el.firstElementChild.querySelector('span');
@@ -297,6 +302,9 @@
 
             //Overdue Packages
             const td = document.getElementById('selectedUt');
+            const divPai = td.closest("div.col-md-1.topDetailPane");
+            divPai.style.width = '10%';
+            divPai.style.backgroundColor = "#FFFFFF";
             if (td && !td.innerHTML.includes('<br>Packages')) {
                 td.innerHTML = td.innerHTML.replace('Packages', '<br>Packages');
                 td.classList.remove('textCenter');
@@ -305,7 +313,7 @@
             if (overDueDiv) {
                 overDueDiv.style.fontSize = '42px';
                 overDueDiv.style.fontWeight = '700';
-                overDueDiv.style.color = '#006ce0';
+                //overDueDiv.style.color = '#006ce0';
             }
             const titulo = document.getElementById('selectedUt');
             if (titulo) {
@@ -332,6 +340,7 @@
             container.style.borderRadius = '16px';
             container.style.border = '1px solid #c6c6cd';
             container.style.padding = '20px';
+            container.style.backgroundColor = '#FFFFFF';
 
             const search = document.querySelector('input.filterSearchLoads');
             search.style.appearance = "none";
@@ -415,6 +424,17 @@
                     el.textContent = "Programado";
                 }
             });
+
+            //Div Right
+            const rightContent = document.getElementById("rightContent");
+            if (rightContent) {
+                rightContent.style.borderRadius = "16px";
+                rightContent.style.border = "1px solid #c6c6cd";
+                //rightContent.style.padding = "20px";
+                rightContent.style.paddingTop = "20px";
+                rightContent.style.fontSize = '14px';
+            }
+
         }
 
         alterarEstilos();
@@ -473,117 +493,127 @@
         });
     }
 
+    let criouObsever = false;
+    let divRight = null;
     function adicionarBotaoValePallet() {
-        const divRight = document.getElementById("rightContent");
+        if (divRight == null){
+            divRight = document.getElementById("rightContent");
+        } else {
+            if(!criouObsever){
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === "attributes" && mutation.attributeName === "class") {
+                            if (!divRight.classList.contains("displaynone")) {
+                                const linhaSelecionada = document.querySelector('tr.selectedTableRow');
+                                const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
+                                const temSpan = tdTrailerNum?.querySelector('span');
 
-        const observer = new MutationObserver(() => {
-            if (!divRight.classList.contains("displaynone")) {
-                const linhaSelecionada = document.querySelector('tr.selectedTableRow');
-                const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
-                const temSpan = tdTrailerNum?.querySelector('span');
+                                const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
 
-                const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
+                                const divColMd = document.querySelectorAll('div.backGroundNone > div.col-md-12.backGroundNone')[1];
+                                const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
+                                const botaoView = actionDivs[1].querySelector('a#viewDocButton');
 
-                const divColMd = document.querySelectorAll('div.backGroundNone > div.col-md-12.backGroundNone')[1];
-                const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
-                const botaoView = actionDivs[1].querySelector('a#viewDocButton');
+                                if (document.getElementById("novoBotao") || !temSpan) return;
 
-                if (document.getElementById("novoBotao") || !temSpan) return;
+                                const novoBotao = document.createElement("a");
+                                novoBotao.href = "javascript:void(0)";
+                                novoBotao.id = "novoBotao";
+                                novoBotao.title = "Vale Pallet";
+                                novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
+                                novoBotao.textContent = "Vale Pallet";
 
-                const novoBotao = document.createElement("a");
-                novoBotao.href = "javascript:void(0)";
-                novoBotao.id = "novoBotao";
-                novoBotao.title = "Vale Pallet";
-                novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
-                novoBotao.textContent = "Vale Pallet";
+                                novoBotao.addEventListener("click", () => {
+                                    const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
+                                    const rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
 
-                novoBotao.addEventListener("click", () => {
-                    const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
-                    const rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
+                                    const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+                                    const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+                                    const transportadora = tdTransportadora?.textContent.trim() || "";
 
-                    const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-                    const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-                    const transportadora = tdTransportadora?.textContent.trim() || "";
+                                    const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
+                                    const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
 
-                    const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
-                    const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
+                                    const tdMotorista = linhaSelecionada.querySelector('td.motoristaCol');
+                                    const motorista = tdMotorista?.textContent.trim() || "";
 
-                    const tdMotorista = linhaSelecionada.querySelector('td.motoristaCol');
-                    const motorista = tdMotorista?.textContent.trim() || "";
+                                    const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
+                                    const tdAnterior = tdTRT?.previousElementSibling;
+                                    let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
+                                    if (pallet === "") pallet = "0";
 
-                    const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
-                    const tdAnterior = tdTRT?.previousElementSibling;
-                    let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
-                    if (pallet === "") pallet = "0";
+                                    contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
+                                        const scuttles = gaylordCount;
 
-                    contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
-                        const scuttles = gaylordCount;
+                                        buscarNomeYard(function(nomeYard) {
+                                            let dados = {
+                                                Transportadora: transportadora,
+                                                Rota: rota,
+                                                Placa: placa,
+                                                Motorista: motorista,
+                                                Pallet: pallet,
+                                                Scuttles: scuttles,
+                                                Yard: nomeYard || ""
+                                            };
 
-                        buscarNomeYard(function(nomeYard) {
-                            let dados = {
-                                Transportadora: transportadora,
-                                Rota: rota,
-                                Placa: placa,
-                                Motorista: motorista,
-                                Pallet: pallet,
-                                Scuttles: scuttles,
-                                Yard: nomeYard || ""
-                            };
+                                            GM_xmlhttpRequest({
+                                                method: "GET",
+                                                url: "https://jhoni23.github.io/Outbound/",
+                                                onload: function (response) {
+                                                    let html = response.responseText;
 
-                            GM_xmlhttpRequest({
-                                method: "GET",
-                                url: "https://jhoni23.github.io/Outbound/",
-                                onload: function (response) {
-                                    let html = response.responseText;
+                                                    html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
+                                                        .replace(/{{ROTA}}/gi, dados.Rota || "")
+                                                        .replace(/{{PLACA}}/gi, dados.Placa || "")
+                                                        .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
+                                                        .replace(/{{YARD}}/gi, dados.Yard || "")
+                                                        .replace(/{{PALLET}}/gi, dados.Pallet || "")
+                                                        .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
 
-                                    html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
-                                        .replace(/{{ROTA}}/gi, dados.Rota || "")
-                                        .replace(/{{PLACA}}/gi, dados.Placa || "")
-                                        .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
-                                        .replace(/{{YARD}}/gi, dados.Yard || "")
-                                        .replace(/{{PALLET}}/gi, dados.Pallet || "")
-                                        .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
+                                                    // Cria um iframe oculto para impressão
+                                                    const iframe = document.createElement("iframe");
+                                                    iframe.style.position = "fixed";
+                                                    iframe.style.right = "0";
+                                                    iframe.style.bottom = "0";
+                                                    iframe.style.width = "0";
+                                                    iframe.style.height = "0";
+                                                    iframe.style.border = "0";
+                                                    document.body.appendChild(iframe);
 
-                                    // Cria um iframe oculto para impressão
-                                    const iframe = document.createElement("iframe");
-                                    iframe.style.position = "fixed";
-                                    iframe.style.right = "0";
-                                    iframe.style.bottom = "0";
-                                    iframe.style.width = "0";
-                                    iframe.style.height = "0";
-                                    iframe.style.border = "0";
-                                    document.body.appendChild(iframe);
+                                                    const doc = iframe.contentWindow.document;
+                                                    doc.open();
+                                                    doc.write(html);
+                                                    doc.close();
 
-                                    const doc = iframe.contentWindow.document;
-                                    doc.open();
-                                    doc.write(html);
-                                    doc.close();
+                                                    iframe.onload = function () {
+                                                        iframe.contentWindow.focus();
+                                                        iframe.contentWindow.print();
+                                                        setTimeout(() => document.body.removeChild(iframe), 1000);
+                                                    };
+                                                },
+                                                onerror: function (err) {
+                                                    console.error("Erro ao buscar HTML para impressão:", err);
+                                                    alert("Erro ao carregar conteúdo da impressão.");
+                                                }
+                                            });
+                                        });
+                                    });
+                                });
 
-                                    iframe.onload = function () {
-                                        iframe.contentWindow.focus();
-                                        iframe.contentWindow.print();
-                                        setTimeout(() => document.body.removeChild(iframe), 1000);
-                                    };
-                                },
-                                onerror: function (err) {
-                                    console.error("Erro ao buscar HTML para impressão:", err);
-                                    alert("Erro ao carregar conteúdo da impressão.");
+                                if (botaoView.classList.contains('hidden')) {
+                                    container.appendChild(novoBotao);
+                                } else {
+                                    botaoView.insertAdjacentElement('afterend', novoBotao);
                                 }
-                            });
-                        });
+                            }
+                        }
                     });
                 });
 
-                if (botaoView.classList.contains('hidden')) {
-                    container.appendChild(novoBotao);
-                } else {
-                    botaoView.insertAdjacentElement('afterend', novoBotao);
-                }
+                observer.observe(divRight, { attributes: true });
+                criouObsever = true;
             }
-        });
-
-        observer.observe(divRight, { attributes: true, attributeFilter: ["class"] });
-
+        }
     }
 
     function contarGaylords(linha) {
@@ -875,8 +905,8 @@
         formatarDatas();
         traduzirCampos();
         removerTermos();
-        adicionarColunaMotorista();
         adicionarBotaoValePallet();
+        adicionarColunaMotorista();
         aplicarCloudscapeDesign();
     }
 
