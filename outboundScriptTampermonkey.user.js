@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.6
+// @version      2.7
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -604,6 +604,48 @@
                                     container.appendChild(novoBotao);
                                 } else {
                                     botaoView.insertAdjacentElement('afterend', novoBotao);
+                                }
+
+                                //Botão copiar
+                                const h4 = document.querySelector("#rightContent h4");
+                                if (!h4.querySelector(".btn-copiar")) {
+                                    const span = document.createElement("span");
+                                    span.textContent = " ⿻";
+                                    span.className = "btn-copiar";
+                                    span.style.cursor = "pointer";
+                                    span.style.marginLeft = "6px";
+                                    span.style.color = "#2F6EE2";
+                                    span.title = "Clique para copiar";
+
+                                    const linhaSelecionada = document.querySelector('tr.selectedTableRow');
+                                    const texto = h4.innerText.trim();
+                                    const vrid = texto.split("-").pop().trim();
+
+                                    const laneSpan = linhaSelecionada.querySelector("span.floatL.goodLane");
+                                    const rota = laneSpan.textContent.trim();
+
+                                    const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+                                    const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+                                    const carrier = tdTransportadora?.textContent.trim() || "";
+
+                                    const theadRow = document.querySelector("thead tr");
+                                    const ths = theadRow.querySelectorAll("th");
+                                    let posicao = -1;
+                                    ths.forEach((th, index) => {
+                                        if (th.getAttribute("title") === "Critical Pull Time") {
+                                            posicao = index;
+                                        }
+                                    });
+                                    const tds = linhaSelecionada.querySelectorAll("td");
+                                    const cpt = tds[posicao].textContent.trim();
+
+                                    const textoCopiar = `VRID ${vrid}\nLANE ${rota}\nCARRIER ${carrier}\nCPT ${cpt}`;
+
+                                    span.addEventListener("click", () => {
+                                        navigator.clipboard.writeText(textoCopiar);
+                                    });
+
+                                    h4.appendChild(span);
                                 }
                             }
                         }
