@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.8.1
+// @version      2.8.2
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -214,7 +214,7 @@
             nextCPT.style.backgroundColor = '#FFFFFF';
             const spans = document.querySelectorAll('#nextPrevCptData span');
             spans.forEach(span => {
-                if (span.textContent.trim() === 'Next CPT') {
+                if (span.textContent.trim() === 'Next CPT' || span.textContent.trim() === 'Próximo CPT') {
                     span.textContent = 'Próximo CPT';
                     span.style.fontSize = '19px';
                     span.style.fontWeight = '700';
@@ -237,13 +237,15 @@
             if (load) {
                 load.classList.remove(".col-md-4");
                 load.childNodes.forEach(node => {
-                    if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Load Issues')) {
-                        const span = document.createElement('span');
-                        span.textContent = 'Problemas de Carga ';
-                        span.style.fontSize = '19px';
-                        span.style.fontWeight = '700';
-                        span.style.color = '#0f141a';
-                        load.replaceChild(span, node);
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        if (node.textContent.includes('Load Issues') || node.textContent.includes('Problemas de carregamento')) {
+                            const span = document.createElement('span');
+                            span.textContent = 'Problemas de Carga ';
+                            span.style.fontSize = '19px';
+                            span.style.fontWeight = '700';
+                            span.style.color = '#0f141a';
+                            load.replaceChild(span, node);
+                        }
                     }
                 });
             }
@@ -531,7 +533,7 @@
                                     const ths = theadRow.querySelectorAll("th");
                                     let posicao = -1;
                                     ths.forEach((th, index) => {
-                                        if (th.getAttribute("title") === "Critical Pull Time") {
+                                        if (th.getAttribute("title") === "Critical Pull Time" || th.getAttribute("title") === "Horário de envio programado") {
                                             posicao = index;
                                         }
                                     });
@@ -935,7 +937,13 @@
                         if (status === "LOADING_IN_PROGRESS" && seal != null) {
                             const loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
                             const locationWarp = loadSpan.closest('tr').querySelector('span.locationWarp');
-                            locationWarp.style.border = "2px solid #00802f";
+                            if (locationWarp) {
+                                locationWarp.style.border = "2px solid #00802f";
+                            } else {
+                                //const dockDoor = document.querySelector('.DOCK_DOOR');
+                                //dockDoor.style.border = "2px solid #00802f";
+                                //dockDoor.style.padding = "5px";
+                            }
                         }
                     });
                 }
