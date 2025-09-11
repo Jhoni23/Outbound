@@ -3,13 +3,13 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.8.2
+// @version      2.9.0
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
 // @grant        GM_xmlhttpRequest
 // @connect      trans-logistics.amazon.com
-// @connect      jhoni23.github.io
+// @connect      github.com
 // @connect      raw.githubusercontent.com
 // @require      https://sdk.amazonaws.com/js/aws-sdk-2.1480.0.min.js
 // ==/UserScript==
@@ -475,7 +475,6 @@
     });
     const docClient = new AWS.DynamoDB.DocumentClient();
 
-
     function buscarNomeYard(callback) {
         GM_xmlhttpRequest({
             method: "GET",
@@ -493,6 +492,16 @@
                 callback(null);
             }
         });
+    }
+
+    //Seleciona FC
+    let FC = "GRU8"
+    function selecionarFC() {
+        const select = document.getElementById("valorFC");
+        if (select) {
+            const opcaoSelecionada = select.options[select.selectedIndex];
+            FC = opcaoSelecionada.text;
+        }
     }
 
     let criouObsever = false;
@@ -585,13 +594,16 @@
                                     const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
                                     const tdAnterior = tdTRT?.previousElementSibling;
                                     let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
-                                    if (pallet === "") pallet = "0";
+                                    if (pallet === "") {pallet = "0"};
+
+                                    const vrid = "TESTX";
 
                                     contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
                                         const scuttles = gaylordCount;
 
                                         buscarNomeYard(function(nomeYard) {
                                             let dados = {
+                                                Vrid: vrid,
                                                 Transportadora: transportadora,
                                                 Rota: rota,
                                                 Placa: placa,
@@ -601,13 +613,27 @@
                                                 Yard: nomeYard || ""
                                             };
 
+                                            let url = "";
+                                            switch(FC) {
+                                                case "GRU8":
+                                                    url = "https://github.com/Jhoni23/Outbound/raw/refs/heads/modelosValepallet/Modelos%20Vale%20Pallet/GRU8.html";
+                                                    break;
+                                                case "GRU5":
+                                                    url = "https://github.com/Jhoni23/Outbound/raw/refs/heads/modelosValepallet/Modelos%20Vale%20Pallet/GRU5.html";
+                                                    break;
+                                                case "GRU9":
+                                                    url = "https://github.com/Jhoni23/Outbound/raw/refs/heads/modelosValepallet/Modelos%20Vale%20Pallet/GRU9.html";
+                                                    break;
+                                            }
+
                                             GM_xmlhttpRequest({
                                                 method: "GET",
-                                                url: "https://jhoni23.github.io/Outbound/",
+                                                url: url,
                                                 onload: function (response) {
                                                     let html = response.responseText;
 
                                                     html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
+                                                        .replace(/{{VRID}}/gi, dados.Vrid || "")
                                                         .replace(/{{ROTA}}/gi, dados.Rota || "")
                                                         .replace(/{{PLACA}}/gi, dados.Placa || "")
                                                         .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
@@ -953,11 +979,12 @@
     };
 
     async function processarPagina() {
+        selecionarFC();
         formatarDatas();
         traduzirCampos();
         removerTermos();
         adicionarBotaoValePallet();
-        adicionarColunaMotorista();
+        if (FC == "GRU8" ) {adicionarColunaMotorista();}
         aplicarCloudscapeDesign();
     }
 
