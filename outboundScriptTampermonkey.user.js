@@ -85,7 +85,6 @@
 
                         container.appendChild(reloadBtn);
 
-                        // opcional: remover botão "Atualizar" antigo
                         button.remove();
                     });
 
@@ -495,9 +494,9 @@
     }
 
     //Seleciona FC
-    let FC = "GRU8"
+    let FC = ""
     function selecionarFC() {
-        const select = document.getElementById("valorFC");
+        const select = document.getElementById("availableNodeName");
         if (select) {
             const opcaoSelecionada = select.options[select.selectedIndex];
             FC = opcaoSelecionada.text;
@@ -526,7 +525,7 @@
                                     span.style.cursor = "pointer";
                                     span.style.marginLeft = "6px";
                                     span.style.color = "#2F6EE2";
-                                    span.title = "Clique para copiar";
+                                    span.title = "Copiar dados";
 
                                     const texto = h4.innerText.trim();
                                     const vrid = texto.split("-").pop().trim();
@@ -553,6 +552,11 @@
 
                                     span.addEventListener("click", () => {
                                         navigator.clipboard.writeText(textoCopiar);
+
+                                        span.textContent = " ✓";
+                                        setTimeout(() => {
+                                            span.textContent = " ⿻";
+                                        }, 1500);
                                     });
 
                                     h4.appendChild(span);
@@ -578,8 +582,46 @@
                                 novoBotao.textContent = "Vale Pallet";
 
                                 novoBotao.addEventListener("click", () => {
+                                    // cria o CSS do spinner via JS
+                                    const style = document.createElement("style");
+                                    style.textContent = `
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #333;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
+                                    document.head.appendChild(style);
+                                    const largura = novoBotao.offsetWidth + "px";
+                                    novoBotao.style.width = largura;
+                                    novoBotao.innerHTML = '<span class="spinner"></span>';
+                                    novoBotao.style.display = "flex";
+                                    novoBotao.style.justifyContent = "center";
+                                    novoBotao.style.alignItems = "center";
+                                    novoBotao.style.pointerEvents = "none";
+                                    novoBotao.style.opacity = "0.7";
+
                                     const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
-                                    const rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
+                                    let rota = "";
+                                    switch(FC) {
+                                                case "GRU8":
+                                                    rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
+                                                    break;
+                                                case "GRU5":
+                                                    rota = goodLaneSpan?.className.match(/laneGRU5-([A-Z0-9]+)/)?.[1] || "";
+                                                    break;
+                                                case "GRU9":
+                                                    rota = goodLaneSpan?.className.match(/laneGRU9-([A-Z0-9]+)/)?.[1] || "";
+                                                    break;
+                                            }
 
                                     const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
                                     const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
@@ -589,17 +631,20 @@
                                     const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
 
                                     const tdMotorista = linhaSelecionada.querySelector('td.motoristaCol');
-                                    const motorista = tdMotorista?.textContent.trim() || "";
+                                    let motorista = tdMotorista?.textContent.trim() || "";
+                                    if (motorista == "—") {motorista = ""};
 
                                     const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
                                     const tdAnterior = tdTRT?.previousElementSibling;
                                     let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
-                                    if (pallet === "") {pallet = "0"};
+                                    if (pallet == "") {pallet = "0"};
 
-                                    const vrid = "TESTX";
+                                    const spanVrid = linhaSelecionada.querySelector('span.loadId');
+                                    const vrid = spanVrid?.textContent.trim() || "";
 
                                     contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
-                                        const scuttles = gaylordCount;
+                                        let scuttles = gaylordCount;
+                                        if (scuttles == "") {scuttles = "0"};
 
                                         buscarNomeYard(function(nomeYard) {
                                             let dados = {
@@ -661,6 +706,13 @@
                                                         iframe.contentWindow.print();
                                                         setTimeout(() => document.body.removeChild(iframe), 1000);
                                                     };
+                                                    novoBotao.textContent = "Vale Pallet";
+                                                    novoBotao.style.width = "";
+                                                    novoBotao.style.display = "";
+                                                    novoBotao.style.justifyContent = "";
+                                                    novoBotao.style.alignItems = "";
+                                                    novoBotao.style.pointerEvents = "auto";
+                                                    novoBotao.style.opacity = "1";
                                                 },
                                                 onerror: function (err) {
                                                     console.error("Erro ao buscar HTML para impressão:", err);
@@ -702,7 +754,7 @@
 
             const params = new URLSearchParams({
                 entity: "getOutboundLoadContainerDetails",
-                nodeId: "GRU8",
+                nodeId: FC,
                 loadGroupId: loadGroupId,
                 planId: planId,
                 vrId: vrId,
@@ -960,15 +1012,16 @@
                         const vrId = item.load.vrId;
                         const status = item.load.status;
                         const seal = item.load.seal;
-                        if (status === "LOADING_IN_PROGRESS" && seal != null) {
-                            const loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
-                            const locationWarp = loadSpan.closest('tr').querySelector('span.locationWarp');
+                        //if (status == "LOADING_IN_PROGRESS"`&& seal != null`) {
+                        if (status == "LOADING_IN_PROGRESS") {
+                            let loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
+                            loadSpan = loadSpan.parentElement.parentElement;
+                            const locationWarp = loadSpan.querySelector('span.locationWarp');
                             if (locationWarp) {
                                 locationWarp.style.border = "2px solid #00802f";
                             } else {
-                                //const dockDoor = document.querySelector('.DOCK_DOOR');
-                                //dockDoor.style.border = "2px solid #00802f";
-                                //dockDoor.style.padding = "5px";
+                                const span = loadSpan.querySelector(".DOCK_DOOR");
+                                span.style.border = "2px solid #00802f";
                             }
                         }
                     });
