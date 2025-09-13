@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      2.9.0
+// @version      3.0.0
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -658,22 +658,9 @@
                                                 Yard: nomeYard || ""
                                             };
 
-                                            let url = "";
-                                            switch(FC) {
-                                                case "GRU8":
-                                                    url = "https://github.com/Jhoni23/Outbound/raw/refs/heads/modelosValepallet/Modelos%20Vale%20Pallet/GRU8.html";
-                                                    break;
-                                                case "GRU5":
-                                                    url = "https://github.com/Jhoni23/Outbound/raw/refs/heads/modelosValepallet/Modelos%20Vale%20Pallet/GRU5.html";
-                                                    break;
-                                                case "GRU9":
-                                                    url = "https://github.com/Jhoni23/Outbound/raw/refs/heads/modelosValepallet/Modelos%20Vale%20Pallet/GRU9.html";
-                                                    break;
-                                            }
-
                                             GM_xmlhttpRequest({
                                                 method: "GET",
-                                                url: url,
+                                                url: "https://github.com/Jhoni23/Outbound/raw/refs/heads/main/Modelos%20Vale%20Pallet/" + FC + ".html",
                                                 onload: function (response) {
                                                     let html = response.responseText;
 
@@ -1012,7 +999,7 @@
                         const vrId = item.load.vrId;
                         const status = item.load.status;
                         const seal = item.load.seal;
-                        //if (status == "LOADING_IN_PROGRESS"`&& seal != null`) {
+                        //if (seal != null`) Se tiver lacre
                         if (status == "LOADING_IN_PROGRESS") {
                             let loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
                             loadSpan = loadSpan.parentElement.parentElement;
@@ -1021,7 +1008,12 @@
                                 locationWarp.style.border = "2px solid #00802f";
                             } else {
                                 const span = loadSpan.querySelector(".DOCK_DOOR");
-                                span.style.border = "2px solid #00802f";
+                                const img = document.createElement("img");
+                                img.src = "https://github.com/Jhoni23/Outbound/blob/main/Imagens/DockDoorIcon.png?raw=true";
+                                img.alt = "Iniciado";
+                                img.style.width = "20px";
+                                img.style.height = "14px";
+                                span.replaceWith(img);
                             }
                         }
                     });
