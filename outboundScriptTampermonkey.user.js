@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      3.0.0
+// @version      3.1
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -210,7 +210,7 @@
 
             //Next CPT
             const nextCPT = document.querySelector('#nextPrevCptData');
-            nextCPT.style.backgroundColor = '#FFFFFF';
+            if(nextCPT) {nextCPT.style.backgroundColor = '#FFFFFF'};
             const spans = document.querySelectorAll('#nextPrevCptData span');
             spans.forEach(span => {
                 if (span.textContent.trim() === 'Next CPT' || span.textContent.trim() === 'Próximo CPT') {
@@ -303,9 +303,11 @@
 
             //Overdue Packages
             const td = document.getElementById('selectedUt');
-            const divPai = td.closest("div.col-md-1.topDetailPane");
-            divPai.style.width = '10%';
-            divPai.style.backgroundColor = "#FFFFFF";
+            if (td) {
+                const divPai = td.closest("div.col-md-1.topDetailPane");
+                divPai.style.width = '10%';
+                divPai.style.backgroundColor = "#FFFFFF";
+            };
             if (td && !td.innerHTML.includes('<br>Packages')) {
                 td.innerHTML = td.innerHTML.replace('Packages', '<br>Packages');
                 td.classList.remove('textCenter');
@@ -344,22 +346,26 @@
             container.style.backgroundColor = '#FFFFFF';
 
             const search = document.querySelector('input.filterSearchLoads');
-            search.style.appearance = "none";
-            search.style.MozAppearance = "none";
-            search.style.height = "30px";
-            search.style.lineHeight = "30px";
-            search.style.padding = "0 10px";
-            search.style.border = "1px solid #8c8c9";
-            search.style.borderRadius = "6px";
-            search.style.boxSizing = "border-box";
-            search.placeholder = "Pesquisar";
-            search.style.boxShadow = "none";
-            search.style.marginTop = "0px";
+            if (search) {
+                search.style.appearance = "none";
+                search.style.MozAppearance = "none";
+                search.style.height = "30px";
+                search.style.lineHeight = "30px";
+                search.style.padding = "0 10px";
+                search.style.border = "1px solid #8c8c9";
+                search.style.borderRadius = "6px";
+                search.style.boxSizing = "border-box";
+                search.placeholder = "Pesquisar";
+                search.style.boxShadow = "none";
+                search.style.marginTop = "0px";
+            };
 
             const conf = document.querySelector('button#alui-columnToggle-btn');
-            conf.style.backgroundColor = '#fff';
-            conf.style.border = "1px solid #DDDDDD";
-            conf.style.height = "30px";
+            if (conf) {
+                conf.style.backgroundColor = '#fff';
+                conf.style.border = "1px solid #DDDDDD";
+                conf.style.height = "30px";
+            };
 
             const selectPage = document.querySelector('select[name="dashboard_length"]');
             selectPage.style.setProperty('background-color', '#fff', 'important');
@@ -391,7 +397,7 @@
                 th.style.color = '#424650';
 
                 // Largura das colunas
-                if (th.textContent.includes('Doca')) {
+                if (th.textContent.includes('Doca' || 'Local')) {
                     th.style.width = '8%';
                 }
             });
@@ -561,6 +567,13 @@
 
                                     h4.appendChild(span);
                                 }
+
+                                const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
+                                if (WT) {
+                                    if(WT.textContent.trim() === "WT") {
+                                        return;
+                                    };
+                                };
 
                                 //Botão vale pallet
                                 const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
@@ -800,8 +813,10 @@
 
     const traducoes = {
         "Equipment Type": "Tipologia",
+        "Tipo de equipamento": "Tipologia",
         "Location": "Doca",
         "Sort/Route": "Rota",
+        "Classificar/Rotear": "Rota",
 
         "Scheduled Departure Window": "Janela de Partida",
 
@@ -989,6 +1004,9 @@
         this._url = url;
         return open.apply(this, [method, url, ...rest]);
     };
+
+    const base64 = "iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAAkUlEQVR4nGNgoDJgxBDxkp7MYCqSxcDIwIRX53+Gfwyn30xj2PY0F78V9fp/GfhYpQk6hY9VhqFe/y+6MAuGQkYGJoZPv58yNOj/x2tgw0VGbL7ANBBdE1Zx3JYRMJCAK0k3kHQX4o9JmMYG/f8obJIAMRrxqBn8YUhnF3ZcEcQqXqHzHpcWTC+R6ipcwUItAADdxzMqJxC35wAAAABJRU5ErkJggg==";
+
     XMLHttpRequest.prototype.send = function(body) {
         this.addEventListener("load", function() {
             if (this._url.includes("/ssp/dock/hrz/ob/fetchdata")) {
@@ -1009,7 +1027,7 @@
                             } else {
                                 const span = loadSpan.querySelector(".DOCK_DOOR");
                                 const img = document.createElement("img");
-                                img.src = "https://github.com/Jhoni23/Outbound/blob/main/Imagens/DockDoorIcon.png?raw=true";
+                                img.src = `data:image/png;base64,${base64}`;
                                 img.alt = "Iniciado";
                                 img.style.width = "20px";
                                 img.style.height = "14px";
