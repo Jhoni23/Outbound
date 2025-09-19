@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      3.2
+// @version      3.3
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -576,6 +576,51 @@
         }
     }
 
+    //Pega a placa do BOL
+    /*function getIDBOL() {
+        const params = new URLSearchParams({
+            entity: "getDocs",
+            nodeId: "GRU5",
+            planId: "662a8334-ace5-4c1e-b9d5-63f363207410",
+            trailerId: "YTR51254808841",
+            trailerNumber: ""
+        }).toString();
+
+        GM_xmlhttpRequest({
+            method: "POST",
+            url: "https://trans-logistics.amazon.com/ssp/dock/hrz/ob/fetchdata",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            data: params,
+            onload: function(response) {
+                console.log(response);
+                const data = JSON.parse(response.responseText);
+                const link = data.ret.PrintableDoc[0].link;
+                GM_xmlhttpRequest({
+                    method: "GET",
+                    url: link,
+                    onload: function(htmlResp) {
+                        const html_content = htmlResp.responseText;
+
+                        // 4. Regex para pegar o código depois de OTHR
+                        const match = html_content.match(/OTHR\s+([A-Z0-9]+)/);
+                        if (match) {
+                            console.log("Código encontrado:", match[1]);
+                        } else {
+                            console.log("Nenhum código encontrado.");
+                        }
+                    }
+                });
+            },
+            onerror: function(err) {
+                console.error("Erro na requisição principal:", err);
+            }
+        });
+    }
+ */
+
     let criouObsever = false;
     let divRight = null;
     function adicionarBotaoValePallet() {
@@ -634,13 +679,6 @@
 
                                     h4.appendChild(span);
                                 }
-
-                                const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
-                                if (WT) {
-                                    if(WT.textContent.trim() === "WT") {
-                                        return;
-                                    };
-                                };
 
                                 //Botão vale pallet
                                 const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
@@ -710,6 +748,8 @@
                                     const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
                                     const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
 
+                                    //if (placa == "") {getIDBOL();};
+
                                     const tdMotorista = linhaSelecionada.querySelector('td.motoristaCol');
                                     let motorista = tdMotorista?.textContent.trim() || "";
                                     if (motorista == "—") {motorista = ""};
@@ -725,6 +765,13 @@
                                     contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
                                         let scuttles = gaylordCount;
                                         if (scuttles == "") {scuttles = "0"};
+
+                                        const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
+                                        if (WT) {
+                                            if(WT.textContent.trim() === "WT") {
+                                                scuttles = pallet;
+                                            };
+                                        };
 
                                         buscarNomeYard(function(nomeYard) {
                                             let dados = {
