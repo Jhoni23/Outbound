@@ -1,4 +1,4 @@
-function aplicarCloudscapeDesign() {
+function aplicarCloudscapeDesign() { 
     //Remove Elementos
     document.querySelectorAll('div.floatL.topHelpLinks, span.floatL.relatedUI, #topPaneContent span.floatL.textBold')
         .forEach(el => el.remove());
@@ -33,8 +33,10 @@ function aplicarCloudscapeDesign() {
     
     //GRU8 Select
     const nodeTimeDiv = document.querySelector('.floatL.nodeTime');
-    nodeTimeDiv.style.marginTop = '5px';
-    nodeTimeDiv.style.marginLeft = '0';
+    if (nodeTimeDiv) {
+        nodeTimeDiv.style.marginTop = '5px';
+        nodeTimeDiv.style.marginLeft = '0';
+    }
     const selectEl = document.getElementById('availableNodeName');
     if(selectEl) {
         selectEl.style.height = '26px';
@@ -43,20 +45,26 @@ function aplicarCloudscapeDesign() {
         selectEl.style.borderRadius = '8px';
     }
     const departDiv = document.querySelector('.pageHeaderNode');
-    departDiv.classList.remove('marL20');
-    departDiv.style.marginLeft = '40px';
+    if (departDiv) {
+        departDiv.classList.remove('marL20');
+        departDiv.style.marginLeft = '40px';
+    }
     
     //Refresh
     const el = document.getElementById('manualRefresh');
-    el.classList.remove('ui-icon-refresh', 'floatR');
-    el.innerHTML = '⟳';
-    el.style.lineHeight = '1.1';
-    el.style.fontSize = '35px';
-    el.style.color = '#006ce0';
-    el.style.cursor = 'pointer';
-    el.style.marginLeft = '5px';
+    if (el) {
+        el.classList.remove('ui-icon-refresh', 'floatR');
+        el.innerHTML = '⟳';
+        el.style.lineHeight = '1.1';
+        el.style.fontSize = '35px';
+        el.style.color = '#006ce0';
+        el.style.cursor = 'pointer';
+        el.style.marginLeft = '5px';
+    }
     const man = document.querySelector('.refreshButton');
-    man.style.paddingRight = '25px';
+    if (man) {
+        man.style.paddingRight = '25px';
+    }
     
     // Tamanho do texto
     tabela.querySelectorAll('th, td').forEach(cell => {
@@ -65,7 +73,7 @@ function aplicarCloudscapeDesign() {
     
     //Botões superiores
     const botoes = document.querySelectorAll('.topButtonLinks input[type="button"]');
-    botoes.forEach((input, index) => {
+    botoes.forEach((input) => {
         input.style.boxSizing = 'border-box';
         input.style.setProperty("padding", "4px 15px 4px 15px", "important");
         input.style.minWidth = '100px';
@@ -131,7 +139,7 @@ function aplicarCloudscapeDesign() {
         loaDiv.style.width = '33%';
     }
     if (load) {
-        load.classList.remove(".col-md-4");
+        load.classList.remove("col-md-4");
         load.childNodes.forEach(node => {
             if (node.nodeType === Node.TEXT_NODE) {
                 if (node.textContent.includes('Load Issues') || node.textContent.includes('Problemas de carregamento')) {
@@ -171,13 +179,13 @@ function aplicarCloudscapeDesign() {
         el.style.backgroundColor = "transparent";
         el.style.color = "#666666";
         const span = el.querySelector("span");
-        span.style.color = "#f2cd54";
+        if (span) span.style.color = "#f2cd54";
     });
     document.querySelectorAll(".alertBg2").forEach(el => {
         el.style.backgroundColor = "transparent";
         el.style.color = "#666666";
         const span = el.querySelector("span");
-        span.style.color = "#db0000";
+        if (span) span.style.color = "#db0000";
     });
     
     //Notification
@@ -187,23 +195,29 @@ function aplicarCloudscapeDesign() {
         el.style.width = '36%';
         el.style.padding = '20px';
         el.style.textAlign = 'left';
-        el.firstElementChild.style.backgroundColor = "transparent";
-        el.firstElementChild.style.paddingBottom = "10px";
-        el.firstElementChild.style.border = "none";
-        const span = el.firstElementChild.querySelector('span');
-        span.textContent = "Notificações";
-        span.style.fontSize = '19px';
-        span.style.fontWeight = '700';
-        span.style.color = '#0f141a';
-        span.style.padding = '0px';
+        if (el.firstElementChild) {
+            el.firstElementChild.style.backgroundColor = "transparent";
+            el.firstElementChild.style.paddingBottom = "10px";
+            el.firstElementChild.style.border = "none";
+            const span = el.firstElementChild.querySelector('span');
+            if (span) {
+                span.textContent = "Notificações";
+                span.style.fontSize = '19px';
+                span.style.fontWeight = '700';
+                span.style.color = '#0f141a';
+                span.style.padding = '0px';
+            }
+        }
     });
     
     //Overdue Packages
     const td = document.getElementById('selectedUt');
     if (td) {
         const divPai = td.closest("div.col-md-1.topDetailPane");
-        divPai.style.width = '10%';
-        divPai.style.backgroundColor = "#FFFFFF";
+        if (divPai) {
+            divPai.style.width = '10%';
+            divPai.style.backgroundColor = "#FFFFFF";
+        }
     };
     if (td && !td.innerHTML.includes('<br>Packages')) {
         td.innerHTML = td.innerHTML.replace('Packages', '<br>Packages');
@@ -249,7 +263,7 @@ function aplicarCloudscapeDesign() {
         search.style.height = "30px";
         search.style.lineHeight = "30px";
         search.style.padding = "0 10px";
-        search.style.border = "1px solid #8c8c9";
+        search.style.border = "1px solid #8c8c94";
         search.style.borderRadius = "6px";
         search.style.boxSizing = "border-box";
         search.placeholder = "Pesquisar";
@@ -265,15 +279,19 @@ function aplicarCloudscapeDesign() {
     };
     
     const selectPage = document.querySelector('select[name="dashboard_length"]');
-    selectPage.style.setProperty('background-color', '#fff', 'important');
-    selectPage.style.height = '24px';
-    selectPage.style.border = '1px solid #DDDDDD';
-    selectPage.style.borderRadius = '8px';
+    if (selectPage) {
+        selectPage.style.setProperty('background-color', '#fff', 'important');
+        selectPage.style.height = '24px';
+        selectPage.style.border = '1px solid #DDDDDD';
+        selectPage.style.borderRadius = '8px';
+    }
     
     const label = document.querySelector('label[for="dashboard_length"]')
     || document.querySelector('label:has(select[name="dashboard_length"])');
-    label.childNodes[0].textContent = "";
-    label.lastChild.textContent = " Linhas";
+    if (label) {
+        if (label.childNodes[0]) label.childNodes[0].textContent = "";
+        if (label.lastChild) label.lastChild.textContent = " Linhas";
+    }
     
     document.querySelectorAll(
         '.alui-skin .tabletoolbar .dataTables_paginate .previous.ui-button, ' +
@@ -284,7 +302,6 @@ function aplicarCloudscapeDesign() {
     
     //CABEÇALHO
     tabela.querySelectorAll('thead tr:first-child th').forEach(th => {
-        //texto
         th.style.fontSize = '14px';
         th.style.lineHeight = '18px';
         th.style.fontWeight = 'Bold';
@@ -293,8 +310,7 @@ function aplicarCloudscapeDesign() {
         th.style.backgroundColor = '#fff';
         th.style.color = '#424650';
     
-        // Largura das colunas
-        if (th.textContent.includes('Doca' || 'Local')) {
+        if (th.textContent.includes('Doca') || th.textContent.includes('Local')) {
             th.style.width = '8%';
         }
     });
@@ -310,8 +326,10 @@ function aplicarCloudscapeDesign() {
         tdGroup.style.background = "#F7F7F7";
         tdGroup.style.lineHeight = "28px";
         const span = tdGroup.firstElementChild.querySelector('span');
-        span.style.fontWeight = '200';
-        span.style.color = '#000000';
+        if (span) {
+            span.style.fontWeight = '200';
+            span.style.color = '#000000';
+        }
     });
     
     //Status
@@ -334,9 +352,7 @@ function aplicarCloudscapeDesign() {
     if (rightContent) {
         rightContent.style.borderRadius = "16px";
         rightContent.style.border = "1px solid #c6c6cd";
-        //rightContent.style.padding = "20px";
         rightContent.style.paddingTop = "20px";
         rightContent.style.fontSize = '14px';
-    }
     }
 }
