@@ -225,7 +225,7 @@ function aplicarCloudscapeDesign() {
     }
     const overDueDiv = document.getElementById('overDueCount');
     if (overDueDiv) {
-        overDueDiv.style.fontSize = '42px';
+        overDueDiv.style.fontSize = '38px';
         overDueDiv.style.fontWeight = '700';
         //overDueDiv.style.color = '#006ce0';
     }
@@ -233,7 +233,7 @@ function aplicarCloudscapeDesign() {
     if (titulo) {
         const textoSpan = document.createElement('span');
         textoSpan.textContent = 'Pacotes Atrasados';
-        textoSpan.style.fontSize = '14px';
+        textoSpan.style.fontSize = '17px';
         textoSpan.style.fontWeight = '700';
         textoSpan.style.display = 'block';
         textoSpan.style.marginBottom = '25px';
