@@ -714,13 +714,12 @@
         return open.apply(this, [method, url, ...rest]);
     };
 
-    const base64 = "iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAAkUlEQVR4nGNgoDJgxBDxkp7MYCqSxcDIwIRX53+Gfwyn30xj2PY0F78V9fp/GfhYpQk6hY9VhqFe/y+6MAuGQkYGJoZPv58yNOj/x2tgw0VGbL7ANBBdE1Zx3JYRMJCAK0k3kHQX4o9JmMYG/f8obJIAMRrxqBn8YUhnF3ZcEcQqXqHzHpcWTC+R6ipcwUItAADdxzMqJxC35wAAAABJRU5ErkJggg==";
-
     XMLHttpRequest.prototype.send = function(body) {
         this.addEventListener("load", function() {
             if (this._url.includes("/ssp/dock/hrz/ob/fetchdata")) {
                 const dados = JSON.parse(this.responseText);
                 if (dados && dados.ret && Array.isArray(dados.ret.aaData)) {
+                    organizaLinhas();
                     const aaData = dados.ret.aaData;
                     aaData.forEach(item => {
                         const vrId = item.load.vrId;
@@ -729,18 +728,21 @@
                         //if (seal != null`) Se tiver lacre
                         if (status == "LOADING_IN_PROGRESS") {
                             let loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
-                            loadSpan = loadSpan.parentElement.parentElement;
-                            const locationWarp = loadSpan.querySelector('span.locationWarp');
-                            if (locationWarp) {
-                                locationWarp.style.border = "2px solid #00802f";
-                            } else {
-                                const span = loadSpan.querySelector(".DOCK_DOOR");
-                                const img = document.createElement("img");
-                                img.src = `data:image/png;base64,${base64}`;
-                                img.alt = "Iniciado";
-                                img.style.width = "20px";
-                                img.style.height = "14px";
-                                span.replaceWith(img);
+                            if (loadSpan) {
+                                loadSpan = loadSpan.parentElement.parentElement;
+
+                                const locationWarp = loadSpan.querySelector('span.locationWarp');
+                                if (locationWarp) {
+                                    locationWarp.style.border = "2px solid #00802f";
+                                } else {
+                                    const span = loadSpan.querySelector(".DOCK_DOOR");
+                                    const img = document.createElement("img");
+                                    img.src = `data:image/png;base64,${"iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAAkUlEQVR4nGNgoDJgxBDxkp7MYCqSxcDIwIRX53+Gfwyn30xj2PY0F78V9fp/GfhYpQk6hY9VhqFe/y+6MAuGQkYGJoZPv58yNOj/x2tgw0VGbL7ANBBdE1Zx3JYRMJCAK0k3kHQX4o9JmMYG/f8obJIAMRrxqBn8YUhnF3ZcEcQqXqHzHpcWTC+R6ipcwUItAADdxzMqJxC35wAAAABJRU5ErkJggg=="}`;
+                                    img.alt = "Iniciado";
+                                    img.style.width = "20px";
+                                    img.style.height = "14px";
+                                    span.replaceWith(img);
+                                }
                             }
                         }
                     });
@@ -749,6 +751,56 @@
         });
         return send.apply(this, [body]);
     };
+
+    function organizaLinhas() {
+        const index = 4; // índice da coluna "Rota"
+        const asc = true;
+        const tabela = document.getElementById('dashboard');
+        if (!tabela) return console.error("Tabela não encontrada");
+
+        const tbody = tabela.querySelector('tbody');
+        if (!tbody) return console.error("tbody não encontrado");
+
+        const ths = tabela.querySelectorAll('th');
+        const nomeColuna = ths[index] ? (ths[index].innerText.trim() || "Desconhecida") : "Desconhecida";
+
+        const linhas = Array.from(tbody.querySelectorAll('tr'));
+        const grupos = [];
+        let grupoAtual = null;
+
+        linhas.forEach(tr => {
+            if (tr.classList.contains('groupRow')) {
+                grupoAtual = { header: tr, rows: [] };
+                grupos.push(grupoAtual);
+            } else if (grupoAtual) {
+                grupoAtual.rows.push(tr);
+            }
+        });
+
+        grupos.forEach(grupo => {
+            grupo.rows.sort((a, b) => {
+                const a_val = a.children[index]?.innerText.trim() || "";
+                const b_val = b.children[index]?.innerText.trim() || "";
+                return asc ? a_val.localeCompare(b_val) : b_val.localeCompare(a_val);
+            });
+        });
+
+        tbody.innerHTML = "";
+        grupos.forEach(grupo => {
+            tbody.appendChild(grupo.header);
+            grupo.rows.forEach(tr => tbody.appendChild(tr));
+        });
+
+        document.querySelectorAll('.DataTables_sort_wrapper').forEach(wrapper => {
+            if (wrapper.textContent.trim().startsWith("Rota")) {
+                const icon = wrapper.querySelector('.DataTables_sort_icon');
+                if (icon && icon.classList.contains('ui-icon-carat-2-n-s')) {
+                    icon.classList.remove('ui-icon-carat-2-n-s');
+                    icon.classList.add('ui-icon-triangle-1-s');
+                }
+            }
+        });
+    }
 
     async function processarPagina() {
         criaSwitch();
