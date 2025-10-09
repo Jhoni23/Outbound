@@ -188,6 +188,14 @@
                 td.textContent = `${dia}/${mes}/${ano} ${hora}`;
             }
         });
+
+        //Remove ícone bandeira
+        document.querySelectorAll('td span').forEach(span => {
+            const title = span.getAttribute('title')?.toLowerCase() || '';
+            if (title.includes('última carga') || span.classList.contains('driverPresent')) {
+                span.remove();
+            }
+        });
     }
 
     //Conexão banco de dados
@@ -719,13 +727,12 @@
             if (this._url.includes("/ssp/dock/hrz/ob/fetchdata")) {
                 const dados = JSON.parse(this.responseText);
                 if (dados && dados.ret && Array.isArray(dados.ret.aaData)) {
-                    organizaLinhas();
                     const aaData = dados.ret.aaData;
+                    organizaLinhas(aaData);
                     aaData.forEach(item => {
                         const vrId = item.load.vrId;
                         const status = item.load.status;
                         const seal = item.load.seal;
-                        //if (seal != null`) Se tiver lacre
                         if (status == "LOADING_IN_PROGRESS") {
                             let loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
                             if (loadSpan) {
@@ -752,7 +759,7 @@
         return send.apply(this, [body]);
     };
 
-    function organizaLinhas() {
+    function organizaLinhas(aaData) {
         const index = 4; // índice da coluna "Rota"
         const asc = true;
         const tabela = document.getElementById('dashboard');
@@ -799,6 +806,84 @@
                     icon.classList.add('ui-icon-triangle-1-s');
                 }
             }
+        });
+
+        // Contagem de rota
+
+        aaData.forEach(item => {
+            const rota = item.load.route;
+            if (item.trailer != null) {
+                const placa = item.trailer.trailerNumber;
+            } else {
+                const placa = "";
+            }
+            const chegada = item.load.actualArrivalTime;
+        });
+
+        // Seleciona todos os grupos da tabela
+        const gruposL = document.querySelectorAll('tr.groupRow');
+
+        gruposL.forEach((grupo) => {
+            // Começa da próxima linha após o cabeçalho do grupo
+            let linha = grupo.nextElementSibling;
+            let linhasDoGrupo = [];
+
+            // Coleta todas as linhas até o próximo grupo
+            while (linha && !linha.classList.contains('groupRow')) {
+                linhasDoGrupo.push(linha);
+                linha = linha.nextElementSibling;
+            }
+
+            // Mapeia cada linha para seu respectivo "item" (ajuste conforme seu contexto)
+            const rotasComHora = linhasDoGrupo.map(linha => {
+                const span = linha.querySelector('td.sorting_2 .hideLane span.goodLane');
+                const rota = span ? span.textContent.trim() : null;
+
+                // obtém o item associado à linha
+                const item = linha._item || null;
+                const horaStr = item?.load?.actualArrivalTime || null;
+
+                let horaObj = null;
+                if (horaStr) {
+                    // Converte a string de hora para objeto Date
+                    const parsed = Date.parse(horaStr.replace(/-/g, ' '));
+                    if (!isNaN(parsed)) horaObj = new Date(parsed);
+                }
+
+                return { linha, rota, horaObj };
+            }).filter(item => item.rota && item.horaObj); // só considera linhas com hora válida
+
+            // Agrupa por rota
+            const rotasAgrupadas = {};
+            rotasComHora.forEach(item => {
+                if (!rotasAgrupadas[item.rota]) rotasAgrupadas[item.rota] = [];
+                rotasAgrupadas[item.rota].push(item);
+            });
+
+            // Para cada rota com múltiplas entradas, ordena por hora e adiciona numeração
+            Object.keys(rotasAgrupadas).forEach(rota => {
+                const grupoRota = rotasAgrupadas[rota];
+                if (grupoRota.length > 1) {
+                    // Ordena por hora (mais antiga primeiro)
+                    grupoRota.sort((a, b) => a.horaObj - b.horaObj);
+
+                    // Adiciona numeração (1°, 2°, 3°...)
+                    grupoRota.forEach((item, idx) => {
+                        const span = item.linha.querySelector('td.sorting_2 .hideLane span.goodLane');
+
+                        if (span && !span.querySelector('.ordemRota')) {
+                            const ordemSpan = document.createElement('span');
+                            ordemSpan.className = 'ordemRota';
+                            ordemSpan.style.marginLeft = '9px';
+                            ordemSpan.style.fontSize = '13px';
+                            ordemSpan.style.fontWeight = '700';
+                            ordemSpan.style.color = '#CACACA';
+                            ordemSpan.textContent = `${idx + 1}°`;
+                            span.appendChild(ordemSpan);
+                        }
+                    });
+                }
+            });
         });
     }
 
