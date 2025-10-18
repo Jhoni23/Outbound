@@ -810,59 +810,34 @@
 
         // Contagem de rota
 
+        const linhas = document.querySelectorAll('tr');
+        
+
         aaData.forEach(item => {
-            const rota = item.load.route;
-            if (item.trailer != null) {
-                const placa = item.trailer.trailerNumber;
-            } else {
-                const placa = "";
-            }
             const chegada = item.load.actualArrivalTime;
         });
 
-        // Seleciona todos os grupos da tabela
-        const gruposL = document.querySelectorAll('tr.groupRow');
+        // Seleciona os grupos da tabela
+        document.querySelectorAll('tr.groupRow').forEach((grupo) => {
+            // Seleciona a primeira linha após o cabeçalho do grupo
+            let primeiraLinha = grupo.nextElementSibling;
 
-        gruposL.forEach((grupo) => {
-            // Começa da próxima linha após o cabeçalho do grupo
-            let linha = grupo.nextElementSibling;
+            let proxima linha
+            for(let 1 = 0; i){
+            }
+
             let linhasDoGrupo = [];
 
-            // Coleta todas as linhas até o próximo grupo
-            while (linha && !linha.classList.contains('groupRow')) {
+            // Enquanto a próxima linha for diferente de um cabeçalho
+            while (!linha.classList.contains('groupRow')) {
+                //Adiciono a linha no grupo
                 linhasDoGrupo.push(linha);
                 linha = linha.nextElementSibling;
             }
 
-            // Mapeia cada linha para seu respectivo "item" (ajuste conforme seu contexto)
-            const rotasComHora = linhasDoGrupo.map(linha => {
-                const span = linha.querySelector('td.sorting_2 .hideLane span.goodLane');
-                const rota = span ? span.textContent.trim() : null;
-
-                // obtém o item associado à linha
-                const item = linha._item || null;
-                const horaStr = item?.load?.actualArrivalTime || null;
-
-                let horaObj = null;
-                if (horaStr) {
-                    // Converte a string de hora para objeto Date
-                    const parsed = Date.parse(horaStr.replace(/-/g, ' '));
-                    if (!isNaN(parsed)) horaObj = new Date(parsed);
-                }
-
-                return { linha, rota, horaObj };
-            }).filter(item => item.rota && item.horaObj); // só considera linhas com hora válida
-
-            // Agrupa por rota
-            const rotasAgrupadas = {};
-            rotasComHora.forEach(item => {
-                if (!rotasAgrupadas[item.rota]) rotasAgrupadas[item.rota] = [];
-                rotasAgrupadas[item.rota].push(item);
-            });
-
             // Para cada rota com múltiplas entradas, ordena por hora e adiciona numeração
-            Object.keys(rotasAgrupadas).forEach(rota => {
-                const grupoRota = rotasAgrupadas[rota];
+            Object.keys(linhasDoGrupo).forEach(linha => {
+                const grupoRota = linhasDoGrupo[linha];
                 if (grupoRota.length > 1) {
                     // Ordena por hora (mais antiga primeiro)
                     grupoRota.sort((a, b) => a.horaObj - b.horaObj);
