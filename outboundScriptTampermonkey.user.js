@@ -192,7 +192,7 @@
         //Remove ícone bandeira
         document.querySelectorAll('td span').forEach(span => {
             const title = span.getAttribute('title')?.toLowerCase() || '';
-            if (title.includes('última carga') || span.classList.contains('driverPresent')) {
+            if (title.includes('última carga') || title.includes('last load for cpt') || span.classList.contains('driverPresent')) {
                 span.remove();
             }
         });
@@ -557,6 +557,7 @@
         "twenty foot box truck": "TOCO",
         "forty foot truck": "VUC",
         "fourteen foot van": "3/4",
+        "seven foot van": "3/4",
     };
 
     function traduzirCampos() {
@@ -810,37 +811,63 @@
 
         // Contagem de rota
 
-        const linhas = document.querySelectorAll('tr');
-        
-
         aaData.forEach(item => {
-            const chegada = item.load.actualArrivalTime;
+            //console.log(item);
         });
 
-        // Seleciona os grupos da tabela
-        document.querySelectorAll('tr.groupRow').forEach((grupo) => {
-            // Seleciona a primeira linha após o cabeçalho do grupo
-            let primeiraLinha = grupo.nextElementSibling;
-
-            let proxima linha
-            for(let 1 = 0; i){
-            }
-
-            let linhasDoGrupo = [];
-
-            // Enquanto a próxima linha for diferente de um cabeçalho
-            while (!linha.classList.contains('groupRow')) {
-                //Adiciono a linha no grupo
-                linhasDoGrupo.push(linha);
+        // Seleciona todos os grupos da tabela
+        document.querySelectorAll('tr.groupRow').forEach((cabecalho) => {
+            //Seleciona a 1° linha do grupo
+            let linha = cabecalho.nextElementSibling;
+            //Transforma o grupo em array
+            let grupo = [];
+            while (linha && !linha.classList.contains('groupRow')) {
+                grupo.push(linha);
                 linha = linha.nextElementSibling;
             }
+            //Separa os grupos repetidos
+            const gruposRepetidos = [];
+            for (let i = 0; i < grupo.length; ) {
+                const linhaAtual = grupo[i];
+                const valorAtual = linhaAtual.querySelector('.goodLane')?.textContent.trim();
+                const grupo2 = [linhaAtual];
+                let j = i + 1;
+                while (j < grupo.length && grupo[j].querySelector('.goodLane')?.textContent.trim() === valorAtual) {
+                    grupo2.push(grupo[j]);
+                    j++;
+                }
+                if (grupo2.length > 1) gruposRepetidos.push(grupo2);
+                i = j;
+            }
 
-            // Para cada rota com múltiplas entradas, ordena por hora e adiciona numeração
-            Object.keys(linhasDoGrupo).forEach(linha => {
-                const grupoRota = linhasDoGrupo[linha];
-                if (grupoRota.length > 1) {
-                    // Ordena por hora (mais antiga primeiro)
-                    grupoRota.sort((a, b) => a.horaObj - b.horaObj);
+            if (gruposRepetidos.length >= 1){
+                for (let i = 0; i < gruposRepetidos.length; i++) {
+                    // Cria um array com as linhas que têm hora válida
+                    const linhasComHora = gruposRepetidos[i].map(linha => {
+                        // Supondo que a hora esteja armazenada em algum atributo ou dataset
+                        // Ex: <tr data-arrival="18-Oct-25 23:12">
+                        const vrid = linha.getAttribute("data-vrid") || "";
+                        let horaStr = "";
+                        aaData.forEach(item => {
+                            if (item.load.vrID == vrid){
+                                horaStr = item.load.actualArrivalTime;
+                            }
+                        });
+                        if (!horaStr) return null;
+
+                        // Converte string para objeto Date
+                        const parsed = Date.parse(horaStr.replace(/-/g, ' '));
+                        if (isNaN(parsed)) return null;
+
+                        return { linha, hora: new Date(parsed) };
+                    })
+                    .filter(Boolean);
+
+                    // Se tiver menos de duas linhas com hora, não faz nada
+                    if (linhasComHora.length < 2) return;
+
+                    // Ordena pela hora (mais antiga primeiro)
+                    linhasComHora.sort((a, b) => a.hora - b.hora);
 
                     // Adiciona numeração (1°, 2°, 3°...)
                     grupoRota.forEach((item, idx) => {
@@ -853,12 +880,12 @@
                             ordemSpan.style.fontSize = '13px';
                             ordemSpan.style.fontWeight = '700';
                             ordemSpan.style.color = '#CACACA';
-                            ordemSpan.textContent = `${idx + 1}°`;
+                            ordemSpan.textContent = `${idx + 1}º`;
                             span.appendChild(ordemSpan);
                         }
                     });
                 }
-            });
+            };
         });
     }
 
