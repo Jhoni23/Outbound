@@ -840,52 +840,54 @@
                 i = j;
             }
 
-            if (gruposRepetidos.length >= 1){
-                for (let i = 0; i < gruposRepetidos.length; i++) {
-                    // Cria um array com as linhas que têm hora válida
-                    const linhasComHora = gruposRepetidos[i].map(linha => {
-                        // Supondo que a hora esteja armazenada em algum atributo ou dataset
-                        // Ex: <tr data-arrival="18-Oct-25 23:12">
-                        const vrid = linha.getAttribute("data-vrid") || "";
-                        let horaStr = "";
-                        aaData.forEach(item => {
-                            if (item.load.vrID == vrid){
-                                horaStr = item.load.actualArrivalTime;
+            gruposRepetidos.forEach((grupoRepetido) => {
+                if (grupoRepetido.length >= 1){
+                    for (let i = 0; i < grupoRepetido.length; i++) {
+                        // Cria um array com as linhas que têm hora válida
+                        const linhasComHora = grupoRepetido[i].map(linha => {
+                            // Supondo que a hora esteja armazenada em algum atributo ou dataset
+                            // Ex: <tr data-arrival="18-Oct-25 23:12">
+                            const vrid = linha.getAttribute("data-vrid") || "";
+                            let horaStr = "";
+                            aaData.forEach(item => {
+                                if (item.load.vrID == vrid){
+                                    horaStr = item.load.actualArrivalTime;
+                                }
+                            });
+                            if (!horaStr) return null;
+
+                            // Converte string para objeto Date
+                            const parsed = Date.parse(horaStr.replace(/-/g, ' '));
+                            if (isNaN(parsed)) return null;
+
+                            return { linha, hora: new Date(parsed) };
+                        })
+                        .filter(Boolean);
+
+                        // Se tiver menos de duas linhas com hora, não faz nada
+                        if (linhasComHora.length < 2) return;
+
+                        // Ordena pela hora (mais antiga primeiro)
+                        linhasComHora.sort((a, b) => a.hora - b.hora);
+
+                        // Adiciona numeração (1°, 2°, 3°...)
+                        grupoRota.forEach((item, idx) => {
+                            const span = item.linha.querySelector('td.sorting_2 .hideLane span.goodLane');
+
+                            if (span && !span.querySelector('.ordemRota')) {
+                                const ordemSpan = document.createElement('span');
+                                ordemSpan.className = 'ordemRota';
+                                ordemSpan.style.marginLeft = '9px';
+                                ordemSpan.style.fontSize = '13px';
+                                ordemSpan.style.fontWeight = '700';
+                                ordemSpan.style.color = '#CACACA';
+                                ordemSpan.textContent = `${idx + 1}º`;
+                                span.appendChild(ordemSpan);
                             }
                         });
-                        if (!horaStr) return null;
-
-                        // Converte string para objeto Date
-                        const parsed = Date.parse(horaStr.replace(/-/g, ' '));
-                        if (isNaN(parsed)) return null;
-
-                        return { linha, hora: new Date(parsed) };
-                    })
-                    .filter(Boolean);
-
-                    // Se tiver menos de duas linhas com hora, não faz nada
-                    if (linhasComHora.length < 2) return;
-
-                    // Ordena pela hora (mais antiga primeiro)
-                    linhasComHora.sort((a, b) => a.hora - b.hora);
-
-                    // Adiciona numeração (1°, 2°, 3°...)
-                    grupoRota.forEach((item, idx) => {
-                        const span = item.linha.querySelector('td.sorting_2 .hideLane span.goodLane');
-
-                        if (span && !span.querySelector('.ordemRota')) {
-                            const ordemSpan = document.createElement('span');
-                            ordemSpan.className = 'ordemRota';
-                            ordemSpan.style.marginLeft = '9px';
-                            ordemSpan.style.fontSize = '13px';
-                            ordemSpan.style.fontWeight = '700';
-                            ordemSpan.style.color = '#CACACA';
-                            ordemSpan.textContent = `${idx + 1}º`;
-                            span.appendChild(ordemSpan);
-                        }
-                    });
-                }
-            };
+                    }
+                };
+            });
         });
     }
 
