@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      3.3
+// @version      4.0
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -35,7 +35,7 @@
                     container.style.background = "#0f141a";
                     container.style.color = "white";
                     container.style.padding = "15px 20px";
-                    container.style.borderRadius = "10px";
+                    container.style.borderRadius = "4px";
                     container.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
                     container.style.zIndex = "999999";
                     container.style.fontFamily = "Arial, sans-serif";
@@ -44,7 +44,7 @@
 
                     const message = document.createElement("div");
                     message.style.marginBottom = "10px";
-                    message.textContent = "🚀 Nova versão disponível!";
+                    message.textContent = "Nova versão da extensão disponível!";
                     container.appendChild(message);
 
                     const button = document.createElement("button");
@@ -53,7 +53,7 @@
                     button.style.color = "white";
                     button.style.border = "none";
                     button.style.padding = "8px 12px";
-                    button.style.borderRadius = "6px";
+                    button.style.borderRadius = "4px";
                     button.style.cursor = "pointer";
                     button.style.fontWeight = "bold";
 
@@ -113,18 +113,6 @@
         //Remove Elementos
         document.querySelectorAll('div.floatL.topHelpLinks, span.floatL.relatedUI, #topPaneContent span.floatL.textBold')
             .forEach(el => el.remove());
-
-        const statusParaRemover = [
-            "READY_FOR_LOADING",
-            "LOADING_IN_PROGRESS",
-            "TRAILER_ATTACHED"
-        ];
-        document.querySelectorAll('div.originalStatusCheck').forEach(div => {
-            const status = div.getAttribute("data-status");
-            if (statusParaRemover.includes(status)) {
-                div.remove();
-            }
-        });
 
         document.querySelectorAll('td div[title][alt]').forEach(div => {
             if (div.textContent.trim() === '[ATS_CONTRACTED]') {
@@ -254,26 +242,23 @@
 
         //Load Issues
         const loaDiv = document.querySelector('div.col-md-4.topDetailPane');
-        const load = document.querySelector('div.col-md-4.topDetailPane table tbody tr td.loadHead');
         if (loaDiv) {
             loaDiv.style.backgroundColor = '#FFFFFF';
             loaDiv.classList.remove("col-md-4");
             loaDiv.style.width = '33%';
-        }
-        if (load) {
-            load.classList.remove("col-md-4");
-            load.childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    if (node.textContent.includes('Load Issues') || node.textContent.includes('Problemas de carregamento')) {
-                        const span = document.createElement('span');
-                        span.textContent = 'Problemas de Carga ';
-                        span.style.fontSize = '18px';
-                        span.style.fontWeight = '700';
-                        span.style.color = '#0f141a';
-                        load.replaceChild(span, node);
-                    }
+
+            const load = loaDiv.querySelector('td.loadHead');
+            if (load) {
+                const textNode = Array.from(load.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '');
+                if (textNode) {
+                    const span = document.createElement('span');
+                    span.textContent = textNode.textContent.trim();
+                    span.style.color = '#0f141a';
+                    span.style.fontSize = '18px';
+                    span.style.fontWeight = '700';
+                    load.replaceChild(span, textNode);
                 }
-            });
+            }
         }
         const aView = document.querySelector('a#viewAlertTable');
         if (aView) {
@@ -341,32 +326,18 @@
                 divPai.style.backgroundColor = "#FFFFFF";
             }
         };
-        if (td && !td.innerHTML.includes('<br>Packages')) {
-            td.innerHTML = td.innerHTML.replace('Packages', '<br>Packages');
-            td.classList.remove('textCenter');
+        const ut = document.querySelector('#selectedUt');
+        if (ut) {
+            ut.style.color = '#0f141a';
+            ut.style.fontSize = '16px';
+            ut.style.fontWeight = '700';
         }
         const overDueDiv = document.getElementById('overDueCount');
         if (overDueDiv) {
-            overDueDiv.style.fontSize = '38px';
+            overDueDiv.style.fontSize = '34px';
             overDueDiv.style.fontWeight = '700';
-            //overDueDiv.style.color = '#006ce0';
-        }
-        const titulo = document.getElementById('selectedUt');
-        if (titulo) {
-            const textoSpan = document.createElement('span');
-            textoSpan.textContent = 'Pacotes Atrasados';
-            textoSpan.style.fontSize = '18px';
-            textoSpan.style.fontWeight = '700';
-            textoSpan.style.display = 'block';
-            textoSpan.style.marginBottom = '25px';
-            textoSpan.style.color = '#0f141a';
-
-            const overDueDiv = titulo.querySelector('#overDueCount');
-            titulo.innerHTML = '';
-            titulo.appendChild(textoSpan);
-            if (overDueDiv) {
-                titulo.appendChild(overDueDiv);
-            }
+            overDueDiv.style.color = '#666666';
+            overDueDiv.style.marginTop = "20px";
         }
 
         //TABELA
@@ -457,15 +428,8 @@
         //Status
         document.querySelectorAll(".dwellProgressStatusTime").forEach(el => {
             let texto = el.textContent.trim();
-            if (texto.includes("Since")) {
-                el.textContent = texto.replace("Since", "Desde");
-            } else if (texto.includes(" Hour")) {
+            if (texto.includes(" Hour")) {
                 el.textContent = texto.replace(" Hour", "h");
-            }
-        });
-        document.querySelectorAll('[data-status="SCHEDULED"]').forEach(el => {
-            if (el.textContent.trim() === "Scheduled") {
-                el.textContent = "Programado";
             }
         });
 
@@ -1119,24 +1083,15 @@
             }
         });
 
-        // Contagem de rota
-        /*
-        aaData.forEach(item => {
-            //console.log(item);
-        });
-
-        // Seleciona todos os grupos da tabela
+        // Separa os grupos repetidos
+        const gruposRepetidos = [];
         document.querySelectorAll('tr.groupRow').forEach((cabecalho) => {
-            //Seleciona a 1° linha do grupo
             let linha = cabecalho.nextElementSibling;
-            //Transforma o grupo em array
             let grupo = [];
             while (linha && !linha.classList.contains('groupRow')) {
                 grupo.push(linha);
                 linha = linha.nextElementSibling;
             }
-            //Separa os grupos repetidos
-            const gruposRepetidos = [];
             for (let i = 0; i < grupo.length; ) {
                 const linhaAtual = grupo[i];
                 const valorAtual = linhaAtual.querySelector('.goodLane')?.textContent.trim();
@@ -1149,57 +1104,57 @@
                 if (grupo2.length > 1) gruposRepetidos.push(grupo2);
                 i = j;
             }
-
-            gruposRepetidos.forEach((grupoRepetido) => {
-                if (grupoRepetido.length >= 1){
-                    for (let i = 0; i < grupoRepetido.length; i++) {
-                        // Cria um array com as linhas que têm hora válida
-                        const linhasComHora = grupoRepetido[i].map(linha => {
-                            // Supondo que a hora esteja armazenada em algum atributo ou dataset
-                            // Ex: <tr data-arrival="18-Oct-25 23:12">
-                            const vrid = linha.getAttribute("data-vrid") || "";
-                            let horaStr = "";
-                            aaData.forEach(item => {
-                                if (item.load.vrID == vrid){
-                                    horaStr = item.load.actualArrivalTime;
-                                }
-                            });
-                            if (!horaStr) return null;
-
-                            // Converte string para objeto Date
-                            const parsed = Date.parse(horaStr.replace(/-/g, ' '));
-                            if (isNaN(parsed)) return null;
-
-                            return { linha, hora: new Date(parsed) };
-                        })
-                        .filter(Boolean);
-
-                        // Se tiver menos de duas linhas com hora, não faz nada
-                        if (linhasComHora.length < 2) return;
-
-                        // Ordena pela hora (mais antiga primeiro)
-                        linhasComHora.sort((a, b) => a.hora - b.hora);
-
-                        // Adiciona numeração (1°, 2°, 3°...)
-                        grupoRota.forEach((item, idx) => {
-                            const span = item.linha.querySelector('td.sorting_2 .hideLane span.goodLane');
-
-                            if (span && !span.querySelector('.ordemRota')) {
-                                const ordemSpan = document.createElement('span');
-                                ordemSpan.className = 'ordemRota';
-                                ordemSpan.style.marginLeft = '9px';
-                                ordemSpan.style.fontSize = '13px';
-                                ordemSpan.style.fontWeight = '700';
-                                ordemSpan.style.color = '#CACACA';
-                                ordemSpan.textContent = `${idx + 1}º`;
-                                span.appendChild(ordemSpan);
-                            }
-                        });
-                    }
-                };
-            });
         });
-        */
+
+        // Adiciona numeração (1°, 2°, 3°...)
+        function getData(lin) {
+            const spanVrid = lin.querySelector('span.loadId');
+            if (!spanVrid) return null;
+
+            const vrid = spanVrid.getAttribute('data-vrid');
+            const match = aaData.find(item => item.load.vrId == vrid);
+
+            return match ? match.load.actualArrivalTime : null;
+        }
+        gruposRepetidos.forEach((grupoRepetido) => {
+            if (grupoRepetido.length >= 1) {
+                let linhasComHora = grupoRepetido.map(linha => ({
+                    linha,
+                    data: getData(linha)
+                }));
+
+                linhasComHora = linhasComHora.filter(item => {
+                    if (!item.data) return false;
+                    const d = new Date(item.data.replace(/-/g, ' '));
+                    return !isNaN(d); // mantém só se for data válida
+                });
+
+                linhasComHora.forEach(item => {
+                    item.dateObj = new Date(item.data.replace(/-/g, ' '));
+                });
+
+                linhasComHora.sort((a, b) => a.dateObj - b.dateObj);
+
+                linhasComHora.forEach((item, idx) => {
+                    const span = item.linha.querySelector('span.goodLane');
+                    if (!span) return;
+
+                    const old = span.querySelector('.ordemRota');
+                    if (old) old.remove();
+
+                    const ordemSpan = document.createElement('span');
+                    ordemSpan.className = 'ordemRota';
+                    ordemSpan.style.marginLeft = '9px';
+                    ordemSpan.style.fontSize = '13px';
+                    ordemSpan.style.fontWeight = '700';
+                    ordemSpan.style.color = '#CACACA';
+                    ordemSpan.textContent = `${idx + 1}º`;
+                    ordemSpan.title = `Chegou em ${idx + 1}º`;
+
+                    span.appendChild(ordemSpan);
+                });
+            }
+        });
     }
 
     async function processarPagina() {
