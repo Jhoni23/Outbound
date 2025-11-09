@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      4.0
+// @version      4.1
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -32,10 +32,11 @@
                     container.style.top = "20px";
                     container.style.left = "50%";
                     container.style.transform = "translateX(-50%)";
-                    container.style.background = "#0f141a";
-                    container.style.color = "white";
+                    container.style.background = "#ffffff";
+                    container.style.color = "#232f3e";
                     container.style.padding = "15px 20px";
                     container.style.borderRadius = "4px";
+                    container.style.border = '1px solid #B1BAC3';
                     container.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
                     container.style.zIndex = "999999";
                     container.style.fontFamily = "Arial, sans-serif";
@@ -890,27 +891,95 @@
             if (!tr.querySelector('td.motoristaCol')) {
                 const tdMotorista = document.createElement('td');
                 tdMotorista.className = 'motoristaCol';
-                tdMotorista.textContent = '—';
+                tdMotorista.textContent = '';
 
                 const tdTrailer = tr.querySelector('td.trailerNumCol');
                 if (tdTrailer) {
                     tdTrailer.insertAdjacentElement('afterend', tdMotorista);
 
-                    const trailerId = tdTrailer.querySelector('span.trailerNo')?.textContent.trim();
-                    if (trailerId) {
+                    //const trailerId = tdTrailer.querySelector('span.trailerNo')?.textContent.trim();
+                    const trailerId = tr.querySelector('span.loadId').getAttribute('data-vrid');
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.style.width = '90%';
+                    input.style.border = 'none';
+                    input.style.boxShadow = 'none';
+
+                    tdMotorista.textContent = '';
+                    tdMotorista.appendChild(input);
+
+                    const params = {
+                        TableName: 'nome-motoristas',
+                        Key: { placa: trailerId }
+                    };
+
+                    docClient.get(params, (err, data) => {
+                        if (data && data.Item && data.Item.nome) {
+                            input.value = data.Item.nome;
+                        } else {
+                            input.value = "—";
+                        }
+                    });
+
+                    async function salvar(nome) {
+                        const now = Math.floor(Date.now() / 1000);
+                        const expireAt = now + 9 * 60 * 60;
+                        const nomeUpper = nome.trim().toUpperCase();
+
+                        // Atualiza o texto do TD imediatamente na tela
+                        tdMotorista.textContent = nomeUpper || '—';
+
+                        // Se não tem nome → remove o item
+                        if (!nomeUpper) {
+                            const params = {
+                                TableName: 'nome-motoristas',
+                                Key: { placa: trailerId }
+                            };
+
+                            try {
+                                await docClient.delete(params).promise();
+                                console.log(`Removido: ${trailerId}`);
+                            } catch (err) {
+                                console.error('Erro ao remover:', err);
+                            }
+                            return;
+                        }
+
+                        // Caso tenha nome → atualiza ou cria
                         const params = {
                             TableName: 'nome-motoristas',
-                            Key: { placa: trailerId }
+                            Key: { placa: trailerId },
+                            UpdateExpression: 'SET #n = :nome, expireAt = :expireAt',
+                            ExpressionAttributeNames: {
+                                '#n': 'nome' // evita conflito com palavra reservada
+                            },
+                            ExpressionAttributeValues: {
+                                ':nome': nomeUpper,
+                                ':expireAt': expireAt
+                            }
                         };
 
-                        docClient.get(params, (err, data) => {
-                            if (data.Item && data.Item.nome) {
-                                tdMotorista.textContent = data.Item.nome;
-                            }
-                        });
+                        try {
+                            await docClient.update(params).promise();
+                            console.log(`Atualizado: ${trailerId} = ${nomeUpper}`);
+                        } catch (err) {
+                            console.error('Erro ao atualizar:', err);
+                        }
                     }
 
-                    //Correção desordem colunas
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            salvar(input.value);
+                        }
+                    });
+
+                    input.addEventListener('focus', () => {
+                        if (input.value === '—') {
+                            input.value = '';
+                        }
+                    });
+
                     const observer = new MutationObserver(mutations => {
                         mutations.forEach(mutation => {
                             if (mutation.type === 'characterData' || mutation.type === 'childList') {
@@ -922,68 +991,6 @@
                         });
                     });
                     observer.observe(tdMotorista, { characterData: true, subtree: true, childList: true });
-
-                    tdMotorista.addEventListener('click', () => {
-                        const trailerId = tdTrailer.querySelector('span.trailerNo')?.textContent.trim();
-                        if (!trailerId) return;
-
-                        const input = document.createElement('input');
-                        input.type = 'text';
-                        input.value = tdMotorista.textContent !== '—' ? tdMotorista.textContent : '';
-                        input.style.width = '90%';
-
-                        tdMotorista.textContent = '';
-                        tdMotorista.appendChild(input);
-                        input.focus();
-
-                        function salvar(nome) {
-                            const now = Math.floor(Date.now() / 1000);
-                            const expireAt = now + 9 * 60 * 60;
-                            const nomeUpper = nome.trim().toUpperCase();
-                            if (nomeUpper) {
-                                const params = {
-                                    TableName: 'nome-motoristas',
-                                    Item: {
-                                        placa: trailerId,
-                                        nome: nomeUpper,
-                                        expireAt: expireAt
-                                    }
-                                };
-                                docClient.put(params, (err) => {
-                                    if (err) {
-                                        console.error("Erro ao salvar:", err);
-                                    } else {
-                                        console.log(`Salvo: ${trailerId} = ${nomeUpper}`);
-                                    }
-                                });
-                            } else {
-                                const params = {
-                                    TableName: 'nome-motoristas',
-                                    Key: { placa: trailerId }
-                                };
-                                docClient.delete(params, (err) => {
-                                    if (err) {
-                                        console.error("Erro ao remover:", err);
-                                    } else {
-                                        console.log(`Removido: ${trailerId}`);
-                                    }
-                                });
-                            }
-                            tdMotorista.textContent = nomeUpper || '—';
-                        }
-
-                        input.addEventListener('keydown', (e) => {
-                            if (e.key === 'Enter') {
-                                salvar(input.value);
-                            } else if (e.key === 'Escape') {
-                                tdMotorista.textContent = input.value || '—';
-                            }
-                        });
-
-                        input.addEventListener('blur', () => {
-                            salvar(input.value);
-                        });
-                    });
                 }
             }
         });
