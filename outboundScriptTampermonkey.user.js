@@ -437,7 +437,7 @@
         //Div Right
         const rightContent = document.getElementById("rightContent");
         if (rightContent) {
-            rightContent.style.borderRadius = "16px";
+            rightContent.style.borderRadius = "4px";
             rightContent.style.border = "1px solid #c6c6cd";
             rightContent.style.paddingTop = "20px";
             rightContent.style.fontSize = '14px';
@@ -639,8 +639,7 @@
 
                                     //if (placa == "") {getIDBOL();};
 
-                                    const tdMotorista = linhaSelecionada.querySelector('td.motoristaCol');
-                                    let motorista = tdMotorista?.textContent.trim() || "";
+                                    const motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
                                     if (motorista == "—") {motorista = ""};
 
                                     const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
@@ -927,9 +926,6 @@
                         const expireAt = now + 9 * 60 * 60;
                         const nomeUpper = nome.trim().toUpperCase();
 
-                        // Atualiza o texto do TD imediatamente na tela
-                        tdMotorista.textContent = nomeUpper || '—';
-
                         // Se não tem nome → remove o item
                         if (!nomeUpper) {
                             const params = {
@@ -940,6 +936,8 @@
                             try {
                                 await docClient.delete(params).promise();
                                 console.log(`Removido: ${trailerId}`);
+                                input.blur();
+                                input.value = '—';
                             } catch (err) {
                                 console.error('Erro ao remover:', err);
                             }
@@ -963,6 +961,8 @@
                         try {
                             await docClient.update(params).promise();
                             console.log(`Atualizado: ${trailerId} = ${nomeUpper}`);
+                            input.blur();
+                            input.value = nomeUpper;
                         } catch (err) {
                             console.error('Erro ao atualizar:', err);
                         }
