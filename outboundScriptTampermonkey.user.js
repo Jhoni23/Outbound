@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      4.2
+// @version      4.3
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -446,6 +446,18 @@
 
     // FIM CLOUDSCAPE
 
+    //Ler FC
+    function obterFC(name) {
+        const cookies = document.cookie.split("; ");
+        for (const cookie of cookies) {
+            const [key, value] = cookie.split("=");
+            if (key === name) return decodeURIComponent(value);
+        }
+        return null; // se não encontrar
+    }
+    const FC = obterFC("setNodeId");
+
+    //Formata datas
     function formatarDatas() {
         const meses = {
             Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
@@ -500,16 +512,7 @@
         });
     }
 
-    //Seleciona FC
-    let FC = ""
-    function selecionarFC() {
-        const select = document.getElementById("availableNodeName");
-        if (select) {
-            const opcaoSelecionada = select.options[select.selectedIndex];
-            FC = opcaoSelecionada.text;
-        }
-    }
-
+    //Botão Vale Pallet
     let criouObsever = false;
     let divRight = null;
     function adicionarBotaoValePallet() {
@@ -636,8 +639,6 @@
 
                                     const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
                                     const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
-
-                                    //if (placa == "") {getIDBOL();};
 
                                     const motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
                                     if (motorista == "—") {motorista = ""};
@@ -824,8 +825,6 @@
         "Sort/Route": "Rota",
         "Classificar/Rotear": "Rota",
 
-        "Scheduled Departure Window": "Janela de Partida",
-
         "twenty six foot box truck": "TRUCK",
         "forty eight foot truck": "CARRETA",
         "twenty foot box truck": "TOCO",
@@ -855,15 +854,6 @@
             }
         });
 
-        //Schedule departure window
-        document.querySelectorAll('.sdtGroupWindow').forEach(div => {
-            div.childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE && node.nodeValue.includes('Scheduled Departure Window')) {
-                    node.nodeValue = node.nodeValue.replace('Scheduled Departure Window', 'Janela de Partida');
-                }
-            });
-        });
-
         //Tipologias
         document.querySelectorAll('div.capitalizeWord').forEach(div => {
             const texto = div.textContent.trim();
@@ -873,6 +863,7 @@
         });
     }
 
+    // Coluna motorista
     function adicionarColunaMotorista() {
         const tabela = document.querySelector('table#dashboard');
         if (!tabela) return;
@@ -996,51 +987,7 @@
         });
     }
 
-    //CheckStart
-    const open = XMLHttpRequest.prototype.open;
-    const send = XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
-        this._url = url;
-        return open.apply(this, [method, url, ...rest]);
-    };
-
-    XMLHttpRequest.prototype.send = function(body) {
-        this.addEventListener("load", function() {
-            if (this._url.includes("/ssp/dock/hrz/ob/fetchdata")) {
-                const dados = JSON.parse(this.responseText);
-                if (dados && dados.ret && Array.isArray(dados.ret.aaData)) {
-                    const aaData = dados.ret.aaData;
-                    organizaLinhas(aaData);
-                    aaData.forEach(item => {
-                        const vrId = item.load.vrId;
-                        const status = item.load.status;
-                        const seal = item.load.seal;
-                        if (status == "LOADING_IN_PROGRESS") {
-                            let loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
-                            if (loadSpan) {
-                                loadSpan = loadSpan.parentElement.parentElement;
-
-                                const locationWarp = loadSpan.querySelector('span.locationWarp');
-                                if (locationWarp) {
-                                    locationWarp.style.border = "2px solid #00802f";
-                                } else {
-                                    const span = loadSpan.querySelector(".DOCK_DOOR");
-                                    const img = document.createElement("img");
-                                    img.src = `data:image/png;base64,${"iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAAkUlEQVR4nGNgoDJgxBDxkp7MYCqSxcDIwIRX53+Gfwyn30xj2PY0F78V9fp/GfhYpQk6hY9VhqFe/y+6MAuGQkYGJoZPv58yNOj/x2tgw0VGbL7ANBBdE1Zx3JYRMJCAK0k3kHQX4o9JmMYG/f8obJIAMRrxqBn8YUhnF3ZcEcQqXqHzHpcWTC+R6ipcwUItAADdxzMqJxC35wAAAABJRU5ErkJggg=="}`;
-                                    img.alt = "Iniciado";
-                                    img.style.width = "20px";
-                                    img.style.height = "14px";
-                                    span.replaceWith(img);
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        });
-        return send.apply(this, [body]);
-    };
-
+    // Organiza Linhas
     function organizaLinhas(aaData) {
         const index = 4; // índice da coluna "Rota"
         const asc = true;
@@ -1164,26 +1111,56 @@
         });
     }
 
-    async function processarPagina() {
-        selecionarFC();
-        formatarDatas();
-        traduzirCampos();
-        adicionarBotaoValePallet();
-        if (FC == "GRU8" ) {adicionarColunaMotorista();}
-        aplicarCloudscapeDesign();
+    // Check Start
+    function checkStart(aaData) {
+        aaData.forEach(item => {
+            const vrId = item.load.vrId;
+            const status = item.load.status;
+            const seal = item.load.seal;
+            if (status == "LOADING_IN_PROGRESS") {
+                let loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
+                if (loadSpan) {
+                    loadSpan = loadSpan.parentElement.parentElement;
+
+                    const locationWarp = loadSpan.querySelector('span.locationWarp');
+                    if (locationWarp) {
+                        locationWarp.style.border = "2px solid #00802f";
+                    } else {
+                        const span = loadSpan.querySelector(".DOCK_DOOR");
+                        const img = document.createElement("img");
+                        img.src = `data:image/png;base64,${"iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAAkUlEQVR4nGNgoDJgxBDxkp7MYCqSxcDIwIRX53+Gfwyn30xj2PY0F78V9fp/GfhYpQk6hY9VhqFe/y+6MAuGQkYGJoZPv58yNOj/x2tgw0VGbL7ANBBdE1Zx3JYRMJCAK0k3kHQX4o9JmMYG/f8obJIAMRrxqBn8YUhnF3ZcEcQqXqHzHpcWTC+R6ipcwUItAADdxzMqJxC35wAAAABJRU5ErkJggg=="}`;
+                        img.alt = "Iniciado";
+                        img.style.width = "20px";
+                        img.style.height = "14px";
+                        span.replaceWith(img);
+                    }
+                }
+            }
+        });
     }
 
-    window.addEventListener('load', () => {
-        setTimeout(processarPagina, 1000);
-    });
+    //Monitora as requisições HTTP
+    const send = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function(body) {
+        this.addEventListener("load", function() {
+            if (body.includes("getDefaultOutboundDockView")) {
+                const dados = JSON.parse(this.responseText);
+                const aaData = dados.ret.aaData;
 
-    let debounceTimer = null;
-    const observer = new MutationObserver(() => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            processarPagina();
-        }, 300);
-    });
+                checkStart(aaData);
+                organizaLinhas(aaData);
 
-    observer.observe(document.body, { childList: true, subtree: true });
+            } else if (body.includes("getSubscribedNotifications")) {
+                formatarDatas();
+                traduzirCampos();
+                adicionarBotaoValePallet();
+
+                if (body.includes("GRU8")) {adicionarColunaMotorista();}
+
+                aplicarCloudscapeDesign();
+            }
+        });
+        return send.apply(this, [body]);
+    };
+
 })();
