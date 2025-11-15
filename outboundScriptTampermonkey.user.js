@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      4.3
+// @version      5.0
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -18,7 +18,7 @@
     'use strict';
 
     //Verificação de atualização
-    /*(function verificaAtualizacao() {
+    (function verificaAtualizacao() {
         GM_xmlhttpRequest({
             method: "GET",
             url: "https://raw.githubusercontent.com/Jhoni23/Outbound/main/outboundScriptTampermonkey.user.js",
@@ -97,7 +97,7 @@
                 console.error("Erro na requisição GM_xmlhttpRequest:", err);
             }
         });
-    })();*/
+    })();
 
     // MERIDIAN DESIGN
 
@@ -286,11 +286,13 @@
         });
         document.querySelectorAll(".alertBg1").forEach(el => {
             el.style.backgroundColor = "transparent";
+            el.style.color = "#666";
             const span = el.querySelector("span");
             if (span) span.style.color = "#f2cd54";
         });
         document.querySelectorAll(".alertBg2").forEach(el => {
             el.style.backgroundColor = "transparent";
+            el.style.color = "#666";
             const span = el.querySelector("span");
             if (span) span.style.color = "#db0000";
         });
@@ -445,15 +447,19 @@
     // FIM MERIDIAN DESIGN
 
     //Ler FC
-    function obterFC(name) {
+    function obterFC() {
         const cookies = document.cookie.split("; ");
         for (const cookie of cookies) {
             const [key, value] = cookie.split("=");
-            if (key === name) return decodeURIComponent(value);
+            if (key === "setNodeId") return decodeURIComponent(value);
+        }
+        const select = document.getElementById("availableNodeName");
+        if (select) {
+            const opcaoSelecionada = select.options[select.selectedIndex];
+            return opcaoSelecionada.text;
         }
         return null; // se não encontrar
     }
-    const FC = obterFC("setNodeId");
 
     //Formata datas
     function formatarDatas() {
@@ -592,7 +598,7 @@
             width: 45px;
             transform: scale(1.2);
             font-weight: 500;
-            color: #ccc;
+            color: #000;
         }
 
         .vp-confirm {
@@ -616,11 +622,7 @@
     `;
     document.head.appendChild(style2);
 
-    // =======================
-    // ARRAYS COM NOMES DOS ITENS
-    // =======================
     const nomesSaida = ["PALETTS PLÁSTICO","SCUTTLES PLÁSTICO","PALETTS DESCARTÁVEIS","SCUTTLES PAPELÃO","BAG"];
-
     const nomesRetorno = ["PALETTS PLÁSTICO","SCUTTLES PLÁSTICO","PALETTS DESCARTÁVEIS","SCUTTLES PAPELÃO","PALETTS PBR"];
 
     // Variáveis globais para armazenar os valores finais
@@ -630,7 +632,21 @@
     // =======================
     // CRIA MODAL
     // =======================
-    function abrirValePallet() {
+    function abrirValePallet(linhaSelecionada, gaylordCount, nomeYard) {
+
+        const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
+        const tdAnterior = tdTRT?.previousElementSibling;
+        let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || 0;
+
+        let scuttles = gaylordCount;
+        if (scuttles == "") {scuttles = "0"};
+
+        const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
+        if (WT) {
+            if(WT.textContent.trim() === "WT") {
+                scuttles = pallet;
+            };
+        };
 
         const overlay = document.createElement("div");
         overlay.className = "vp-overlay";
@@ -675,7 +691,17 @@
                 input.type = "number";
                 input.min = "0";
                 input.id = `${prefixo}-item${i+1}`;
-                input.value = 0;
+
+                if(prefixo === "saida"){
+                    switch (nomeItem) {
+                        case "PALETTS PLÁSTICO":
+                            input.value = pallet;
+                            break;
+                        case "SCUTTLES PLÁSTICO":
+                            input.value = scuttles;
+                            break;
+                    }
+                }
 
                 wrap.appendChild(label);
                 wrap.appendChild(input);
@@ -715,10 +741,88 @@
                 retorno[nomeItem] = value;
             });
 
-            console.log("Saída:", saida);
-            console.log("Retorno:", retorno);
-
             overlay.remove();
+
+            const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
+            let rota = "";
+            switch(obterFC()) {
+                case "GRU8":
+                    rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
+                    break;
+                case "GRU5":
+                    rota = goodLaneSpan?.className.match(/laneGRU5-([A-Z0-9]+)/)?.[1] || "";
+                    break;
+                case "GRU9":
+                    rota = goodLaneSpan?.className.match(/laneGRU9-([A-Z0-9]+)/)?.[1] || "";
+                    break;
+            }
+
+            //const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+            //const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+            //const transportadora = tdTransportadora?.textContent.trim() || "";
+            //if (transportadora == "AZLBR") { rota = "AZULBR";};
+
+            //const spanVrid = linhaSelecionada.querySelector('span.loadId');
+            //const vrid = spanVrid?.textContent.trim() || "";
+
+            const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
+            const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
+
+            let motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
+            if (motorista == "—") {motorista = ""};
+
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "https://github.com/Jhoni23/Outbound/raw/refs/heads/main/Modelos%20Vale%20Pallet/" + obterFC() + ".html",
+                onload: function (response) {
+                    let html = response.responseText;
+
+                    html = html.replace(/{{ROTA}}/gi, rota || "")
+                        .replace(/{{PLACA}}/gi, placa || "")
+
+                        .replace(/{{SPP}}/gi, saida["PALETTS PLÁSTICO"] || 0)
+                        .replace(/{{SSPL}}/gi, saida["SCUTTLES PLÁSTICO"] || 0)
+                        .replace(/{{SPD}}/gi, saida["PALETTS DESCARTÁVEIS"] || 0)
+                        .replace(/{{SSPA}}/gi, saida["SCUTTLES PAPELÃO"] || 0)
+                        .replace(/{{BAG}}/gi, saida["BAG"] || 0)
+
+                        .replace(/{{RPP}}/gi, retorno["PALETTS PLÁSTICO"] || 0)
+                        .replace(/{{RSPL}}/gi, retorno["SCUTTLES PLÁSTICO"] || 0)
+                        .replace(/{{RPD}}/gi, retorno["PALETTS DESCARTÁVEIS"] || 0)
+                        .replace(/{{RSPA}}/gi, retorno["SCUTTLES PAPELÃO"] || 0)
+                        .replace(/{{PBR}}/gi, retorno["PALETTS PBR"] || 0)
+
+                        .replace(/{{MOTORISTA}}/gi, motorista || "")
+                        .replace(/{{YARD}}/gi, nomeYard || "")
+                        .replace(/{{PALLET}}/gi, pallet || "")
+                        .replace(/{{SCUTTLES}}/gi, scuttles || "");
+
+                    // Cria um iframe oculto para impressão
+                    const iframe = document.createElement("iframe");
+                    iframe.style.position = "fixed";
+                    iframe.style.right = "0";
+                    iframe.style.bottom = "0";
+                    iframe.style.width = "0";
+                    iframe.style.height = "0";
+                    iframe.style.border = "0";
+                    document.body.appendChild(iframe);
+
+                    const doc = iframe.contentWindow.document;
+                    doc.open();
+                    doc.write(html);
+                    doc.close();
+
+                    iframe.onload = function () {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                        setTimeout(() => document.body.removeChild(iframe), 1000);
+                    };
+                },
+                onerror: function (err) {
+                    console.error("Erro ao buscar HTML para impressão:", err);
+                    alert("Erro ao carregar conteúdo da impressão.");
+                }
+            });
         };
 
         modal.appendChild(btnConfirm);
@@ -804,118 +908,47 @@
                             novoBotao.textContent = "Vale Pallet";
 
                             novoBotao.addEventListener("click", () => {
-                                // Modal valores
-                                abrirValePallet();
-
-                                const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
-                                let rota = "";
-                                switch(FC) {
-                                    case "GRU8":
-                                        rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
-                                        break;
-                                    case "GRU5":
-                                        rota = goodLaneSpan?.className.match(/laneGRU5-([A-Z0-9]+)/)?.[1] || "";
-                                        break;
-                                    case "GRU9":
-                                        rota = goodLaneSpan?.className.match(/laneGRU9-([A-Z0-9]+)/)?.[1] || "";
-                                        break;
-                                }
-
-                                const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-                                const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-                                const transportadora = tdTransportadora?.textContent.trim() || "";
-
-                                const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
-                                const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
-
-                                let motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
-                                if (motorista == "—") {motorista = ""};
-
-                                const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
-                                const tdAnterior = tdTRT?.previousElementSibling;
-                                let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
-                                if (pallet == "") {pallet = "0"};
-
-                                const spanVrid = linhaSelecionada.querySelector('span.loadId');
-                                const vrid = spanVrid?.textContent.trim() || "";
+                                // cria o CSS do spinner via JS
+                                const style = document.createElement("style");
+                                style.textContent = `
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #333;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
+                                document.head.appendChild(style);
+                                const largura = novoBotao.offsetWidth + "px";
+                                novoBotao.style.width = largura;
+                                novoBotao.innerHTML = '<span class="spinner"></span>';
+                                novoBotao.style.display = "flex";
+                                novoBotao.style.justifyContent = "center";
+                                novoBotao.style.alignItems = "center";
+                                novoBotao.style.pointerEvents = "none";
+                                novoBotao.style.opacity = "0.7";
 
                                 contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
-                                    let scuttles = gaylordCount;
-                                    if (scuttles == "") {scuttles = "0"};
-
-                                    const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
-                                    if (WT) {
-                                        if(WT.textContent.trim() === "WT") {
-                                            scuttles = pallet;
-                                        };
-                                    };
-
-                                    if (transportadora == "AZLBR") {
-                                        rota = "AZULBR";
-                                    };
-
                                     buscarNomeYard(function(nomeYard) {
-                                        let dados = {
-                                            Vrid: vrid,
-                                            Transportadora: transportadora,
-                                            Rota: rota,
-                                            Placa: placa,
-                                            Motorista: motorista,
-                                            Pallet: pallet,
-                                            Scuttles: scuttles,
-                                            Yard: nomeYard || ""
-                                        };
+                                        novoBotao.textContent = "Vale Pallet";
+                                        novoBotao.style.width = "";
+                                        novoBotao.style.display = "";
+                                        novoBotao.style.justifyContent = "";
+                                        novoBotao.style.alignItems = "";
+                                        novoBotao.style.pointerEvents = "auto";
+                                        novoBotao.style.opacity = "1";
 
-                                        GM_xmlhttpRequest({
-                                            method: "GET",
-                                            url: "https://github.com/Jhoni23/Outbound/raw/refs/heads/main/Modelos%20Vale%20Pallet/" + FC + ".html",
-                                            onload: function (response) {
-                                                let html = response.responseText;
-
-                                                html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
-                                                    .replace(/{{VRID}}/gi, dados.Vrid || "")
-                                                    .replace(/{{ROTA}}/gi, dados.Rota || "")
-                                                    .replace(/{{PLACA}}/gi, dados.Placa || "")
-                                                    .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
-                                                    .replace(/{{YARD}}/gi, dados.Yard || "")
-                                                    .replace(/{{PALLET}}/gi, dados.Pallet || "")
-                                                    .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
-
-                                                // Cria um iframe oculto para impressão
-                                                const iframe = document.createElement("iframe");
-                                                iframe.style.position = "fixed";
-                                                iframe.style.right = "0";
-                                                iframe.style.bottom = "0";
-                                                iframe.style.width = "0";
-                                                iframe.style.height = "0";
-                                                iframe.style.border = "0";
-                                                document.body.appendChild(iframe);
-
-                                                const doc = iframe.contentWindow.document;
-                                                doc.open();
-                                                doc.write(html);
-                                                doc.close();
-
-                                                iframe.onload = function () {
-                                                    iframe.contentWindow.focus();
-                                                    iframe.contentWindow.print();
-                                                    setTimeout(() => document.body.removeChild(iframe), 1000);
-                                                };
-                                                novoBotao.textContent = "Vale Pallet";
-                                                novoBotao.style.width = "";
-                                                novoBotao.style.display = "";
-                                                novoBotao.style.justifyContent = "";
-                                                novoBotao.style.alignItems = "";
-                                                novoBotao.style.pointerEvents = "auto";
-                                                novoBotao.style.opacity = "1";
-                                            },
-                                            onerror: function (err) {
-                                                console.error("Erro ao buscar HTML para impressão:", err);
-                                                alert("Erro ao carregar conteúdo da impressão.");
-                                            }
-                                        });
+                                        abrirValePallet(linhaSelecionada, gaylordCount, nomeYard);
                                     });
                                 });
+
                             });
 
                             if (botaoView.classList.contains('hidden')) {
@@ -949,7 +982,7 @@
 
             const params = new URLSearchParams({
                 entity: "getOutboundLoadContainerDetails",
-                nodeId: FC,
+                nodeId: obterFC(),
                 loadGroupId: loadGroupId,
                 planId: planId,
                 vrId: vrId,
@@ -1159,6 +1192,18 @@
                             input.value = '';
                         }
                     });
+
+                    const observer = new MutationObserver(mutations => {
+                        mutations.forEach(mutation => {
+                            if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                const texto = tdMotorista.textContent.trim();
+                                if (!isNaN(texto) && texto !== '') {
+                                    document.getElementById('manualRefresh').click();
+                                }
+                            }
+                        });
+                    });
+                    observer.observe(tdMotorista, { characterData: true, subtree: true, childList: true });
                 }
             }
         });
