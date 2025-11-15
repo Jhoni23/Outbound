@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      4.2
+// @version      5.0
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -16,91 +16,92 @@
 
 (function () {
     'use strict';
-    let aaData;
 
     //Verificação de atualização
-    GM_xmlhttpRequest({
-        method: "GET",
-        url: "https://raw.githubusercontent.com/Jhoni23/Outbound/main/outboundScriptTampermonkey.user.js",
-        onload: function(response) {
-            if (response.status === 200) {
-                const text = response.responseText;
-                const match = text.match(/@version\s+([^\s]+)/);
-                if (GM_info.script.version.toString() != match[1].toString()) {
-                    const container = document.createElement("div");
-                    container.style.position = "fixed";
-                    container.style.top = "20px";
-                    container.style.left = "50%";
-                    container.style.transform = "translateX(-50%)";
-                    container.style.background = "#ffffff";
-                    container.style.color = "#232f3e";
-                    container.style.padding = "15px 20px";
-                    container.style.borderRadius = "4px";
-                    container.style.border = '1px solid #B1BAC3';
-                    container.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
-                    container.style.zIndex = "999999";
-                    container.style.fontFamily = "Arial, sans-serif";
-                    container.style.fontSize = "15px";
-                    container.style.textAlign = "center";
+    (function verificaAtualizacao() {
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: "https://raw.githubusercontent.com/Jhoni23/Outbound/main/outboundScriptTampermonkey.user.js",
+            onload: function(response) {
+                if (response.status === 200) {
+                    const text = response.responseText;
+                    const match = text.match(/@version\s+([^\s]+)/);
+                    if (GM_info.script.version.toString() != match[1].toString()) {
+                        const container = document.createElement("div");
+                        container.style.position = "fixed";
+                        container.style.top = "20px";
+                        container.style.left = "50%";
+                        container.style.transform = "translateX(-50%)";
+                        container.style.background = "#ffffff";
+                        container.style.color = "#232f3e";
+                        container.style.padding = "15px 20px";
+                        container.style.borderRadius = "4px";
+                        container.style.border = '1px solid #B1BAC3';
+                        container.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
+                        container.style.zIndex = "999999";
+                        container.style.fontFamily = "Arial, sans-serif";
+                        container.style.fontSize = "15px";
+                        container.style.textAlign = "center";
 
-                    const message = document.createElement("div");
-                    message.style.marginBottom = "10px";
-                    message.textContent = "Nova versão da extensão disponível!";
-                    container.appendChild(message);
+                        const message = document.createElement("div");
+                        message.style.marginBottom = "10px";
+                        message.textContent = "Nova versão da extensão disponível!";
+                        container.appendChild(message);
 
-                    const button = document.createElement("button");
-                    button.textContent = "Atualizar";
-                    button.style.background = "#2F6EE2";
-                    button.style.color = "white";
-                    button.style.border = "none";
-                    button.style.padding = "8px 12px";
-                    button.style.borderRadius = "4px";
-                    button.style.cursor = "pointer";
-                    button.style.fontWeight = "bold";
+                        const button = document.createElement("button");
+                        button.textContent = "Atualizar";
+                        button.style.background = "#2F6EE2";
+                        button.style.color = "white";
+                        button.style.border = "none";
+                        button.style.padding = "8px 12px";
+                        button.style.borderRadius = "4px";
+                        button.style.cursor = "pointer";
+                        button.style.fontWeight = "bold";
 
-                    button.addEventListener("click", () => {
-                        // abre o link para atualizar
-                        window.open(
-                            "https://github.com/Jhoni23/Outbound/raw/main/outboundScriptTampermonkey.user.js",
-                            "_blank"
-                        );
+                        button.addEventListener("click", () => {
+                            // abre o link para atualizar
+                            window.open(
+                                "https://github.com/Jhoni23/Outbound/raw/main/outboundScriptTampermonkey.user.js",
+                                "_blank"
+                            );
 
-                        // altera o texto e cria botão para recarregar
-                        message.textContent = "🔄 Recarregue a página!";
+                            // altera o texto e cria botão para recarregar
+                            message.textContent = "🔄 Recarregue a página!";
 
-                        const reloadBtn = document.createElement("button");
-                        reloadBtn.textContent = "Recarregar";
-                        reloadBtn.style.background = "#2F6EE2";
-                        reloadBtn.style.color = "white";
-                        reloadBtn.style.border = "none";
-                        reloadBtn.style.padding = "8px 12px";
-                        reloadBtn.style.borderRadius = "6px";
-                        reloadBtn.style.cursor = "pointer";
-                        reloadBtn.style.fontWeight = "bold";
-                        reloadBtn.style.marginLeft = "10px";
+                            const reloadBtn = document.createElement("button");
+                            reloadBtn.textContent = "Recarregar";
+                            reloadBtn.style.background = "#2F6EE2";
+                            reloadBtn.style.color = "white";
+                            reloadBtn.style.border = "none";
+                            reloadBtn.style.padding = "8px 12px";
+                            reloadBtn.style.borderRadius = "6px";
+                            reloadBtn.style.cursor = "pointer";
+                            reloadBtn.style.fontWeight = "bold";
+                            reloadBtn.style.marginLeft = "10px";
 
-                        reloadBtn.addEventListener("click", () => {
-                            location.reload();
+                            reloadBtn.addEventListener("click", () => {
+                                location.reload();
+                            });
+
+                            container.appendChild(reloadBtn);
+
+                            button.remove();
                         });
 
-                        container.appendChild(reloadBtn);
-
-                        button.remove();
-                    });
-
-                    container.appendChild(button);
-                    document.body.appendChild(container);
+                        container.appendChild(button);
+                        document.body.appendChild(container);
+                    }
                 }
+            },
+            onerror: function(err) {
+                console.error("Erro na requisição GM_xmlhttpRequest:", err);
             }
-        },
-        onerror: function(err) {
-            console.error("Erro na requisição GM_xmlhttpRequest:", err);
-        }
-    });
+        });
+    })();
 
-    // CLOUDSCAPE DESIGN
+    // MERIDIAN DESIGN
 
-    function aplicarCloudscapeDesign() {
+    function aplicarMeridianDesign() {
         const css = `
   #legacy .legacyBody {
     font-family: "Amazon Ember", sans-serif !important;
@@ -285,13 +286,13 @@
         });
         document.querySelectorAll(".alertBg1").forEach(el => {
             el.style.backgroundColor = "transparent";
-            el.style.color = "#666666";
+            el.style.color = "#666";
             const span = el.querySelector("span");
             if (span) span.style.color = "#f2cd54";
         });
         document.querySelectorAll(".alertBg2").forEach(el => {
             el.style.backgroundColor = "transparent";
-            el.style.color = "#666666";
+            el.style.color = "#666";
             const span = el.querySelector("span");
             if (span) span.style.color = "#db0000";
         });
@@ -337,7 +338,6 @@
         if (overDueDiv) {
             overDueDiv.style.fontSize = '34px';
             overDueDiv.style.fontWeight = '700';
-            overDueDiv.style.color = '#666666';
             overDueDiv.style.marginTop = "20px";
         }
 
@@ -357,8 +357,8 @@
             search.style.height = "30px";
             search.style.lineHeight = "30px";
             search.style.padding = "0 10px";
-            search.style.border = "1px solid #8c8c94";
-            search.style.borderRadius = "6px";
+            search.style.border = "1px solid #b6bdc5";
+            search.style.borderRadius = "4px";
             search.style.boxSizing = "border-box";
             search.placeholder = "Pesquisar";
             search.style.boxShadow = "none";
@@ -368,7 +368,7 @@
         const conf = document.querySelector('button#alui-columnToggle-btn');
         if (conf) {
             conf.style.backgroundColor = '#fff';
-            conf.style.border = "1px solid #DDDDDD";
+            conf.style.border = "1px solid #b6bdc5";
             conf.style.height = "30px";
         };
 
@@ -376,8 +376,8 @@
         if (selectPage) {
             selectPage.style.setProperty('background-color', '#fff', 'important');
             selectPage.style.height = '24px';
-            selectPage.style.border = '1px solid #DDDDDD';
-            selectPage.style.borderRadius = '8px';
+            selectPage.style.border = '1px solid #b6bdc5';
+            selectPage.style.borderRadius = '4px';
         }
 
         const label = document.querySelector('label[for="dashboard_length"]')
@@ -444,8 +444,24 @@
         }
     }
 
-    // FIM CLOUDSCAPE
+    // FIM MERIDIAN DESIGN
 
+    //Ler FC
+    function obterFC() {
+        const cookies = document.cookie.split("; ");
+        for (const cookie of cookies) {
+            const [key, value] = cookie.split("=");
+            if (key === "setNodeId") return decodeURIComponent(value);
+        }
+        const select = document.getElementById("availableNodeName");
+        if (select) {
+            const opcaoSelecionada = select.options[select.selectedIndex];
+            return opcaoSelecionada.text;
+        }
+        return null; // se não encontrar
+    }
+
+    //Formata datas
     function formatarDatas() {
         const meses = {
             Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
@@ -481,6 +497,7 @@
     });
     const docClient = new AWS.DynamoDB.DocumentClient();
 
+    //Buscar Nome do Yard
     function buscarNomeYard(callback) {
         GM_xmlhttpRequest({
             method: "GET",
@@ -500,98 +517,400 @@
         });
     }
 
-    //Seleciona FC
-    let FC = ""
-    function selecionarFC() {
-        const select = document.getElementById("availableNodeName");
-        if (select) {
-            const opcaoSelecionada = select.options[select.selectedIndex];
-            FC = opcaoSelecionada.text;
+    //Modal Vale Pallet
+    const style2 = document.createElement("style");
+    style2.textContent = `
+        .vp-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            font-family: Amazon Ember;
         }
+
+        .vp-modal {
+            background: white;
+            width: 500px;
+            padding: 26px 30px;
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .vp-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            cursor: pointer;
+            font-size: 30px;
+        }
+        .vp-close:hover { color: #000; }
+
+        .vp-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #000;
+        }
+        .vp-subtitle {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .vp-section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0 8px;
+            color: #000;
+        }
+
+        .vp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 40px;
+        }
+
+        .vp-input-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .vp-input-wrapper label {
+            margin-right: auto;
+            color: #000;
+        }
+
+        .vp-input-wrapper input {
+            font-family: Amazon Ember;
+            padding: 0px 0px 0px 7px;
+            font-size: 13px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            width: 45px;
+            transform: scale(1.2);
+            font-weight: 500;
+            color: #000;
+        }
+
+        .vp-confirm {
+            font-family: Amazon Ember;
+            margin-top: 25px;
+            height: 32px;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background: #00688d;
+            color: white;
+            font-size: 14px;
+            font-weight: 400;
+            cursor: pointer;
+            align-items: center;
+            display: inline-flex;
+            margin-left: auto;
+        }
+
+}
+    `;
+    document.head.appendChild(style2);
+
+    const nomesSaida = ["PALETTS PLÁSTICO","SCUTTLES PLÁSTICO","PALETTS DESCARTÁVEIS","SCUTTLES PAPELÃO","BAG"];
+    const nomesRetorno = ["PALETTS PLÁSTICO","SCUTTLES PLÁSTICO","PALETTS DESCARTÁVEIS","SCUTTLES PAPELÃO","PALETTS PBR"];
+
+    // Variáveis globais para armazenar os valores finais
+    let saida = {};
+    let retorno = {};
+
+    // =======================
+    // CRIA MODAL
+    // =======================
+    function abrirValePallet(linhaSelecionada, gaylordCount, nomeYard) {
+
+        const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
+        const tdAnterior = tdTRT?.previousElementSibling;
+        let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || 0;
+
+        let scuttles = gaylordCount;
+        if (scuttles == "") {scuttles = "0"};
+
+        const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
+        if (WT) {
+            if(WT.textContent.trim() === "WT") {
+                scuttles = pallet;
+            };
+        };
+
+        const overlay = document.createElement("div");
+        overlay.className = "vp-overlay";
+
+        const modal = document.createElement("div");
+        modal.className = "vp-modal";
+
+        // botão fechar
+        const btnClose = document.createElement("div");
+        btnClose.className = "vp-close";
+        btnClose.textContent = "×";
+        btnClose.onclick = () => overlay.remove();
+        modal.appendChild(btnClose);
+
+        const title = document.createElement("div");
+        title.className = "vp-title";
+        title.textContent = "Vale Pallet";
+        modal.appendChild(title);
+
+        const subtitle = document.createElement("div");
+        subtitle.className = "vp-subtitle";
+        subtitle.textContent = "Confirme os valores de itens enviados";
+        modal.appendChild(subtitle);
+
+        // Função criar seção
+        function criarSecao(nome, listaNomes, prefixo) {
+            const titulo = document.createElement("div");
+            titulo.className = "vp-section-title";
+            titulo.textContent = nome;
+
+            const grid = document.createElement("div");
+            grid.className = "vp-grid";
+
+            listaNomes.forEach((nomeItem, i) => {
+                const wrap = document.createElement("div");
+                wrap.className = "vp-input-wrapper";
+
+                const label = document.createElement("label");
+                label.textContent = nomeItem;
+
+                const input = document.createElement("input");
+                input.type = "number";
+                input.min = "0";
+                input.id = `${prefixo}-item${i+1}`;
+
+                if(prefixo === "saida"){
+                    switch (nomeItem) {
+                        case "PALETTS PLÁSTICO":
+                            input.value = pallet;
+                            break;
+                        case "SCUTTLES PLÁSTICO":
+                            input.value = scuttles;
+                            break;
+                    }
+                }
+
+                wrap.appendChild(label);
+                wrap.appendChild(input);
+                grid.appendChild(wrap);
+            });
+
+            return { titulo, grid };
+        }
+
+        // Criar seções
+        const secaoSaida = criarSecao("Saída", nomesSaida, "saida");
+        modal.appendChild(secaoSaida.titulo);
+        modal.appendChild(secaoSaida.grid);
+
+        const secaoRetorno = criarSecao("Retorno", nomesRetorno, "retorno");
+        modal.appendChild(secaoRetorno.titulo);
+        modal.appendChild(secaoRetorno.grid);
+
+        // Botão confirmar
+        const btnConfirm = document.createElement("button");
+        btnConfirm.className = "vp-confirm";
+        btnConfirm.textContent = "Confirmar";
+
+        btnConfirm.onclick = () => {
+
+            // Gerar objeto "saida"
+            saida = {};
+            nomesSaida.forEach((nomeItem, i) => {
+                const value = Number(document.getElementById(`saida-item${i+1}`).value || 0);
+                saida[nomeItem] = value;
+            });
+
+            // Gerar objeto "retorno"
+            retorno = {};
+            nomesRetorno.forEach((nomeItem, i) => {
+                const value = Number(document.getElementById(`retorno-item${i+1}`).value || 0);
+                retorno[nomeItem] = value;
+            });
+
+            overlay.remove();
+
+            const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
+            let rota = "";
+            switch(obterFC()) {
+                case "GRU8":
+                    rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
+                    break;
+                case "GRU5":
+                    rota = goodLaneSpan?.className.match(/laneGRU5-([A-Z0-9]+)/)?.[1] || "";
+                    break;
+                case "GRU9":
+                    rota = goodLaneSpan?.className.match(/laneGRU9-([A-Z0-9]+)/)?.[1] || "";
+                    break;
+            }
+
+            //const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+            //const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+            //const transportadora = tdTransportadora?.textContent.trim() || "";
+            //if (transportadora == "AZLBR") { rota = "AZULBR";};
+
+            //const spanVrid = linhaSelecionada.querySelector('span.loadId');
+            //const vrid = spanVrid?.textContent.trim() || "";
+
+            const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
+            const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
+
+            let motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
+            if (motorista == "—") {motorista = ""};
+
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "https://github.com/Jhoni23/Outbound/raw/refs/heads/main/Modelos%20Vale%20Pallet/" + obterFC() + ".html",
+                onload: function (response) {
+                    let html = response.responseText;
+
+                    html = html.replace(/{{ROTA}}/gi, rota || "")
+                        .replace(/{{PLACA}}/gi, placa || "")
+
+                        .replace(/{{SPP}}/gi, saida["PALETTS PLÁSTICO"] || 0)
+                        .replace(/{{SSPL}}/gi, saida["SCUTTLES PLÁSTICO"] || 0)
+                        .replace(/{{SPD}}/gi, saida["PALETTS DESCARTÁVEIS"] || 0)
+                        .replace(/{{SSPA}}/gi, saida["SCUTTLES PAPELÃO"] || 0)
+                        .replace(/{{BAG}}/gi, saida["BAG"] || 0)
+
+                        .replace(/{{RPP}}/gi, retorno["PALETTS PLÁSTICO"] || 0)
+                        .replace(/{{RSPL}}/gi, retorno["SCUTTLES PLÁSTICO"] || 0)
+                        .replace(/{{RPD}}/gi, retorno["PALETTS DESCARTÁVEIS"] || 0)
+                        .replace(/{{RSPA}}/gi, retorno["SCUTTLES PAPELÃO"] || 0)
+                        .replace(/{{PBR}}/gi, retorno["PALETTS PBR"] || 0)
+
+                        .replace(/{{MOTORISTA}}/gi, motorista || "")
+                        .replace(/{{YARD}}/gi, nomeYard || "")
+                        .replace(/{{PALLET}}/gi, pallet || "")
+                        .replace(/{{SCUTTLES}}/gi, scuttles || "");
+
+                    // Cria um iframe oculto para impressão
+                    const iframe = document.createElement("iframe");
+                    iframe.style.position = "fixed";
+                    iframe.style.right = "0";
+                    iframe.style.bottom = "0";
+                    iframe.style.width = "0";
+                    iframe.style.height = "0";
+                    iframe.style.border = "0";
+                    document.body.appendChild(iframe);
+
+                    const doc = iframe.contentWindow.document;
+                    doc.open();
+                    doc.write(html);
+                    doc.close();
+
+                    iframe.onload = function () {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                        setTimeout(() => document.body.removeChild(iframe), 1000);
+                    };
+                },
+                onerror: function (err) {
+                    console.error("Erro ao buscar HTML para impressão:", err);
+                    alert("Erro ao carregar conteúdo da impressão.");
+                }
+            });
+        };
+
+        modal.appendChild(btnConfirm);
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
     }
 
+    //Botão Vale Pallet
     let criouObsever = false;
-    let divRight = null;
     function adicionarBotaoValePallet() {
-        if (divRight == null){
-            divRight = document.getElementById("rightContent");
-        } else {
-            if(!criouObsever){
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === "attributes" && mutation.attributeName === "class") {
-                            if (!divRight.classList.contains("displaynone")) {
-                                const linhaSelecionada = document.querySelector('tr.selectedTableRow');
+        const divRight = document.getElementById("rightContent");
+        if(!criouObsever){
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === "attributes" && mutation.attributeName === "class") {
+                        if (!divRight.classList.contains("displaynone")) {
+                            const linhaSelecionada = document.querySelector('tr.selectedTableRow');
 
-                                //Botão copiar
-                                const h4 = document.querySelector("#rightContent h4");
-                                if (!h4.querySelector(".btn-copiar")) {
-                                    const span = document.createElement("span");
-                                    span.textContent = " ⿻";
-                                    span.className = "btn-copiar";
-                                    span.style.cursor = "pointer";
-                                    span.style.marginLeft = "6px";
-                                    span.style.color = "#2F6EE2";
-                                    span.title = "Copiar dados";
+                            //Botão copiar
+                            const h4 = document.querySelector("#rightContent h4");
+                            if (!h4.querySelector(".btn-copiar")) {
+                                const span = document.createElement("span");
+                                span.textContent = " ⿻";
+                                span.className = "btn-copiar";
+                                span.style.cursor = "pointer";
+                                span.style.marginLeft = "6px";
+                                span.style.color = "#2F6EE2";
+                                span.title = "Copiar dados";
 
-                                    const texto = h4.innerText.trim();
-                                    const vrid = texto.split("-").pop().trim();
+                                const texto = h4.innerText.trim();
+                                const vrid = texto.split("-").pop().trim();
 
-                                    const laneSpan = linhaSelecionada.querySelector("span.floatL.goodLane");
-                                    const rota = laneSpan.textContent.trim();
+                                const laneSpan = linhaSelecionada.querySelector("span.floatL.goodLane");
+                                const rota = laneSpan.textContent.trim();
 
-                                    const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-                                    const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-                                    const carrier = tdTransportadora?.textContent.trim() || "";
+                                const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+                                const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+                                const carrier = tdTransportadora?.textContent.trim() || "";
 
-                                    const theadRow = document.querySelector("thead tr");
-                                    const ths = theadRow.querySelectorAll("th");
-                                    let posicao = -1;
-                                    ths.forEach((th, index) => {
-                                        if (th.getAttribute("title") === "Critical Pull Time" || th.getAttribute("title") === "Horário de envio programado") {
-                                            posicao = index;
-                                        }
-                                    });
-                                    const tds = linhaSelecionada.querySelectorAll("td");
-                                    const cpt = tds[posicao].textContent.trim();
+                                const theadRow = document.querySelector("thead tr");
+                                const ths = theadRow.querySelectorAll("th");
+                                let posicao = -1;
+                                ths.forEach((th, index) => {
+                                    if (th.getAttribute("title") === "Critical Pull Time" || th.getAttribute("title") === "Horário de envio programado") {
+                                        posicao = index;
+                                    }
+                                });
+                                const tds = linhaSelecionada.querySelectorAll("td");
+                                const cpt = tds[posicao].textContent.trim();
 
-                                    const textoCopiar = `VRID ${vrid}\nLANE ${rota}\nCARRIER ${carrier}\nCPT ${cpt}`;
+                                const textoCopiar = `VRID ${vrid}\nLANE ${rota}\nCARRIER ${carrier}\nCPT ${cpt}`;
 
-                                    span.addEventListener("click", () => {
-                                        navigator.clipboard.writeText(textoCopiar);
+                                span.addEventListener("click", () => {
+                                    navigator.clipboard.writeText(textoCopiar);
 
-                                        span.textContent = " ✓";
-                                        setTimeout(() => {
-                                            span.textContent = " ⿻";
-                                        }, 1500);
-                                    });
+                                    span.textContent = " ✓";
+                                    setTimeout(() => {
+                                        span.textContent = " ⿻";
+                                    }, 1500);
+                                });
 
-                                    h4.appendChild(span);
-                                }
+                                h4.appendChild(span);
+                            }
 
-                                //Botão vale pallet
-                                const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
-                                const temSpan = tdTrailerNum?.querySelector('span');
+                            //Botão vale pallet
+                            const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
+                            const temSpan = tdTrailerNum?.querySelector('span');
 
-                                const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
+                            const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
 
-                                const divColMd = document.querySelectorAll('div.backGroundNone > div.col-md-12.backGroundNone')[1];
-                                const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
-                                const botaoView = actionDivs[1].querySelector('a#viewDocButton');
+                            const divColMd = document.querySelectorAll('div.backGroundNone > div.col-md-12.backGroundNone')[1];
+                            const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
+                            const botaoView = actionDivs[1].querySelector('a#viewDocButton');
 
-                                if (document.getElementById("novoBotao") || !temSpan) return;
+                            if (document.getElementById("novoBotao") || !temSpan) return;
 
-                                const novoBotao = document.createElement("a");
-                                novoBotao.href = "javascript:void(0)";
-                                novoBotao.id = "novoBotao";
-                                novoBotao.title = "Vale Pallet";
-                                novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
-                                novoBotao.textContent = "Vale Pallet";
+                            const novoBotao = document.createElement("a");
+                            novoBotao.href = "javascript:void(0)";
+                            novoBotao.id = "novoBotao";
+                            novoBotao.title = "Vale Pallet";
+                            novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
+                            novoBotao.textContent = "Vale Pallet";
 
-                                novoBotao.addEventListener("click", () => {
-                                    // cria o CSS do spinner via JS
-                                    const style = document.createElement("style");
-                                    style.textContent = `
+                            novoBotao.addEventListener("click", () => {
+                                // cria o CSS do spinner via JS
+                                const style = document.createElement("style");
+                                style.textContent = `
 .spinner {
   border: 2px solid #f3f3f3;
   border-top: 2px solid #333;
@@ -606,145 +925,48 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }`;
-                                    document.head.appendChild(style);
-                                    const largura = novoBotao.offsetWidth + "px";
-                                    novoBotao.style.width = largura;
-                                    novoBotao.innerHTML = '<span class="spinner"></span>';
-                                    novoBotao.style.display = "flex";
-                                    novoBotao.style.justifyContent = "center";
-                                    novoBotao.style.alignItems = "center";
-                                    novoBotao.style.pointerEvents = "none";
-                                    novoBotao.style.opacity = "0.7";
+                                document.head.appendChild(style);
+                                const largura = novoBotao.offsetWidth + "px";
+                                novoBotao.style.width = largura;
+                                novoBotao.innerHTML = '<span class="spinner"></span>';
+                                novoBotao.style.display = "flex";
+                                novoBotao.style.justifyContent = "center";
+                                novoBotao.style.alignItems = "center";
+                                novoBotao.style.pointerEvents = "none";
+                                novoBotao.style.opacity = "0.7";
 
-                                    const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
-                                    let rota = "";
-                                    switch(FC) {
-                                                case "GRU8":
-                                                    rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
-                                                    break;
-                                                case "GRU5":
-                                                    rota = goodLaneSpan?.className.match(/laneGRU5-([A-Z0-9]+)/)?.[1] || "";
-                                                    break;
-                                                case "GRU9":
-                                                    rota = goodLaneSpan?.className.match(/laneGRU9-([A-Z0-9]+)/)?.[1] || "";
-                                                    break;
-                                            }
+                                contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
+                                    buscarNomeYard(function(nomeYard) {
+                                        novoBotao.textContent = "Vale Pallet";
+                                        novoBotao.style.width = "";
+                                        novoBotao.style.display = "";
+                                        novoBotao.style.justifyContent = "";
+                                        novoBotao.style.alignItems = "";
+                                        novoBotao.style.pointerEvents = "auto";
+                                        novoBotao.style.opacity = "1";
 
-                                    const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-                                    const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-                                    const transportadora = tdTransportadora?.textContent.trim() || "";
-
-                                    const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
-                                    const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
-
-                                    //if (placa == "") {getIDBOL();};
-
-                                    const motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
-                                    if (motorista == "—") {motorista = ""};
-
-                                    const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
-                                    const tdAnterior = tdTRT?.previousElementSibling;
-                                    let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
-                                    if (pallet == "") {pallet = "0"};
-
-                                    const spanVrid = linhaSelecionada.querySelector('span.loadId');
-                                    const vrid = spanVrid?.textContent.trim() || "";
-
-                                    contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
-                                        let scuttles = gaylordCount;
-                                        if (scuttles == "") {scuttles = "0"};
-
-                                        const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
-                                        if (WT) {
-                                            if(WT.textContent.trim() === "WT") {
-                                                scuttles = pallet;
-                                            };
-                                        };
-
-                                        if (transportadora == "AZLBR") {
-                                            rota = "AZULBR";
-                                        };
-
-                                        buscarNomeYard(function(nomeYard) {
-                                            let dados = {
-                                                Vrid: vrid,
-                                                Transportadora: transportadora,
-                                                Rota: rota,
-                                                Placa: placa,
-                                                Motorista: motorista,
-                                                Pallet: pallet,
-                                                Scuttles: scuttles,
-                                                Yard: nomeYard || ""
-                                            };
-
-                                            GM_xmlhttpRequest({
-                                                method: "GET",
-                                                url: "https://github.com/Jhoni23/Outbound/raw/refs/heads/main/Modelos%20Vale%20Pallet/" + FC + ".html",
-                                                onload: function (response) {
-                                                    let html = response.responseText;
-
-                                                    html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
-                                                        .replace(/{{VRID}}/gi, dados.Vrid || "")
-                                                        .replace(/{{ROTA}}/gi, dados.Rota || "")
-                                                        .replace(/{{PLACA}}/gi, dados.Placa || "")
-                                                        .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
-                                                        .replace(/{{YARD}}/gi, dados.Yard || "")
-                                                        .replace(/{{PALLET}}/gi, dados.Pallet || "")
-                                                        .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
-
-                                                    // Cria um iframe oculto para impressão
-                                                    const iframe = document.createElement("iframe");
-                                                    iframe.style.position = "fixed";
-                                                    iframe.style.right = "0";
-                                                    iframe.style.bottom = "0";
-                                                    iframe.style.width = "0";
-                                                    iframe.style.height = "0";
-                                                    iframe.style.border = "0";
-                                                    document.body.appendChild(iframe);
-
-                                                    const doc = iframe.contentWindow.document;
-                                                    doc.open();
-                                                    doc.write(html);
-                                                    doc.close();
-
-                                                    iframe.onload = function () {
-                                                        iframe.contentWindow.focus();
-                                                        iframe.contentWindow.print();
-                                                        setTimeout(() => document.body.removeChild(iframe), 1000);
-                                                    };
-                                                    novoBotao.textContent = "Vale Pallet";
-                                                    novoBotao.style.width = "";
-                                                    novoBotao.style.display = "";
-                                                    novoBotao.style.justifyContent = "";
-                                                    novoBotao.style.alignItems = "";
-                                                    novoBotao.style.pointerEvents = "auto";
-                                                    novoBotao.style.opacity = "1";
-                                                },
-                                                onerror: function (err) {
-                                                    console.error("Erro ao buscar HTML para impressão:", err);
-                                                    alert("Erro ao carregar conteúdo da impressão.");
-                                                }
-                                            });
-                                        });
+                                        abrirValePallet(linhaSelecionada, gaylordCount, nomeYard);
                                     });
                                 });
 
-                                if (botaoView.classList.contains('hidden')) {
-                                    container.appendChild(novoBotao);
-                                } else {
-                                    botaoView.insertAdjacentElement('afterend', novoBotao);
-                                }
+                            });
+
+                            if (botaoView.classList.contains('hidden')) {
+                                container.appendChild(novoBotao);
+                            } else {
+                                botaoView.insertAdjacentElement('afterend', novoBotao);
                             }
                         }
-                    });
+                    }
                 });
+            });
 
-                observer.observe(divRight, { attributes: true });
-                criouObsever = true;
-            }
+            observer.observe(divRight, { attributes: true });
+            criouObsever = true;
         }
     }
 
+    //Contar Pallets e Shuttles
     function contarGaylords(linha) {
         return new Promise((resolve, reject) => {
             const linhaSelecionada = linha;
@@ -760,7 +982,7 @@
 
             const params = new URLSearchParams({
                 entity: "getOutboundLoadContainerDetails",
-                nodeId: FC,
+                nodeId: obterFC(),
                 loadGroupId: loadGroupId,
                 planId: planId,
                 vrId: vrId,
@@ -817,24 +1039,23 @@
         });
     }
 
-    const traducoes = {
-        "Equipment Type": "Tipologia",
-        "Tipo de equipamento": "Tipologia",
-        "Location": "Doca",
-        "Sort/Route": "Rota",
-        "Classificar/Rotear": "Rota",
-
-        "Scheduled Departure Window": "Janela de Partida",
-
-        "twenty six foot box truck": "TRUCK",
-        "forty eight foot truck": "CARRETA",
-        "twenty foot box truck": "TOCO",
-        "forty foot truck": "VUC",
-        "fourteen foot van": "3/4",
-        "seven foot van": "3/4",
-    };
-
+    // Traduzir Campos
     function traduzirCampos() {
+        const traducoes = {
+            "Equipment Type": "Tipologia",
+            "Tipo de equipamento": "Tipologia",
+            "Location": "Doca",
+            "Sort/Route": "Rota",
+            "Classificar/Rotear": "Rota",
+
+            "twenty six foot box truck": "TRUCK",
+            "forty eight foot truck": "CARRETA",
+            "twenty foot box truck": "TOCO",
+            "forty foot truck": "VUC",
+            "fourteen foot van": "3/4",
+            "seven foot van": "3/4",
+        };
+
         //Notifications
         const el = document.querySelector('.seStatus.alertContentHeight');
         if (el && el.textContent.trim() === "No events impacting the operations") {
@@ -855,15 +1076,6 @@
             }
         });
 
-        //Schedule departure window
-        document.querySelectorAll('.sdtGroupWindow').forEach(div => {
-            div.childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE && node.nodeValue.includes('Scheduled Departure Window')) {
-                    node.nodeValue = node.nodeValue.replace('Scheduled Departure Window', 'Janela de Partida');
-                }
-            });
-        });
-
         //Tipologias
         document.querySelectorAll('div.capitalizeWord').forEach(div => {
             const texto = div.textContent.trim();
@@ -873,6 +1085,7 @@
         });
     }
 
+    // Coluna Motorista
     function adicionarColunaMotorista() {
         const tabela = document.querySelector('table#dashboard');
         if (!tabela) return;
@@ -996,51 +1209,7 @@
         });
     }
 
-    //CheckStart
-    const open = XMLHttpRequest.prototype.open;
-    const send = XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
-        this._url = url;
-        return open.apply(this, [method, url, ...rest]);
-    };
-
-    XMLHttpRequest.prototype.send = function(body) {
-        this.addEventListener("load", function() {
-            if (this._url.includes("/ssp/dock/hrz/ob/fetchdata")) {
-                const dados = JSON.parse(this.responseText);
-                if (dados && dados.ret && Array.isArray(dados.ret.aaData)) {
-                    const aaData = dados.ret.aaData;
-                    organizaLinhas(aaData);
-                    aaData.forEach(item => {
-                        const vrId = item.load.vrId;
-                        const status = item.load.status;
-                        const seal = item.load.seal;
-                        if (status == "LOADING_IN_PROGRESS") {
-                            let loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
-                            if (loadSpan) {
-                                loadSpan = loadSpan.parentElement.parentElement;
-
-                                const locationWarp = loadSpan.querySelector('span.locationWarp');
-                                if (locationWarp) {
-                                    locationWarp.style.border = "2px solid #00802f";
-                                } else {
-                                    const span = loadSpan.querySelector(".DOCK_DOOR");
-                                    const img = document.createElement("img");
-                                    img.src = `data:image/png;base64,${"iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAAkUlEQVR4nGNgoDJgxBDxkp7MYCqSxcDIwIRX53+Gfwyn30xj2PY0F78V9fp/GfhYpQk6hY9VhqFe/y+6MAuGQkYGJoZPv58yNOj/x2tgw0VGbL7ANBBdE1Zx3JYRMJCAK0k3kHQX4o9JmMYG/f8obJIAMRrxqBn8YUhnF3ZcEcQqXqHzHpcWTC+R6ipcwUItAADdxzMqJxC35wAAAABJRU5ErkJggg=="}`;
-                                    img.alt = "Iniciado";
-                                    img.style.width = "20px";
-                                    img.style.height = "14px";
-                                    span.replaceWith(img);
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        });
-        return send.apply(this, [body]);
-    };
-
+    // Organizar Linhas
     function organizaLinhas(aaData) {
         const index = 4; // índice da coluna "Rota"
         const asc = true;
@@ -1164,26 +1333,57 @@
         });
     }
 
-    async function processarPagina() {
-        selecionarFC();
-        formatarDatas();
-        traduzirCampos();
-        adicionarBotaoValePallet();
-        if (FC == "GRU8" ) {adicionarColunaMotorista();}
-        aplicarCloudscapeDesign();
+    // Check Start
+    function checkStart(aaData) {
+        aaData.forEach(item => {
+            const vrId = item.load.vrId;
+            const status = item.load.status;
+            const seal = item.load.seal;
+            if (status == "LOADING_IN_PROGRESS") {
+                let loadSpan = document.querySelector(`span.loadId[data-vrid="${vrId}"]`);
+                if (loadSpan) {
+                    loadSpan = loadSpan.parentElement.parentElement;
+
+                    const locationWarp = loadSpan.querySelector('span.locationWarp');
+                    if (locationWarp) {
+                        locationWarp.style.border = "2px solid #00802f";
+                    } else {
+                        const span = loadSpan.querySelector(".DOCK_DOOR");
+                        const img = document.createElement("img");
+                        img.src = `data:image/png;base64,${"iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAAkUlEQVR4nGNgoDJgxBDxkp7MYCqSxcDIwIRX53+Gfwyn30xj2PY0F78V9fp/GfhYpQk6hY9VhqFe/y+6MAuGQkYGJoZPv58yNOj/x2tgw0VGbL7ANBBdE1Zx3JYRMJCAK0k3kHQX4o9JmMYG/f8obJIAMRrxqBn8YUhnF3ZcEcQqXqHzHpcWTC+R6ipcwUItAADdxzMqJxC35wAAAABJRU5ErkJggg=="}`;
+                        img.alt = "Iniciado";
+                        img.style.width = "20px";
+                        img.style.height = "14px";
+                        span.replaceWith(img);
+                    }
+                }
+            }
+        });
     }
 
-    window.addEventListener('load', () => {
-        setTimeout(processarPagina, 1000);
-    });
+    //Monitora as requisições HTTP
+    const send = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function(body) {
+        this.addEventListener("load", function() {
+            if (body.includes("getDefaultOutboundDockView")) {
+                const dados = JSON.parse(this.responseText);
+                const aaData = dados.ret.aaData;
 
-    let debounceTimer = null;
-    const observer = new MutationObserver(() => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            processarPagina();
-        }, 300);
-    });
+                checkStart(aaData);
+                organizaLinhas(aaData);
 
-    observer.observe(document.body, { childList: true, subtree: true });
+            } else if (body.includes("getSubscribedNotifications")) {
+                formatarDatas();
+                traduzirCampos();
+
+                if (body.includes("GRU8")) {adicionarColunaMotorista();}
+
+                aplicarMeridianDesign();
+
+                adicionarBotaoValePallet();
+            }
+        });
+        return send.apply(this, [body]);
+    };
+
 })();
