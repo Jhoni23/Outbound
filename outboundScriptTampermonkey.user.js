@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      5.0
+// @version      5.1
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -757,19 +757,22 @@
                     break;
             }
 
-            //const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-            //const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-            //const transportadora = tdTransportadora?.textContent.trim() || "";
-            //if (transportadora == "AZLBR") { rota = "AZULBR";};
+            const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+            const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+            const transportadora = tdTransportadora?.textContent.trim() || "";
+            if (transportadora == "AZLBR") { rota = "AZULBR";};
 
-            //const spanVrid = linhaSelecionada.querySelector('span.loadId');
-            //const vrid = spanVrid?.textContent.trim() || "";
+            const spanVrid = linhaSelecionada.querySelector('span.loadId');
+            const vrid = spanVrid?.textContent.trim() || "";
 
             const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
             const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
 
-            let motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
-            if (motorista == "—") {motorista = ""};
+            let motorista = "";
+            if(obterFC() == "GRU8"){
+                let motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
+                if (motorista == "—") {motorista = ""};
+            }
 
             GM_xmlhttpRequest({
                 method: "GET",
@@ -779,6 +782,8 @@
 
                     html = html.replace(/{{ROTA}}/gi, rota || "")
                         .replace(/{{PLACA}}/gi, placa || "")
+                        .replace(/{{TRANSPORTADORA}}/gi, transportadora || "")
+                        .replace(/{{VRID}}/gi, vrid || "")
 
                         .replace(/{{SPP}}/gi, saida["PALETTS PLÁSTICO"] || 0)
                         .replace(/{{SSPL}}/gi, saida["SCUTTLES PLÁSTICO"] || 0)
