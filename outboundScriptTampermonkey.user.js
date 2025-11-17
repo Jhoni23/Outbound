@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      5.1
+// @version      5.2
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -770,9 +770,9 @@
 
             let motorista = "";
             if(obterFC() == "GRU8"){
-                let motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
-                if (motorista == "—") {motorista = ""};
+                motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
             }
+            if (motorista == "—") {motorista = ""};
 
             GM_xmlhttpRequest({
                 method: "GET",
