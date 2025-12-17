@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      5.2
+// @version      5.5
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -159,6 +159,9 @@
             departDiv.classList.remove('marL20');
             departDiv.style.marginLeft = '40px';
         }
+
+        const advise = document.getElementById('16450-stripe');
+        if (advise) advise.remove();
 
         //Refresh
         const el = document.getElementById('manualRefresh');
@@ -517,325 +520,6 @@
         });
     }
 
-    //Modal Vale Pallet
-    const style2 = document.createElement("style");
-    style2.textContent = `
-        .vp-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            font-family: Amazon Ember;
-        }
-
-        .vp-modal {
-            background: white;
-            width: 500px;
-            padding: 26px 30px;
-            border-radius: 4px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .vp-close {
-            position: absolute;
-            top: 10px;
-            right: 12px;
-            cursor: pointer;
-            font-size: 30px;
-        }
-        .vp-close:hover { color: #000; }
-
-        .vp-title {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #000;
-        }
-        .vp-subtitle {
-            font-size: 14px;
-            margin-bottom: 20px;
-            color: #444;
-        }
-
-        .vp-section-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin: 15px 0 8px;
-            color: #000;
-        }
-
-        .vp-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px 40px;
-        }
-
-        .vp-input-wrapper {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            font-size: 13px;
-        }
-
-        .vp-input-wrapper label {
-            margin-right: auto;
-            color: #000;
-        }
-
-        .vp-input-wrapper input {
-            font-family: Amazon Ember;
-            padding: 0px 0px 0px 7px;
-            font-size: 13px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-            width: 45px;
-            transform: scale(1.2);
-            font-weight: 500;
-            color: #000;
-        }
-
-        .vp-confirm {
-            font-family: Amazon Ember;
-            margin-top: 25px;
-            height: 32px;
-            padding: 12px;
-            border: none;
-            border-radius: 4px;
-            background: #00688d;
-            color: white;
-            font-size: 14px;
-            font-weight: 400;
-            cursor: pointer;
-            align-items: center;
-            display: inline-flex;
-            margin-left: auto;
-        }
-
-}
-    `;
-    document.head.appendChild(style2);
-
-    const nomesSaida = ["PALETTS PLÁSTICO","SCUTTLES PLÁSTICO","PALETTS DESCARTÁVEIS","SCUTTLES PAPELÃO","BAG"];
-    const nomesRetorno = ["PALETTS PLÁSTICO","SCUTTLES PLÁSTICO","PALETTS DESCARTÁVEIS","SCUTTLES PAPELÃO","PALETTS PBR"];
-
-    // Variáveis globais para armazenar os valores finais
-    let saida = {};
-    let retorno = {};
-
-    // =======================
-    // CRIA MODAL
-    // =======================
-    function abrirValePallet(linhaSelecionada, gaylordCount, nomeYard) {
-
-        const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
-        const tdAnterior = tdTRT?.previousElementSibling;
-        let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || 0;
-
-        let scuttles = gaylordCount;
-        if (scuttles == "") {scuttles = "0"};
-
-        const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
-        if (WT) {
-            if(WT.textContent.trim() === "WT") {
-                scuttles = pallet;
-            };
-        };
-
-        const overlay = document.createElement("div");
-        overlay.className = "vp-overlay";
-
-        const modal = document.createElement("div");
-        modal.className = "vp-modal";
-
-        // botão fechar
-        const btnClose = document.createElement("div");
-        btnClose.className = "vp-close";
-        btnClose.textContent = "×";
-        btnClose.onclick = () => overlay.remove();
-        modal.appendChild(btnClose);
-
-        const title = document.createElement("div");
-        title.className = "vp-title";
-        title.textContent = "Vale Pallet";
-        modal.appendChild(title);
-
-        const subtitle = document.createElement("div");
-        subtitle.className = "vp-subtitle";
-        subtitle.textContent = "Confirme os valores de itens enviados";
-        modal.appendChild(subtitle);
-
-        // Função criar seção
-        function criarSecao(nome, listaNomes, prefixo) {
-            const titulo = document.createElement("div");
-            titulo.className = "vp-section-title";
-            titulo.textContent = nome;
-
-            const grid = document.createElement("div");
-            grid.className = "vp-grid";
-
-            listaNomes.forEach((nomeItem, i) => {
-                const wrap = document.createElement("div");
-                wrap.className = "vp-input-wrapper";
-
-                const label = document.createElement("label");
-                label.textContent = nomeItem;
-
-                const input = document.createElement("input");
-                input.type = "number";
-                input.min = "0";
-                input.id = `${prefixo}-item${i+1}`;
-
-                if(prefixo === "saida"){
-                    switch (nomeItem) {
-                        case "PALETTS PLÁSTICO":
-                            input.value = pallet;
-                            break;
-                        case "SCUTTLES PLÁSTICO":
-                            input.value = scuttles;
-                            break;
-                    }
-                }
-
-                wrap.appendChild(label);
-                wrap.appendChild(input);
-                grid.appendChild(wrap);
-            });
-
-            return { titulo, grid };
-        }
-
-        // Criar seções
-        const secaoSaida = criarSecao("Saída", nomesSaida, "saida");
-        modal.appendChild(secaoSaida.titulo);
-        modal.appendChild(secaoSaida.grid);
-
-        const secaoRetorno = criarSecao("Retorno", nomesRetorno, "retorno");
-        modal.appendChild(secaoRetorno.titulo);
-        modal.appendChild(secaoRetorno.grid);
-
-        // Botão confirmar
-        const btnConfirm = document.createElement("button");
-        btnConfirm.className = "vp-confirm";
-        btnConfirm.textContent = "Confirmar";
-
-        btnConfirm.onclick = () => {
-
-            // Gerar objeto "saida"
-            saida = {};
-            nomesSaida.forEach((nomeItem, i) => {
-                const value = Number(document.getElementById(`saida-item${i+1}`).value || 0);
-                saida[nomeItem] = value;
-            });
-
-            // Gerar objeto "retorno"
-            retorno = {};
-            nomesRetorno.forEach((nomeItem, i) => {
-                const value = Number(document.getElementById(`retorno-item${i+1}`).value || 0);
-                retorno[nomeItem] = value;
-            });
-
-            overlay.remove();
-
-            const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
-            let rota = "";
-            switch(obterFC()) {
-                case "GRU8":
-                    rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
-                    break;
-                case "GRU5":
-                    rota = goodLaneSpan?.className.match(/laneGRU5-([A-Z0-9]+)/)?.[1] || "";
-                    break;
-                case "GRU9":
-                    rota = goodLaneSpan?.className.match(/laneGRU9-([A-Z0-9]+)/)?.[1] || "";
-                    break;
-            }
-
-            const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-            const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-            const transportadora = tdTransportadora?.textContent.trim() || "";
-            if (transportadora == "AZLBR") { rota = "AZULBR";};
-
-            const spanVrid = linhaSelecionada.querySelector('span.loadId');
-            const vrid = spanVrid?.textContent.trim() || "";
-
-            const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
-            const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
-
-            let motorista = "";
-            if(obterFC() == "GRU8"){
-                motorista = linhaSelecionada.querySelector('td.motoristaCol input').value;
-            }
-            if (motorista == "—") {motorista = ""};
-
-            GM_xmlhttpRequest({
-                method: "GET",
-                url: "https://github.com/Jhoni23/Outbound/raw/refs/heads/main/Modelos%20Vale%20Pallet/" + obterFC() + ".html",
-                onload: function (response) {
-                    let html = response.responseText;
-
-                    html = html.replace(/{{ROTA}}/gi, rota || "")
-                        .replace(/{{PLACA}}/gi, placa || "")
-                        .replace(/{{TRANSPORTADORA}}/gi, transportadora || "")
-                        .replace(/{{VRID}}/gi, vrid || "")
-
-                        .replace(/{{SPP}}/gi, saida["PALETTS PLÁSTICO"] || 0)
-                        .replace(/{{SSPL}}/gi, saida["SCUTTLES PLÁSTICO"] || 0)
-                        .replace(/{{SPD}}/gi, saida["PALETTS DESCARTÁVEIS"] || 0)
-                        .replace(/{{SSPA}}/gi, saida["SCUTTLES PAPELÃO"] || 0)
-                        .replace(/{{BAG}}/gi, saida["BAG"] || 0)
-
-                        .replace(/{{RPP}}/gi, retorno["PALETTS PLÁSTICO"] || 0)
-                        .replace(/{{RSPL}}/gi, retorno["SCUTTLES PLÁSTICO"] || 0)
-                        .replace(/{{RPD}}/gi, retorno["PALETTS DESCARTÁVEIS"] || 0)
-                        .replace(/{{RSPA}}/gi, retorno["SCUTTLES PAPELÃO"] || 0)
-                        .replace(/{{PBR}}/gi, retorno["PALETTS PBR"] || 0)
-
-                        .replace(/{{MOTORISTA}}/gi, motorista || "")
-                        .replace(/{{YARD}}/gi, nomeYard || "")
-                        .replace(/{{PALLET}}/gi, pallet || "")
-                        .replace(/{{SCUTTLES}}/gi, scuttles || "");
-
-                    // Cria um iframe oculto para impressão
-                    const iframe = document.createElement("iframe");
-                    iframe.style.position = "fixed";
-                    iframe.style.right = "0";
-                    iframe.style.bottom = "0";
-                    iframe.style.width = "0";
-                    iframe.style.height = "0";
-                    iframe.style.border = "0";
-                    document.body.appendChild(iframe);
-
-                    const doc = iframe.contentWindow.document;
-                    doc.open();
-                    doc.write(html);
-                    doc.close();
-
-                    iframe.onload = function () {
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                        setTimeout(() => document.body.removeChild(iframe), 1000);
-                    };
-                },
-                onerror: function (err) {
-                    console.error("Erro ao buscar HTML para impressão:", err);
-                    alert("Erro ao carregar conteúdo da impressão.");
-                }
-            });
-        };
-
-        modal.appendChild(btnConfirm);
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-    }
-
     //Botão Vale Pallet
     let criouObsever = false;
     function adicionarBotaoValePallet() {
@@ -912,7 +596,7 @@
                             novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
                             novoBotao.textContent = "Vale Pallet";
 
-                            novoBotao.addEventListener("click", () => {
+                            novoBotao.addEventListener("click", async () => {
                                 // cria o CSS do spinner via JS
                                 const style = document.createElement("style");
                                 style.textContent = `
@@ -940,20 +624,126 @@
                                 novoBotao.style.pointerEvents = "none";
                                 novoBotao.style.opacity = "0.7";
 
-                                contarGaylords(linhaSelecionada).then(({ gaylordCount }) => {
+                                await new Promise(r => setTimeout(r, 0));
+
+                                const { gaylordCount } = obterFC() != "GRU9" ? await contarGaylords(linhaSelecionada) : linhaSelecionada.querySelectorAll('.trailerCount')[1].textContent.trim();
+
                                     buscarNomeYard(function(nomeYard) {
-                                        novoBotao.textContent = "Vale Pallet";
-                                        novoBotao.style.width = "";
-                                        novoBotao.style.display = "";
-                                        novoBotao.style.justifyContent = "";
-                                        novoBotao.style.alignItems = "";
-                                        novoBotao.style.pointerEvents = "auto";
-                                        novoBotao.style.opacity = "1";
 
-                                        abrirValePallet(linhaSelecionada, gaylordCount, nomeYard);
+                                        const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
+                                        let rota = "";
+                                        switch(obterFC()) {
+                                            case "GRU8":
+                                                rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
+                                                break;
+                                            case "GRU5":
+                                                rota = goodLaneSpan?.className.match(/laneGRU5-([A-Z0-9]+)/)?.[1] || "";
+                                                break;
+                                            case "GRU9":
+                                                rota = goodLaneSpan?.className.match(/laneGRU9-([A-Z0-9]+)/)?.[1] || "";
+                                                break;
+                                        }
+
+                                        const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+                                        const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+                                        const transportadora = tdTransportadora?.textContent.trim() || "";
+
+                                        const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
+                                        const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
+
+                                        let motorista = obterFC() === "GRU8" ? linhaSelecionada.querySelector('td.motoristaCol input').value : "";
+                                        if (motorista == "—") {motorista = ""};
+
+                                        const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
+                                        const tdAnterior = tdTRT?.previousElementSibling;
+                                        let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
+                                        if (pallet == "") {pallet = "0"};
+
+                                        const spanVrid = linhaSelecionada.querySelector('span.loadId');
+                                        const vrid = spanVrid?.textContent.trim() || "";
+
+                                        let scuttles = gaylordCount;
+                                        if (scuttles == "") {scuttles = "0"};
+
+                                        const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
+                                        if (WT) {
+                                            if(WT.textContent.trim() === "WT") {
+                                                scuttles = pallet;
+                                            };
+                                        };
+
+                                        if (transportadora == "AZLBR") {
+                                            rota = "AZULBR";
+                                        };
+
+                                        let dados = {
+                                            Vrid: vrid,
+                                            Transportadora: transportadora,
+                                            Rota: rota,
+                                            Placa: placa,
+                                            Motorista: motorista,
+                                            Pallet: pallet,
+                                            Scuttles: scuttles,
+                                            Yard: nomeYard || ""
+                                        };
+
+                                        GM_xmlhttpRequest({
+                                            method: "GET",
+                                            url: "https://github.com/Jhoni23/Outbound/raw/refs/heads/main/Modelos%20Vale%20Pallet/" + obterFC() + ".html",
+                                            onload: function (response) {
+                                                let html = response.responseText;
+
+                                                html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
+                                                    .replace(/{{VRID}}/gi, dados.Vrid || "")
+                                                    .replace(/{{ROTA}}/gi, dados.Rota || "")
+                                                    .replace(/{{PLACA}}/gi, dados.Placa || "")
+                                                    .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
+                                                    .replace(/{{YARD}}/gi, dados.Yard || "")
+                                                    .replace(/{{PALLET}}/gi, dados.Pallet || "")
+                                                    .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
+
+                                                // Cria um iframe oculto para impressão
+                                                const iframe = document.createElement("iframe");
+                                                iframe.style.position = "fixed";
+                                                iframe.style.right = "0";
+                                                iframe.style.bottom = "0";
+                                                iframe.style.width = "0";
+                                                iframe.style.height = "0";
+                                                iframe.style.border = "0";
+                                                document.body.appendChild(iframe);
+
+                                                const doc = iframe.contentWindow.document;
+                                                doc.open();
+                                                doc.write(html);
+                                                doc.close();
+
+                                                iframe.onload = function () {
+                                                    iframe.contentWindow.focus();
+                                                    iframe.contentWindow.print();
+                                                    setTimeout(() => document.body.removeChild(iframe), 1000);
+                                                };
+                                                novoBotao.textContent = "Vale Pallet";
+                                                novoBotao.style.width = "";
+                                                novoBotao.style.display = "";
+                                                novoBotao.style.justifyContent = "";
+                                                novoBotao.style.alignItems = "";
+                                                novoBotao.style.pointerEvents = "auto";
+                                                novoBotao.style.opacity = "1";
+                                            },
+                                            onerror: function (err) {
+                                                console.error("Erro ao buscar HTML para impressão:", err);
+                                                alert("Erro ao carregar conteúdo da impressão.");
+                                            }
+                                        });
                                     });
-                                });
 
+                                novoBotao.textContent = "Vale Pallet";
+                                novoBotao.style.width = "";
+                                novoBotao.style.display = "";
+                                novoBotao.style.justifyContent = "";
+                                novoBotao.style.alignItems = "";
+                                novoBotao.style.pointerEvents = "auto";
+                                novoBotao.style.opacity = "1";
                             });
 
                             if (botaoView.classList.contains('hidden')) {
