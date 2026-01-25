@@ -1160,7 +1160,7 @@
     const send = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send = function(body) {
         this.addEventListener("load", function() {
-            if (body.includes("getDefaultOutboundDockView")) {
+            if (body.includes("getDefaultOutboundDockView")  || body.includes("getOutboundDockView")) {
                 const dados = JSON.parse(this.responseText);
                 const aaData = dados.ret.aaData;
 
