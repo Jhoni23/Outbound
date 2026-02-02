@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Outbound 2.0
+// @icon         https://raw.githubusercontent.com/Jhoni23/Outbound/refs/heads/new-update/.github/assets/outbound-logo.svg
 // @namespace    http://tampermonkey.net/
-// @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      5.5
+// @version      5.6
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -11,7 +11,7 @@
 // @connect      trans-logistics.amazon.com
 // @connect      github.com
 // @connect      raw.githubusercontent.com
-// @require      https://sdk.amazonaws.com/js/aws-sdk-2.1480.0.min.js
+// @connect      crisp-na.corp.amazon.com
 // ==/UserScript==
 
 (function () {
@@ -139,7 +139,7 @@
             departLoads.style.color = '#232F3E';
         }
 
-        //GRU8 Select
+        //FC Select
         const nodeTimeDiv = document.querySelector('.floatL.nodeTime');
         if (nodeTimeDiv) {
             nodeTimeDiv.style.marginTop = '5px';
@@ -452,16 +452,8 @@
     //Ler FC
     function obterFC() {
         const cookies = document.cookie.split("; ");
-        for (const cookie of cookies) {
-            const [key, value] = cookie.split("=");
-            if (key === "setNodeId") return decodeURIComponent(value);
-        }
-        const select = document.getElementById("availableNodeName");
-        if (select) {
-            const opcaoSelecionada = select.options[select.selectedIndex];
-            return opcaoSelecionada.text;
-        }
-        return null; // se não encontrar
+        const cookie = cookies.find(row => row.startsWith("setNodeId="));
+        return cookie ? decodeURIComponent(cookie.split("=")[1]) : null;
     }
 
     //Formata datas
@@ -492,14 +484,6 @@
         });
     }
 
-    //Conexão banco de dados
-    AWS.config.update({
-        region: 'sa-east-1',
-        accessKeyId: 'AKIA2NVKJ4QJ2YYIQ4NY',
-        secretAccessKey: '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'
-    });
-    const docClient = new AWS.DynamoDB.DocumentClient();
-
     //Buscar Nome do Yard
     function buscarNomeYard(callback) {
         GM_xmlhttpRequest({
@@ -521,85 +505,76 @@
     }
 
     //Botão Vale Pallet
-    let criouObsever = false;
-    function adicionarBotaoValePallet() {
-        const divRight = document.getElementById("rightContent");
-        if(!criouObsever){
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === "attributes" && mutation.attributeName === "class") {
-                        if (!divRight.classList.contains("displaynone")) {
-                            const linhaSelecionada = document.querySelector('tr.selectedTableRow');
+    function adicionarBotaoValePallet(linhaSelecionada) {
+        //Botão copiar
+        const h4 = document.querySelector("#rightContent h4");
+        if (!h4.querySelector(".btn-copiar")) {
+            const span = document.createElement("span");
+            span.textContent = " ⿻";
+            span.className = "btn-copiar";
+            span.style.cursor = "pointer";
+            span.style.marginLeft = "6px";
+            span.style.color = "#2F6EE2";
+            span.title = "Copiar dados";
 
-                            //Botão copiar
-                            const h4 = document.querySelector("#rightContent h4");
-                            if (!h4.querySelector(".btn-copiar")) {
-                                const span = document.createElement("span");
-                                span.textContent = " ⿻";
-                                span.className = "btn-copiar";
-                                span.style.cursor = "pointer";
-                                span.style.marginLeft = "6px";
-                                span.style.color = "#2F6EE2";
-                                span.title = "Copiar dados";
+            const texto = h4.innerText.trim();
+            const vrid = texto.split("-").pop().trim();
 
-                                const texto = h4.innerText.trim();
-                                const vrid = texto.split("-").pop().trim();
+            const laneSpan = linhaSelecionada.querySelector("span.floatL.goodLane");
+            const rota = laneSpan.textContent.trim();
 
-                                const laneSpan = linhaSelecionada.querySelector("span.floatL.goodLane");
-                                const rota = laneSpan.textContent.trim();
+            const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+            const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+            const carrier = tdTransportadora?.textContent.trim() || "";
 
-                                const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-                                const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-                                const carrier = tdTransportadora?.textContent.trim() || "";
+            const theadRow = document.querySelector("thead tr");
+            const ths = theadRow.querySelectorAll("th");
+            let posicao = -1;
+            ths.forEach((th, index) => {
+                if (th.getAttribute("title") === "Critical Pull Time" || th.getAttribute("title") === "Horário de envio programado") {
+                    posicao = index;
+                }
+            });
+            const tds = linhaSelecionada.querySelectorAll("td");
+            const cpt = tds[posicao].textContent.trim();
 
-                                const theadRow = document.querySelector("thead tr");
-                                const ths = theadRow.querySelectorAll("th");
-                                let posicao = -1;
-                                ths.forEach((th, index) => {
-                                    if (th.getAttribute("title") === "Critical Pull Time" || th.getAttribute("title") === "Horário de envio programado") {
-                                        posicao = index;
-                                    }
-                                });
-                                const tds = linhaSelecionada.querySelectorAll("td");
-                                const cpt = tds[posicao].textContent.trim();
+            const textoCopiar = `VRID ${vrid}\nLANE ${rota}\nCARRIER ${carrier}\nCPT ${cpt}`;
 
-                                const textoCopiar = `VRID ${vrid}\nLANE ${rota}\nCARRIER ${carrier}\nCPT ${cpt}`;
+            span.addEventListener("click", () => {
+                navigator.clipboard.writeText(textoCopiar);
 
-                                span.addEventListener("click", () => {
-                                    navigator.clipboard.writeText(textoCopiar);
+                span.textContent = " ✓";
+                setTimeout(() => {
+                    span.textContent = " ⿻";
+                }, 1500);
+            });
 
-                                    span.textContent = " ✓";
-                                    setTimeout(() => {
-                                        span.textContent = " ⿻";
-                                    }, 1500);
-                                });
+            h4.appendChild(span);
+        }
 
-                                h4.appendChild(span);
-                            }
+        //Botão vale pallet
+        const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
+        const temSpan = tdTrailerNum?.querySelector('span');
 
-                            //Botão vale pallet
-                            const tdTrailerNum = linhaSelecionada.querySelector('td.trailerNumCol');
-                            const temSpan = tdTrailerNum?.querySelector('span');
+        const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
 
-                            const container = document.querySelector(".actionButtonItems.floatL.backGroundNone");
+        const divColMd = document.querySelectorAll('div.backGroundNone > div.col-md-12.backGroundNone')[1];
+        const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
+        const botaoView = actionDivs[1].querySelector('a#viewDocButton');
 
-                            const divColMd = document.querySelectorAll('div.backGroundNone > div.col-md-12.backGroundNone')[1];
-                            const actionDivs = divColMd.querySelectorAll('div.actionButtonItems.floatL.clear.backGroundNone');
-                            const botaoView = actionDivs[1].querySelector('a#viewDocButton');
+        if (document.getElementById("novoBotao") || !temSpan) return;
 
-                            if (document.getElementById("novoBotao") || !temSpan) return;
+        const novoBotao = document.createElement("a");
+        novoBotao.href = "javascript:void(0)";
+        novoBotao.id = "novoBotao";
+        novoBotao.title = "Vale Pallet";
+        novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
+        novoBotao.textContent = "Vale Pallet";
 
-                            const novoBotao = document.createElement("a");
-                            novoBotao.href = "javascript:void(0)";
-                            novoBotao.id = "novoBotao";
-                            novoBotao.title = "Vale Pallet";
-                            novoBotao.className = "btnValePallet aluiBtn standardBtn floatL";
-                            novoBotao.textContent = "Vale Pallet";
-
-                            novoBotao.addEventListener("click", async () => {
-                                // cria o CSS do spinner via JS
-                                const style = document.createElement("style");
-                                style.textContent = `
+        novoBotao.addEventListener("click", async () => {
+            // cria o CSS do spinner via JS
+            const style = document.createElement("style");
+            style.textContent = `
 .spinner {
   border: 2px solid #f3f3f3;
   border-top: 2px solid #333;
@@ -614,150 +589,128 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }`;
-                                document.head.appendChild(style);
-                                const largura = novoBotao.offsetWidth + "px";
-                                novoBotao.style.width = largura;
-                                novoBotao.innerHTML = '<span class="spinner"></span>';
-                                novoBotao.style.display = "flex";
-                                novoBotao.style.justifyContent = "center";
-                                novoBotao.style.alignItems = "center";
-                                novoBotao.style.pointerEvents = "none";
-                                novoBotao.style.opacity = "0.7";
+            document.head.appendChild(style);
+            const largura = novoBotao.offsetWidth + "px";
+            novoBotao.style.width = largura;
+            novoBotao.innerHTML = '<span class="spinner"></span>';
+            novoBotao.style.display = "flex";
+            novoBotao.style.justifyContent = "center";
+            novoBotao.style.alignItems = "center";
+            novoBotao.style.pointerEvents = "none";
+            novoBotao.style.opacity = "0.7";
 
-                                await new Promise(r => setTimeout(r, 0));
+            await new Promise(r => setTimeout(r, 0));
 
-                                const { gaylordCount } = obterFC() != "GRU9" ? await contarGaylords(linhaSelecionada) : linhaSelecionada.querySelectorAll('.trailerCount')[1].textContent.trim();
+            const { gaylordCount } = obterFC() != "GRU9" ? await contarGaylords(linhaSelecionada) : linhaSelecionada.querySelectorAll('.trailerCount')[1].textContent.trim();
 
-                                    buscarNomeYard(function(nomeYard) {
+            buscarNomeYard(function(nomeYard) {
 
-                                        const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
-                                        let rota = "";
-                                        switch(obterFC()) {
-                                            case "GRU8":
-                                                rota = goodLaneSpan?.className.match(/laneGRU8-([A-Z0-9]+)/)?.[1] || "";
-                                                break;
-                                            case "GRU5":
-                                                rota = goodLaneSpan?.className.match(/laneGRU5-([A-Z0-9]+)/)?.[1] || "";
-                                                break;
-                                            case "GRU9":
-                                                rota = goodLaneSpan?.className.match(/laneGRU9-([A-Z0-9]+)/)?.[1] || "";
-                                                break;
-                                        }
+                const goodLaneSpan = linhaSelecionada.querySelector('span.goodLane');
+                let rota = goodLaneSpan?.className.match(new RegExp(`lane${obterFC()}-([A-Z0-9]+)`))?.[1] || "";
 
-                                        const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-                                        const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
-                                        const transportadora = tdTransportadora?.textContent.trim() || "";
+                const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
+                const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
+                const transportadora = tdTransportadora?.textContent.trim() || "";
 
-                                        const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
-                                        const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
+                const spanPlaca = linhaSelecionada.querySelector('span.trailerNo');
+                const placa = spanPlaca?.textContent.trim().replace("OTHR", "").trim() || "";
 
-                                        let motorista = obterFC() === "GRU8" ? linhaSelecionada.querySelector('td.motoristaCol input').value : "";
-                                        if (motorista == "—") {motorista = ""};
+                const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
+                const tdAnterior = tdTRT?.previousElementSibling;
+                let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
+                if (pallet == "") {pallet = "0"};
 
-                                        const tdTRT = linhaSelecionada.querySelector('td.trtColumn');
-                                        const tdAnterior = tdTRT?.previousElementSibling;
-                                        let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
-                                        if (pallet == "") {pallet = "0"};
+                const spanVrid = linhaSelecionada.querySelector('span.loadId');
+                const vrid = spanVrid?.textContent.trim() || "";
 
-                                        const spanVrid = linhaSelecionada.querySelector('span.loadId');
-                                        const vrid = spanVrid?.textContent.trim() || "";
+                let scuttles = gaylordCount;
+                if (scuttles == "") {scuttles = "0"};
 
-                                        let scuttles = gaylordCount;
-                                        if (scuttles == "") {scuttles = "0"};
+                if (transportadora == "AZLBR") {
+                    rota = "AZULBR";
+                };
 
-                                        const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
-                                        if (WT) {
-                                            if(WT.textContent.trim() === "WT") {
-                                                scuttles = pallet;
-                                            };
-                                        };
+                const WT = linhaSelecionada.querySelector(".highlightTransType.floatL");
+                if (WT) {
+                    if(WT.textContent.trim() === "WT") {
+                        scuttles = pallet;
+                    };
+                };
 
-                                        if (transportadora == "AZLBR") {
-                                            rota = "AZULBR";
-                                        };
+                let dados = {
+                    Vrid: vrid,
+                    Transportadora: transportadora,
+                    Rota: rota,
+                    FC: obterFC(),
+                    Placa: placa,
+                    Pallet: pallet,
+                    Scuttles: scuttles,
+                    Yard: nomeYard || ""
+                };
 
-                                        let dados = {
-                                            Vrid: vrid,
-                                            Transportadora: transportadora,
-                                            Rota: rota,
-                                            Placa: placa,
-                                            Motorista: motorista,
-                                            Pallet: pallet,
-                                            Scuttles: scuttles,
-                                            Yard: nomeYard || ""
-                                        };
+                GM_xmlhttpRequest({
+                    method: "GET",
+                    url: "https://github.com/Jhoni23/Outbound/blob/new-update/modeloValePallet.html",
+                    onload: function (response) {
+                        let html = response.responseText;
 
-                                        GM_xmlhttpRequest({
-                                            method: "GET",
-                                            url: "https://github.com/Jhoni23/Outbound/raw/refs/heads/main/Modelos%20Vale%20Pallet/" + obterFC() + ".html",
-                                            onload: function (response) {
-                                                let html = response.responseText;
+                        html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
+                            .replace(/{{VRID}}/gi, dados.Vrid || "")
+                            .replace(/{{ROTA}}/gi, dados.Rota || "")
+                            .replace(/{{FC}}/gi, dados.FC || "")
+                            .replace(/{{PLACA}}/gi, dados.Placa || "")
+                            .replace(/{{YARD}}/gi, dados.Yard || "")
+                            .replace(/{{PALLET}}/gi, dados.Pallet || "")
+                            .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
 
-                                                html = html.replace(/{{TRANSPORTADORA}}/gi, dados.Transportadora || "")
-                                                    .replace(/{{VRID}}/gi, dados.Vrid || "")
-                                                    .replace(/{{ROTA}}/gi, dados.Rota || "")
-                                                    .replace(/{{PLACA}}/gi, dados.Placa || "")
-                                                    .replace(/{{MOTORISTA}}/gi, dados.Motorista || "")
-                                                    .replace(/{{YARD}}/gi, dados.Yard || "")
-                                                    .replace(/{{PALLET}}/gi, dados.Pallet || "")
-                                                    .replace(/{{SCUTTLES}}/gi, dados.Scuttles || "");
+                        // Cria um iframe oculto para impressão
+                        const iframe = document.createElement("iframe");
+                        iframe.style.position = "fixed";
+                        iframe.style.right = "0";
+                        iframe.style.bottom = "0";
+                        iframe.style.width = "0";
+                        iframe.style.height = "0";
+                        iframe.style.border = "0";
+                        document.body.appendChild(iframe);
 
-                                                // Cria um iframe oculto para impressão
-                                                const iframe = document.createElement("iframe");
-                                                iframe.style.position = "fixed";
-                                                iframe.style.right = "0";
-                                                iframe.style.bottom = "0";
-                                                iframe.style.width = "0";
-                                                iframe.style.height = "0";
-                                                iframe.style.border = "0";
-                                                document.body.appendChild(iframe);
+                        const doc = iframe.contentWindow.document;
+                        doc.open();
+                        doc.write(html);
+                        doc.close();
 
-                                                const doc = iframe.contentWindow.document;
-                                                doc.open();
-                                                doc.write(html);
-                                                doc.close();
-
-                                                iframe.onload = function () {
-                                                    iframe.contentWindow.focus();
-                                                    iframe.contentWindow.print();
-                                                    setTimeout(() => document.body.removeChild(iframe), 1000);
-                                                };
-                                                novoBotao.textContent = "Vale Pallet";
-                                                novoBotao.style.width = "";
-                                                novoBotao.style.display = "";
-                                                novoBotao.style.justifyContent = "";
-                                                novoBotao.style.alignItems = "";
-                                                novoBotao.style.pointerEvents = "auto";
-                                                novoBotao.style.opacity = "1";
-                                            },
-                                            onerror: function (err) {
-                                                console.error("Erro ao buscar HTML para impressão:", err);
-                                                alert("Erro ao carregar conteúdo da impressão.");
-                                            }
-                                        });
-                                    });
-
-                                novoBotao.textContent = "Vale Pallet";
-                                novoBotao.style.width = "";
-                                novoBotao.style.display = "";
-                                novoBotao.style.justifyContent = "";
-                                novoBotao.style.alignItems = "";
-                                novoBotao.style.pointerEvents = "auto";
-                                novoBotao.style.opacity = "1";
-                            });
-
-                            if (botaoView.classList.contains('hidden')) {
-                                container.appendChild(novoBotao);
-                            } else {
-                                botaoView.insertAdjacentElement('afterend', novoBotao);
-                            }
-                        }
+                        iframe.onload = function () {
+                            iframe.contentWindow.focus();
+                            iframe.contentWindow.print();
+                            setTimeout(() => document.body.removeChild(iframe), 1000);
+                        };
+                        novoBotao.textContent = "Vale Pallet";
+                        novoBotao.style.width = "";
+                        novoBotao.style.display = "";
+                        novoBotao.style.justifyContent = "";
+                        novoBotao.style.alignItems = "";
+                        novoBotao.style.pointerEvents = "auto";
+                        novoBotao.style.opacity = "1";
+                    },
+                    onerror: function (err) {
+                        console.error("Erro ao buscar HTML para impressão:", err);
+                        alert("Erro ao carregar conteúdo da impressão.");
                     }
                 });
             });
 
-            observer.observe(divRight, { attributes: true });
-            criouObsever = true;
+            novoBotao.textContent = "Vale Pallet";
+            novoBotao.style.width = "";
+            novoBotao.style.display = "";
+            novoBotao.style.justifyContent = "";
+            novoBotao.style.alignItems = "";
+            novoBotao.style.pointerEvents = "auto";
+            novoBotao.style.opacity = "1";
+        });
+
+        if (botaoView.classList.contains('hidden')) {
+            container.appendChild(novoBotao);
+        } else {
+            botaoView.insertAdjacentElement('afterend', novoBotao);
         }
     }
 
@@ -876,130 +829,6 @@
             const texto = div.textContent.trim();
             if (traducoes[texto]) {
                 div.textContent = traducoes[texto];
-            }
-        });
-    }
-
-    // Coluna Motorista
-    function adicionarColunaMotorista() {
-        const tabela = document.querySelector('table#dashboard');
-        if (!tabela) return;
-
-        const thTrailer = tabela.querySelector('thead th.trailerIdCol');
-        if (thTrailer && !tabela.querySelector('th.motoristaCol')) {
-            const thMotorista = document.createElement('th');
-            thMotorista.className = 'motoristaCol ui-state-default';
-            thMotorista.style.width = '10%';
-            thMotorista.innerHTML = '<div class="DataTables_sort_wrapper">Motorista<span class="DataTables_sort_icon css_right ui-icon ui-icon-carat-2-n-s"></span></div>';
-            thTrailer.insertAdjacentElement('afterend', thMotorista);
-        }
-
-        tabela.querySelectorAll('tbody tr').forEach(tr => {
-            if (!tr.querySelector('td.motoristaCol')) {
-                const tdMotorista = document.createElement('td');
-                tdMotorista.className = 'motoristaCol';
-                tdMotorista.textContent = '';
-
-                const tdTrailer = tr.querySelector('td.trailerNumCol');
-                if (tdTrailer) {
-                    tdTrailer.insertAdjacentElement('afterend', tdMotorista);
-
-                    //const trailerId = tdTrailer.querySelector('span.trailerNo')?.textContent.trim();
-                    const trailerId = tr.querySelector('span.loadId').getAttribute('data-vrid');
-
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.style.width = '90%';
-                    input.style.border = 'none';
-                    input.style.boxShadow = 'none';
-
-                    tdMotorista.textContent = '';
-                    tdMotorista.appendChild(input);
-
-                    const params = {
-                        TableName: 'nome-motoristas',
-                        Key: { placa: trailerId }
-                    };
-
-                    docClient.get(params, (err, data) => {
-                        if (data && data.Item && data.Item.nome) {
-                            input.value = data.Item.nome;
-                        } else {
-                            input.value = "—";
-                        }
-                    });
-
-                    async function salvar(nome) {
-                        const now = Math.floor(Date.now() / 1000);
-                        const expireAt = now + 9 * 60 * 60;
-                        const nomeUpper = nome.trim().toUpperCase();
-
-                        // Se não tem nome → remove o item
-                        if (!nomeUpper) {
-                            const params = {
-                                TableName: 'nome-motoristas',
-                                Key: { placa: trailerId }
-                            };
-
-                            try {
-                                await docClient.delete(params).promise();
-                                console.log(`Removido: ${trailerId}`);
-                                input.blur();
-                                input.value = '—';
-                            } catch (err) {
-                                console.error('Erro ao remover:', err);
-                            }
-                            return;
-                        }
-
-                        // Caso tenha nome → atualiza ou cria
-                        const params = {
-                            TableName: 'nome-motoristas',
-                            Key: { placa: trailerId },
-                            UpdateExpression: 'SET #n = :nome, expireAt = :expireAt',
-                            ExpressionAttributeNames: {
-                                '#n': 'nome' // evita conflito com palavra reservada
-                            },
-                            ExpressionAttributeValues: {
-                                ':nome': nomeUpper,
-                                ':expireAt': expireAt
-                            }
-                        };
-
-                        try {
-                            await docClient.update(params).promise();
-                            console.log(`Atualizado: ${trailerId} = ${nomeUpper}`);
-                            input.blur();
-                            input.value = nomeUpper;
-                        } catch (err) {
-                            console.error('Erro ao atualizar:', err);
-                        }
-                    }
-
-                    input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            salvar(input.value);
-                        }
-                    });
-
-                    input.addEventListener('focus', () => {
-                        if (input.value === '—') {
-                            input.value = '';
-                        }
-                    });
-
-                    const observer = new MutationObserver(mutations => {
-                        mutations.forEach(mutation => {
-                            if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                                const texto = tdMotorista.textContent.trim();
-                                if (!isNaN(texto) && texto !== '') {
-                                    document.getElementById('manualRefresh').click();
-                                }
-                            }
-                        });
-                    });
-                    observer.observe(tdMotorista, { characterData: true, subtree: true, childList: true });
-                }
             }
         });
     }
@@ -1156,26 +985,247 @@
         });
     }
 
-    //Monitora as requisições HTTP
+    /// CRISP ///
+    let crispDados = [];
+    function crisp(){
+
+        //Coleta de dados do CRISP
+        function searchCrisp() {
+            function extractCellValue(td) {
+                if (!td) return null;
+
+                const checkbox = td.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    return {
+                        checked: checkbox.checked,
+                        name: checkbox.name
+                    };
+                }
+
+                const progress = td.querySelector('.a-progress-prompt');
+                if (progress) {
+                    return Number(progress.textContent.replace('%', '').trim());
+                }
+
+                const link = td.querySelector('a[href]');
+                if (link) {
+                    return {
+                        text: link.textContent.trim(),
+                        href: link.href
+                    };
+                }
+
+                if (td.dataset.order) {
+                    const n = Number(td.dataset.order);
+                    return isNaN(n) ? td.textContent.trim() : n;
+                }
+
+                const text = td.textContent.trim();
+                return text === "" ? null : text;
+            }
+
+            let dateFrom = "";
+            let dateTo = "";
+
+            const timer = setInterval(() => {
+                const fromDateInput = document.querySelector('input[dataname="FromDate"]');
+                const toDateInput = document.querySelector('input[dataname="ToDate"]');
+                const fromTimeSel = document.querySelector('select[dataname="fromTime"]');
+                const toTimeSel = document.querySelector('select[dataname="toTime"]');
+
+                if (fromDateInput?.value && toDateInput?.value && fromTimeSel && toTimeSel) {
+                    const [m1,d1,y1] = fromDateInput.value.split("/");
+                    dateFrom = `${y1}-${('0'+m1).slice(-2)}-${('0'+d1).slice(-2)}T${fromTimeSel.options[fromTimeSel.selectedIndex].text.replace(":", "%3A")}`;
+
+                    const [m2,d2,y2] = toDateInput.value.split("/");
+                    dateTo = `${y2}-${('0'+m2).slice(-2)}-${('0'+d2).slice(-2)}T${toTimeSel.options[toTimeSel.selectedIndex].text.replace(":", "%3A")}`;
+
+                    GM_xmlhttpRequest({
+                        method: "GET",
+                        url: "https://crisp-na.corp.amazon.com/transportation/capacity-dashboard" +
+                        "?timeRangeStart=" + dateFrom +
+                        "&timeRangeEnd=" + dateTo +
+                        "&zoneId=America%2FSao_Paulo" +
+                        "&pickupSourceWarehouses=" + obterFC() +
+                        "&constraints=SoftCap&constraints=HardCap" +
+                        "&units=CUBIC_VOLUME",
+
+                        onload: function (response) {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(response.responseText, "text/html");
+
+                            //Capta a tabela
+                            const table = doc.querySelector('#standardPickupResources');
+                            if (!table) { console.warn('Tabela não encontrada'); return []; }
+                            let headers = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, ""));
+
+                            if (headers.length === 0) {
+                                const firstRow = table.querySelector('tbody tr');
+                                if (firstRow) {
+                                    headers = [...firstRow.querySelectorAll('td')]
+                                        .map((_, idx) => `col_${idx + 1}`);
+                                }
+                            }
+
+                            const rows = [...table.querySelectorAll('tbody tr')];
+
+                            crispDados = rows.map(tr => {
+                                const cells = tr.querySelectorAll('td');
+                                const obj = {};
+                                headers.forEach((key, i) => {
+                                    obj[key] = extractCellValue(cells[i]);
+                                });
+                                return obj;
+                            });
+                        },
+                    });
+
+                    clearInterval(timer);
+                }
+            }, 200);
+            console.log("Pesquisei");
+        }
+
+        //Verificação cookie
+        const cookieCrisp = document.cookie.split("; ").find(row => row.startsWith("crisp="))?.split("=")[1];
+        if (cookieCrisp == undefined){
+            document.cookie = `${"crisp"}=${encodeURIComponent(Date.now())}; expires=${new Date(Date.now() + 10 * 60 * 1000).toUTCString()}; path=/`;
+            searchCrisp();
+        } else {
+            //if(Date.now() - Number(decodeURIComponent(cookieCrisp)) >= 10 * 60 * 1000) {searchCrisp()};
+            searchCrisp();
+        }
+    }
+
+    function adicionarCrisp(linha){
+        if (!document.querySelector("#accordion2 .load-extra")) {
+            const accordion = document.getElementById("accordion2");
+
+            // Crisp Title
+            const loadHeader = accordion.firstElementChild;
+
+            const h3 = document.createElement("h3");
+            h3.className = "ui-accordion-header ui-helper-reset ui-state-default ui-corner-top backGroundNone load-extra";
+            h3.setAttribute("id", "crisp-header");
+            h3.setAttribute("role", "tab");
+            h3.setAttribute("aria-expanded", "false");
+            h3.setAttribute("aria-selected", "false");
+            h3.setAttribute("tabindex", "-1");
+
+            h3.innerHTML = `
+  <span class="ui-icon ui-icon-triangle-1-e"></span>
+  Crisp
+`;
+            loadHeader.insertAdjacentElement("beforebegin", h3);
+
+            // Crisp Content
+            const newContent = document.createElement("div");
+            newContent.className = "col-md-12 backGroundNone load-extra";
+
+            newContent.innerHTML = `
+    <div class="col-md-12 backGroundNone">
+      <div class="col-md-12 backGroundNone">
+        <table width="100%">
+          <tbody>
+            <tr class="colorWhite">
+              <td width="160">Soft Cap:</td>
+              <td width="160"id="softCamp"> </td>
+            </tr>
+            <tr>
+              <td width="160">Hard Cap:</td>
+              <td width="160"id="hardCamp"> </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+            h3.insertAdjacentElement("afterend", newContent);
+        }
+
+        const softCamp = document.getElementById("softCamp");
+        const hardCamp = document.getElementById("hardCamp");
+
+        const goodLaneSpan = linha.querySelector('span.goodLane');
+        const rota = goodLaneSpan?.className.match(new RegExp(`lane${obterFC()}-([A-Z0-9]+)`))?.[1] || "";
+
+        const texto = [...document.querySelectorAll("tr")]
+        .find(tr => tr.textContent.includes("Critical Pull Time:"))
+        ?.querySelectorAll("td")[1]
+        ?.textContent.trim();
+
+        function toMillis(dataStr) {
+            const [datePart, timePart] = dataStr.split(" ");
+            const [day, monStr, yy] = datePart.split("-");
+            const [hh, mm] = timePart.split(":");
+
+            const meses = {
+                Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+                Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+            };
+
+            const year = 2000 + Number(yy);
+
+            return new Date(year, meses[monStr], Number(day), Number(hh), Number(mm), 0).getTime();
+        }
+
+        const cpt = texto ? toMillis(texto) : null;
+
+        console.log(crispDados);
+
+        softCamp.textContent = crispDados.find(
+            item =>
+            item.dest === rota &&
+            item.cpt === cpt &&
+            item.constraint === "Soft cap"
+        )?.capacity_value ?? 0;
+
+        hardCamp.textContent = crispDados.find(
+            item =>
+            item.dest === rota &&
+            item.cpt === cpt &&
+            item.constraint === "Hard cap"
+        )?.capacity_value ?? 0;
+    }
+
+    /// Observer Div Lateral ///
+    let observerCreated = false;
+    function observerDivRight() {
+        if(!observerCreated){
+            const divRight = document.getElementById("rightContent");
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === "attributes" && mutation.attributeName === "class") {
+                        if (!divRight.classList.contains("displaynone")) {
+                            const linha = document.querySelector('tr.selectedTableRow');
+                            adicionarBotaoValePallet(linha);
+                            adicionarCrisp(linha);
+                        }
+                    }
+                });
+            });
+            observer.observe(divRight, { attributes: true });
+            observerCreated = true;
+        }
+    }
+
+    /// Monitora as requisições HTTP //
     const send = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send = function(body) {
         this.addEventListener("load", function() {
-            if (body.includes("getDefaultOutboundDockView")  || body.includes("getOutboundDockView")) {
+            if (body.includes("getDefaultOutboundDockView") || body.includes("getOutboundDockView")) {
                 const dados = JSON.parse(this.responseText);
                 const aaData = dados.ret.aaData;
 
                 checkStart(aaData);
                 organizaLinhas(aaData);
-
             } else if (body.includes("getSubscribedNotifications")) {
+                crisp();
                 formatarDatas();
                 traduzirCampos();
-
-                if (body.includes("GRU8")) {adicionarColunaMotorista();}
-
                 aplicarMeridianDesign();
-
-                adicionarBotaoValePallet();
+                observerDivRight();
             }
         });
         return send.apply(this, [body]);
