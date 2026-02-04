@@ -42,37 +42,52 @@ No seu navegador (Firefox ou Google Chrome):
 
 ### Vale Pallet
 
-Adiciona um novo botão de "Vale Pallet" que gera o documento automaticamente.
+Adiciona um botão de "Vale Pallet" no menu lateral que gera o documento automaticamente.
 
+(Para os carros que já estiverem no sistema)
+
+<div>
+    <img width="408" src="https://github.com/user-attachments/assets/d57a2d6a-c2e9-400a-afb6-637ef4ed260f" align="top"/>
+    <img width="200" src="https://github.com/user-attachments/assets/51347cd2-9000-434d-9930-ecaa2a3c68a4" align="top"/>
+</div>
 
 > [!NOTE]
 > Deve ser impresso antes do Checkout do veículo, após isso a placa deve ser inserida manualmente.
 
 ### Design Atualizado
 
-Atualização da aparência página e tradução das tipologias do veículo
+Pequenas atualizações na interface e tradução das tipologias do veículo.
+
+Ex: Forty Foot Truck -> VUC
+
 
 ### Ícones de Start
 
-Os carregamentos que já foram dados "Start" ou "Iniciar" têm seus ícones de doca verde: 
+Os carregamentos que já tiveram "Start" ou "Iniciar" têm seus ícones de doca verde: 
+
+<img width="400" src="https://github.com/user-attachments/assets/749ec08f-9439-4c6a-aa4d-86232d29ee5f" />
 
 <br>
 
 ## Como desativar
 
-Exemplo de descrição
+- No canto superior direito do navegador, clique no ícone de quebra-cabeça.
 
-- Exemplo de texto.
 
-- Exemplo de texto.
 
-- Exemplo de texto.
+- Selecione o Tampermonkey.
+
+
+
+- Desabilite a extensão.
+
+
 
 <br><br>
 
 ## Mais informações
 
-> Nenhuma parte da extensão altera dados internos importantes da Amazon.
+> Nenhuma parte da extensão altera dados internos importantes da Amazon ou o código-fonte do SSP.
 
 Em caso de dúvidas, erros/bugs ou sugestões: <br><br>
  Chime [@rsanjhon](https://github.com/) &nbsp;&middot;&nbsp;
