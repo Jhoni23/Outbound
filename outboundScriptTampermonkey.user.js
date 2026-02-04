@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         Outbound 2.0
-// @icon         https://raw.githubusercontent.com/Jhoni23/Outbound/refs/heads/new-update/.github/assets/outbound-logo.svg
+// @icon         https://raw.githubusercontent.com/Jhoni23/Outbound/refs/heads/main/.github/assets/outbound-logo.svg
 // @namespace    http://tampermonkey.net/
+// @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      5.6
+// @version      5.5
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -11,7 +12,6 @@
 // @connect      trans-logistics.amazon.com
 // @connect      github.com
 // @connect      raw.githubusercontent.com
-// @connect      crisp-na.corp.amazon.com
 // ==/UserScript==
 
 (function () {
@@ -601,7 +601,7 @@
 
             await new Promise(r => setTimeout(r, 0));
 
-            const { gaylordCount } = obterFC() != "GRU9" ? await contarGaylords(linhaSelecionada) : linhaSelecionada.querySelectorAll('.trailerCount')[1].textContent.trim();
+            const gaylordCount = linhaSelecionada.querySelectorAll('.trailerCount')[1].textContent.trim();
 
             buscarNomeYard(function(nomeYard) {
 
@@ -650,7 +650,7 @@
 
                 GM_xmlhttpRequest({
                     method: "GET",
-                    url: "https://github.com/Jhoni23/Outbound/blob/new-update/modeloValePallet.html",
+                    url: "https://raw.githubusercontent.com/Jhoni23/Outbound/refs/heads/main/modeloValePallet.html",
                     onload: function (response) {
                         let html = response.responseText;
 
@@ -712,79 +712,6 @@
         } else {
             botaoView.insertAdjacentElement('afterend', novoBotao);
         }
-    }
-
-    //Contar Pallets e Shuttles
-    function contarGaylords(linha) {
-        return new Promise((resolve, reject) => {
-            const linhaSelecionada = linha;
-            const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
-            const loadId = tdLoadId?.textContent.trim() || "";
-
-            const trailerSpan = linhaSelecionada.querySelector('span.trailerNo');
-            const trailerId = trailerSpan?.getAttribute("rel") || "";
-
-            const planId = linhaSelecionada.getAttribute("data-planid") || "";
-            const loadGroupId = linhaSelecionada.getAttribute("data-loadgroupid") || "";
-            const vrId = linhaSelecionada.getAttribute("data-vrid") || "";
-
-            const params = new URLSearchParams({
-                entity: "getOutboundLoadContainerDetails",
-                nodeId: obterFC(),
-                loadGroupId: loadGroupId,
-                planId: planId,
-                vrId: vrId,
-                status: "",
-                trailerId: trailerId,
-                trailerNumber: ""
-            }).toString();
-
-            GM_xmlhttpRequest({
-                method: "POST",
-                url: "https://trans-logistics.amazon.com/ssp/dock/hrz/ob/fetchdata",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                data: params,
-                onload: function(response) {
-                    try {
-                        const responseText = response.responseText;
-                        const responseJSON = typeof responseText === "string" ? JSON.parse(responseText) : responseText;
-
-                        function contarPalletsEGaylords(nodes) {
-                            let gaylordCount = 0;
-
-                            function percorrer(lista) {
-                                lista.forEach(node => {
-                                    if (node.container) {
-                                        const tipo = node.container.contType || "";
-                                        if (tipo === "GAYLORD") {
-                                            gaylordCount++;
-                                        }
-                                    }
-                                    if (node.childNodes && node.childNodes.length > 0) {
-                                        percorrer(node.childNodes);
-                                    }
-                                });
-                            }
-
-                            percorrer(nodes);
-                            return { gaylordCount };
-                        }
-
-                        const nodes = responseJSON.ret?.aaData?.ROOT_NODE || [];
-                        const total = contarPalletsEGaylords(nodes);
-                        resolve(total);
-                    } catch (e) {
-                        reject(e);
-                    }
-                },
-                onerror: function(err) {
-                    reject(err);
-                }
-            });
-        });
     }
 
     // Traduzir Campos
@@ -985,210 +912,6 @@
         });
     }
 
-    /// CRISP ///
-    let crispDados = [];
-    function crisp(){
-
-        //Coleta de dados do CRISP
-        function searchCrisp() {
-            function extractCellValue(td) {
-                if (!td) return null;
-
-                const checkbox = td.querySelector('input[type="checkbox"]');
-                if (checkbox) {
-                    return {
-                        checked: checkbox.checked,
-                        name: checkbox.name
-                    };
-                }
-
-                const progress = td.querySelector('.a-progress-prompt');
-                if (progress) {
-                    return Number(progress.textContent.replace('%', '').trim());
-                }
-
-                const link = td.querySelector('a[href]');
-                if (link) {
-                    return {
-                        text: link.textContent.trim(),
-                        href: link.href
-                    };
-                }
-
-                if (td.dataset.order) {
-                    const n = Number(td.dataset.order);
-                    return isNaN(n) ? td.textContent.trim() : n;
-                }
-
-                const text = td.textContent.trim();
-                return text === "" ? null : text;
-            }
-
-            let dateFrom = "";
-            let dateTo = "";
-
-            const timer = setInterval(() => {
-                const fromDateInput = document.querySelector('input[dataname="FromDate"]');
-                const toDateInput = document.querySelector('input[dataname="ToDate"]');
-                const fromTimeSel = document.querySelector('select[dataname="fromTime"]');
-                const toTimeSel = document.querySelector('select[dataname="toTime"]');
-
-                if (fromDateInput?.value && toDateInput?.value && fromTimeSel && toTimeSel) {
-                    const [m1,d1,y1] = fromDateInput.value.split("/");
-                    dateFrom = `${y1}-${('0'+m1).slice(-2)}-${('0'+d1).slice(-2)}T${fromTimeSel.options[fromTimeSel.selectedIndex].text.replace(":", "%3A")}`;
-
-                    const [m2,d2,y2] = toDateInput.value.split("/");
-                    dateTo = `${y2}-${('0'+m2).slice(-2)}-${('0'+d2).slice(-2)}T${toTimeSel.options[toTimeSel.selectedIndex].text.replace(":", "%3A")}`;
-
-                    GM_xmlhttpRequest({
-                        method: "GET",
-                        url: "https://crisp-na.corp.amazon.com/transportation/capacity-dashboard" +
-                        "?timeRangeStart=" + dateFrom +
-                        "&timeRangeEnd=" + dateTo +
-                        "&zoneId=America%2FSao_Paulo" +
-                        "&pickupSourceWarehouses=" + obterFC() +
-                        "&constraints=SoftCap&constraints=HardCap" +
-                        "&units=CUBIC_VOLUME",
-
-                        onload: function (response) {
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(response.responseText, "text/html");
-
-                            //Capta a tabela
-                            const table = doc.querySelector('#standardPickupResources');
-                            if (!table) { console.warn('Tabela não encontrada'); return []; }
-                            let headers = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, ""));
-
-                            if (headers.length === 0) {
-                                const firstRow = table.querySelector('tbody tr');
-                                if (firstRow) {
-                                    headers = [...firstRow.querySelectorAll('td')]
-                                        .map((_, idx) => `col_${idx + 1}`);
-                                }
-                            }
-
-                            const rows = [...table.querySelectorAll('tbody tr')];
-
-                            crispDados = rows.map(tr => {
-                                const cells = tr.querySelectorAll('td');
-                                const obj = {};
-                                headers.forEach((key, i) => {
-                                    obj[key] = extractCellValue(cells[i]);
-                                });
-                                return obj;
-                            });
-                        },
-                    });
-
-                    clearInterval(timer);
-                }
-            }, 200);
-            console.log("Pesquisei");
-        }
-
-        //Verificação cookie
-        const cookieCrisp = document.cookie.split("; ").find(row => row.startsWith("crisp="))?.split("=")[1];
-        if (cookieCrisp == undefined){
-            document.cookie = `${"crisp"}=${encodeURIComponent(Date.now())}; expires=${new Date(Date.now() + 10 * 60 * 1000).toUTCString()}; path=/`;
-            searchCrisp();
-        } else {
-            //if(Date.now() - Number(decodeURIComponent(cookieCrisp)) >= 10 * 60 * 1000) {searchCrisp()};
-            searchCrisp();
-        }
-    }
-
-    function adicionarCrisp(linha){
-        if (!document.querySelector("#accordion2 .load-extra")) {
-            const accordion = document.getElementById("accordion2");
-
-            // Crisp Title
-            const loadHeader = accordion.firstElementChild;
-
-            const h3 = document.createElement("h3");
-            h3.className = "ui-accordion-header ui-helper-reset ui-state-default ui-corner-top backGroundNone load-extra";
-            h3.setAttribute("id", "crisp-header");
-            h3.setAttribute("role", "tab");
-            h3.setAttribute("aria-expanded", "false");
-            h3.setAttribute("aria-selected", "false");
-            h3.setAttribute("tabindex", "-1");
-
-            h3.innerHTML = `
-  <span class="ui-icon ui-icon-triangle-1-e"></span>
-  Crisp
-`;
-            loadHeader.insertAdjacentElement("beforebegin", h3);
-
-            // Crisp Content
-            const newContent = document.createElement("div");
-            newContent.className = "col-md-12 backGroundNone load-extra";
-
-            newContent.innerHTML = `
-    <div class="col-md-12 backGroundNone">
-      <div class="col-md-12 backGroundNone">
-        <table width="100%">
-          <tbody>
-            <tr class="colorWhite">
-              <td width="160">Soft Cap:</td>
-              <td width="160"id="softCamp"> </td>
-            </tr>
-            <tr>
-              <td width="160">Hard Cap:</td>
-              <td width="160"id="hardCamp"> </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-
-            h3.insertAdjacentElement("afterend", newContent);
-        }
-
-        const softCamp = document.getElementById("softCamp");
-        const hardCamp = document.getElementById("hardCamp");
-
-        const goodLaneSpan = linha.querySelector('span.goodLane');
-        const rota = goodLaneSpan?.className.match(new RegExp(`lane${obterFC()}-([A-Z0-9]+)`))?.[1] || "";
-
-        const texto = [...document.querySelectorAll("tr")]
-        .find(tr => tr.textContent.includes("Critical Pull Time:"))
-        ?.querySelectorAll("td")[1]
-        ?.textContent.trim();
-
-        function toMillis(dataStr) {
-            const [datePart, timePart] = dataStr.split(" ");
-            const [day, monStr, yy] = datePart.split("-");
-            const [hh, mm] = timePart.split(":");
-
-            const meses = {
-                Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-                Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-            };
-
-            const year = 2000 + Number(yy);
-
-            return new Date(year, meses[monStr], Number(day), Number(hh), Number(mm), 0).getTime();
-        }
-
-        const cpt = texto ? toMillis(texto) : null;
-
-        console.log(crispDados);
-
-        softCamp.textContent = crispDados.find(
-            item =>
-            item.dest === rota &&
-            item.cpt === cpt &&
-            item.constraint === "Soft cap"
-        )?.capacity_value ?? 0;
-
-        hardCamp.textContent = crispDados.find(
-            item =>
-            item.dest === rota &&
-            item.cpt === cpt &&
-            item.constraint === "Hard cap"
-        )?.capacity_value ?? 0;
-    }
-
     /// Observer Div Lateral ///
     let observerCreated = false;
     function observerDivRight() {
@@ -1200,7 +923,6 @@
                         if (!divRight.classList.contains("displaynone")) {
                             const linha = document.querySelector('tr.selectedTableRow');
                             adicionarBotaoValePallet(linha);
-                            adicionarCrisp(linha);
                         }
                     }
                 });
@@ -1221,7 +943,6 @@
                 checkStart(aaData);
                 organizaLinhas(aaData);
             } else if (body.includes("getSubscribedNotifications")) {
-                crisp();
                 formatarDatas();
                 traduzirCampos();
                 aplicarMeridianDesign();
