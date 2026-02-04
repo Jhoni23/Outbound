@@ -69,6 +69,27 @@ Os carregamentos que já tiveram "Start" ou "Iniciar" têm seus ícones de doca 
 
 <br>
 
+## Próximas Funções - Em andamento
+
+### Hard e Soft Cap
+
+Adiciona o Soft Cap e o Hard Cap de cada rota no menu lateral para acompanhamento de volume e demanda de cada carregamento a partir dos dados do CRISP.
+
+<img width="355" height="226" alt="image" src="https://github.com/user-attachments/assets/1b16f150-9b2b-40d0-84d3-03cbebcbd2f4" />
+
+
+### Botões de Tickets
+
+Adiciona uma secção de botões no menu lateral para modelos de abertura de Tickets:
+
+Late Position, Late Departure, AdHoc e Cancel VRID
+
+### Monitoramento via GPS
+
+Quando o veículo entrar na área de proximidade do FC e o FMC constar como reported via GPS (G), um sinal aparecerá na linha do VRID.
+
+Sinalizando que o veículo está nas proximidades, porém não foi realizadoo check-in.
+
 ## Como desativar
 
 - No canto superior direito do navegador, clique no ícone de quebra-cabeça.
