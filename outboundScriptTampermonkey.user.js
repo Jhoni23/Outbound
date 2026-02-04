@@ -453,7 +453,11 @@
     function obterFC() {
         const cookies = document.cookie.split("; ");
         const cookie = cookies.find(row => row.startsWith("setNodeId="));
-        return cookie ? decodeURIComponent(cookie.split("=")[1]) : null;
+        if (cookie) return decodeURIComponent(cookie.split("=")[1]);
+
+        const select = document.querySelector("#availableNodeName");
+        const optionSelecionado = select?.options?.[select.selectedIndex];
+        return optionSelecionado?.text;
     }
 
     //Formata datas
@@ -601,7 +605,7 @@
 
             await new Promise(r => setTimeout(r, 0));
 
-            const gaylordCount = linhaSelecionada.querySelectorAll('.trailerCount')[1].textContent.trim();
+            const gaylordCount = linhaSelecionada.querySelectorAll('.trailerCount')[1]?.textContent?.trim() || "0";
 
             buscarNomeYard(function(nomeYard) {
 
