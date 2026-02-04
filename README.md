@@ -73,17 +73,23 @@ Os carregamentos que já tiveram "Start" ou "Iniciar" têm seus ícones de doca 
 
 - No canto superior direito do navegador, clique no ícone de quebra-cabeça.
 
+<img width="300" src="https://github.com/user-attachments/assets/09685a2e-5368-4a50-bb5c-ed942288c132" />
 
 
 - Selecione o Tampermonkey.
 
+<img width="300" src="https://github.com/user-attachments/assets/b76b349a-dc6e-4f6a-b219-0659ba019d40" />
 
 
 - Desabilite a extensão.
 
+<img width="300" src="https://github.com/user-attachments/assets/f79878e2-84aa-4b8e-a8be-270e68e0ff5e" />
 
+<p>
 
-<br><br>
+Recarregue a página do SSP.
+
+<br>
 
 ## Mais informações
 
