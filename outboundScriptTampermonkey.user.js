@@ -12,6 +12,7 @@
 // @connect      trans-logistics.amazon.com
 // @connect      github.com
 // @connect      raw.githubusercontent.com
+// @connect      crisp-na.corp.amazon.com
 // ==/UserScript==
 
 (function () {
@@ -916,25 +917,277 @@
         });
     }
 
-    /// Observer Div Lateral ///
-    let observerCreated = false;
-    function observerDivRight() {
-        if(!observerCreated){
-            const divRight = document.getElementById("rightContent");
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === "attributes" && mutation.attributeName === "class") {
-                        if (!divRight.classList.contains("displaynone")) {
-                            const linha = document.querySelector('tr.selectedTableRow');
-                            adicionarBotaoValePallet(linha);
+    /// CRISP ///
+    let crispDados = [];
+    function crisp(){
+
+        let dateFrom = "";
+        let dateTo = "";
+
+        const fromDateInput = document.querySelector('input[dataname="FromDate"]');
+        const toDateInput = document.querySelector('input[dataname="ToDate"]');
+        const fromTimeSel = document.querySelector('select[dataname="fromTime"]');
+        const toTimeSel = document.querySelector('select[dataname="toTime"]');
+
+        const [m1,d1,y1] = fromDateInput.value.split("/");
+        dateFrom = `${y1}-${('0'+m1).slice(-2)}-${('0'+d1).slice(-2)}T${fromTimeSel.options[fromTimeSel.selectedIndex].text.replace(":", "%3A")}`;
+
+        const [m2,d2,y2] = toDateInput.value.split("/");
+        dateTo = `${y2}-${('0'+m2).slice(-2)}-${('0'+d2).slice(-2)}T${toTimeSel.options[toTimeSel.selectedIndex].text.replace(":", "%3A")}`;
+
+        //Coleta de dados do CRISP
+        function searchCrisp() {
+            function extractCellValue(td) {
+                if (!td) return null;
+
+                const checkbox = td.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    return {
+                        checked: checkbox.checked,
+                        name: checkbox.name
+                    };
+                }
+
+                const progress = td.querySelector('.a-progress-prompt');
+                if (progress) {
+                    return Number(progress.textContent.replace('%', '').trim());
+                }
+
+                const link = td.querySelector('a[href]');
+                if (link) {
+                    return {
+                        text: link.textContent.trim(),
+                        href: link.href
+                    };
+                }
+
+                if (td.dataset.order) {
+                    const n = Number(td.dataset.order);
+                    return isNaN(n) ? td.textContent.trim() : n;
+                }
+
+                const text = td.textContent.trim();
+                return text === "" ? null : text;
+            }
+
+            setTimeout(() => {
+                GM_xmlhttpRequest({
+                    method: "GET",
+                    url: "https://crisp-na.corp.amazon.com/transportation/capacity-dashboard" +
+                    "?timeRangeStart=" + dateFrom +
+                    "&timeRangeEnd=" + dateTo +
+                    "&zoneId=America%2FSao_Paulo" +
+                    "&pickupSourceWarehouses=" + obterFC() +
+                    "&constraints=SoftCap&constraints=HardCap" +
+                    "&units=CUBIC_VOLUME",
+
+                    timeout: 3000,
+
+                    onload: function (response) {
+                        console.log("Resposta do CRISP recebida ✅");
+
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(response.responseText, "text/html");
+
+                        const table = doc.querySelector('#standardPickupResources');
+                        if (!table) {
+                            console.warn('Tabela não encontrada');
+                            return;
                         }
+
+                        let headers = [...table.querySelectorAll('thead th')]
+                        .map(th => th.textContent.trim().toLowerCase()
+                             .replace(/\s+/g, "_")
+                             .replace(/[^a-z0-9_]/g, ""));
+
+                        if (headers.length === 0) {
+                            const firstRow = table.querySelector('tbody tr');
+                            if (firstRow) {
+                                headers = [...firstRow.querySelectorAll('td')]
+                                    .map((_, idx) => `col_${idx + 1}`);
+                            }
+                        }
+
+                        const rows = [...table.querySelectorAll('tbody tr')];
+
+                        crispDados = rows.map(tr => {
+                            const cells = tr.querySelectorAll('td');
+                            const obj = {};
+                            headers.forEach((key, i) => {
+                                obj[key] = extractCellValue(cells[i]);
+                            });
+                            return obj;
+                        });
+                    },
+
+                    ontimeout: function () {
+                        console.error("CRISP demorou mais de 3s ❌");
+                    },
+
+                    onerror: function () {
+                        console.error("Erro na requisição ao CRISP ❌");
                     }
                 });
-            });
-            observer.observe(divRight, { attributes: true });
-            observerCreated = true;
+
+            }, 200);
+        }
+
+        //Verificação cookie
+        const keyAtual = `${dateFrom}${dateTo}`;
+        const agora = Date.now();
+
+        const data = JSON.parse(localStorage.getItem("cookieCrisp"));
+
+        if (!data || data.key !== keyAtual || agora >= data.expiresAt) {
+            localStorage.setItem("cookieCrisp", JSON.stringify({
+                key: keyAtual,
+                expiresAt: agora + 5 * 60 * 1000
+            }));
+            searchCrisp();
         }
     }
+
+    function adicionarCrisp(linha){
+        if (!document.querySelector("#accordion4")) {
+            const accordion = document.getElementById("accordion2");
+
+            const newContent = document.createElement("div");
+            newContent.innerHTML = `
+                <div id="accordion4" class="ui-accordion ui-widget ui-helper-reset ui-accordion-icons backGroundNone" role="tablist">
+                    <h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-state-active ui-corner-top backGroundNone" role="tab" aria-expanded="true" aria-selected="true" tabindex="0"><span class="ui-icon ui-icon-triangle-1-s"></span>Crisp</h3>
+
+                    <div class="col-md-12 ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active heightAuto backGroundNone" style="height: 78.2px;" role="tabpanel">
+                        <div class="col-md-12 backGroundNone">
+                            <table width="100%" style="color: black">
+                                <tbody>
+                                    <tr class="colorWhite">
+                                        <td width="160">Soft Cap:</td>
+                                        <td width="160"id="softCamp" class="colorBlue"> </td>
+                                    </tr>
+                                    <tr>
+                                        <td width="160">Hard Cap:</td>
+                                        <td width="160"id="hardCamp" class="colorBlue"> </td>
+                                    </tr>
+                                    <tr class="colorWhite">
+                                        <td width="160">Actual Volume:</td>
+                                        <td width="160"id="processed" class="colorBlue"> </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                `;
+
+            accordion.insertAdjacentElement("beforebegin", newContent);
+        }
+
+        const softCamp = document.getElementById("softCamp");
+        const hardCamp = document.getElementById("hardCamp");
+        const processed = document.getElementById("processed");
+
+        const goodLaneSpan = linha.querySelector('span.goodLane');
+        const rota = goodLaneSpan?.className.match(new RegExp(`lane${obterFC()}-([A-Z0-9]+)`))?.[1] || "";
+
+        const texto = [...document.querySelectorAll("tr")]
+        .find(tr => tr.textContent.includes("Critical Pull Time:"))
+        ?.querySelectorAll("td")[1]
+        ?.textContent.trim();
+
+        function toMillis(dataStr) {
+            const [datePart, timePart] = dataStr.split(" ");
+            const [day, monStr, yy] = datePart.split("-");
+            const [hh, mm] = timePart.split(":");
+
+            const meses = {
+                Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+                Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+            };
+
+            const year = 2000 + Number(yy);
+
+            return new Date(year, meses[monStr], Number(day), Number(hh), Number(mm), 0).getTime();
+        }
+
+        const cpt = texto ? toMillis(texto) : null;
+
+        softCamp.textContent = crispDados.find(
+            item =>
+            item.dest === rota &&
+            item.cpt === cpt &&
+            item.constraint === "Soft cap"
+        )?.capacity_value ?? 0;
+
+        hardCamp.textContent = crispDados.find(
+            item =>
+            item.dest === rota &&
+            item.cpt === cpt &&
+            item.constraint === "Hard cap"
+        )?.capacity_value ?? 0;
+
+        processed.textContent = crispDados.find(
+            item =>
+            item.dest === rota &&
+            item.cpt === cpt
+        )?.slam ?? 0;
+
+    }
+
+    // Observer Div Lateral
+    let observerCreated = false;
+    let painelAberto = false;
+    let ultimaLinhaId = null;
+
+    function observerDivRight() {
+        if (observerCreated) return;
+
+        const divRight = document.getElementById("rightContent");
+        if (!divRight) return;
+
+        const observer = new MutationObserver(() => {
+            const estaVisivel = !divRight.classList.contains("displaynone");
+
+            // Painel acabou de abrir
+            if (estaVisivel && !painelAberto) {
+                painelAberto = true;
+                ultimaLinhaId = null;
+                processarLinhaSelecionada();
+                return;
+            }
+
+            // Painel acabou de fechar
+            if (!estaVisivel && painelAberto) {
+                painelAberto = false;
+                ultimaLinhaId = null;
+                return;
+            }
+
+            // Painel aberto → verificar mudança de linha
+            if (painelAberto) {
+                processarLinhaSelecionada();
+            }
+        });
+
+        observer.observe(divRight, {
+            attributes: true,
+            attributeFilter: ["class"]
+        });
+
+        observerCreated = true;
+    }
+    function processarLinhaSelecionada() {
+        const linha = document.querySelector("tr.selectedTableRow");
+
+        const linhaId = linha.dataset?.id || linha.rowIndex;
+
+        if (linhaId === ultimaLinhaId) return;
+
+        ultimaLinhaId = linhaId;
+
+        adicionarBotaoValePallet(linha);
+        adicionarCrisp(linha);
+    }
+
 
     /// Monitora as requisições HTTP //
     const send = XMLHttpRequest.prototype.send;
@@ -951,6 +1204,13 @@
                 traduzirCampos();
                 aplicarMeridianDesign();
                 observerDivRight();
+
+                const check = setInterval(() => {
+                    if (document.querySelector('input[dataname="FromDate"]').value) {
+                        clearInterval(check);
+                        crisp();
+                    }
+                }, 200);
             }
         });
         return send.apply(this, [body]);
