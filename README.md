@@ -17,7 +17,7 @@
 
 No seu navegador (Firefox ou Google Chrome):
 
-1° Etapa: [Instalar Tampernokey](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/)
+1° Etapa: [Clique aqui](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/) para instalar o Tampermonkey.
 
 <div>
   <img src="https://github.com/user-attachments/assets/a3476345-5c1d-4a5f-9650-d9d98e55f00b" width="408" align="top">
@@ -26,13 +26,13 @@ No seu navegador (Firefox ou Google Chrome):
 
 <br>
 
-2° Etapa: [Instalar Extensão](https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js)
+2° Etapa: [Clique aqui](https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js) para instalar a Extensão.
 
 <img src="https://github.com/user-attachments/assets/8c21b5a6-e508-4a1f-acc7-19a00a3055f0" width="408">
 
 <p>
 
-3° Etapa: Reinicie o Navegador.
+3° Etapa: Feche todas as abas e abra o Navegador novamente.
 
 <b> Pronto! A extensão está ativada! </b> 
 
@@ -58,7 +58,7 @@ Adiciona um botão de "Vale Pallet" no menu lateral que gera o documento automat
 
 Pequenas atualizações na interface e tradução das tipologias do veículo.
 
-Ex: Forty Foot Truck -> VUC
+Ex: "Forty Foot Truck" traduzido para "VUC"
 
 
 ### Ícones de Start
@@ -67,16 +67,18 @@ Os carregamentos que já tiveram "Start" ou "Iniciar" têm seus ícones de doca 
 
 <img width="400" src="https://github.com/user-attachments/assets/749ec08f-9439-4c6a-aa4d-86232d29ee5f" />
 
-<br>
-
-## Próximas Funções - Em andamento
-
 ### Hard e Soft Cap
 
-Adiciona o Soft Cap e o Hard Cap de cada rota no menu lateral para acompanhamento de volume e demanda de cada carregamento a partir dos dados do CRISP.
+Adiciona o Soft e Hard Cap de cada rota no menu lateral para análise de volume e demanda de cada carregamento a partir dos dados do CRISP.
 
 <img width="355" height="226" alt="image" src="https://github.com/user-attachments/assets/1b16f150-9b2b-40d0-84d3-03cbebcbd2f4" />
 
+> [!WARNING]
+> Antes de tomadas de decisões importantes como AdHoc, confirme os valores diretamente no CRISP.
+
+<br>
+
+## Próximas Funções - Em andamento
 
 ### Botões de Tickets
 
@@ -117,5 +119,5 @@ Recarregue a página do SSP.
 > Nenhuma parte da extensão altera dados internos importantes da Amazon ou o código-fonte do SSP.
 
 Em caso de dúvidas, erros/bugs ou sugestões: <br><br>
- Chime [@rsanjhon](https://github.com/) &nbsp;&middot;&nbsp;
+ Slack [@rsanjhon](https://github.com/) &nbsp;&middot;&nbsp;
  Email [rsanjhon@amazon.com](https://twitter.com/)
