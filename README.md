@@ -76,6 +76,15 @@ Adiciona o Soft e Hard Cap de cada rota no menu lateral para análise de volume 
 > [!WARNING]
 > Antes de tomadas de decisões importantes como AdHoc, confirme os valores diretamente no CRISP.
 
+### Monitoramento via GPS
+
+Quando o veículo entrar na área de proximidade do FC e o FMC constar como reported via GPS (G), um sinal aparecerá na linha do VRID.
+
+Sinalizando que o veículo está nas proximidades, porém não foi realizadoo check-in.
+
+<img width="285" height="186" src="https://github.com/user-attachments/assets/1f2a0636-0588-4582-9c9f-e1fee1e3bdca" />
+
+
 <br>
 
 ## Próximas Funções - Em andamento
@@ -85,12 +94,6 @@ Adiciona o Soft e Hard Cap de cada rota no menu lateral para análise de volume 
 Adiciona uma secção de botões no menu lateral para modelos de abertura de Tickets:
 
 Late Position, Late Departure, AdHoc e Cancel VRID
-
-### Monitoramento via GPS
-
-Quando o veículo entrar na área de proximidade do FC e o FMC constar como reported via GPS (G), um sinal aparecerá na linha do VRID.
-
-Sinalizando que o veículo está nas proximidades, porém não foi realizadoo check-in.
 
 ## Como desativar
 
