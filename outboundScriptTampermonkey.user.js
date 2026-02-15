@@ -4,7 +4,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      6.1
+// @version      6.2
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -526,7 +526,7 @@
             const vrid = texto.split("-").pop().trim();
 
             const laneSpan = linhaSelecionada.querySelector("span.floatL.goodLane");
-            const rota = laneSpan.textContent.trim();
+            const rota = laneSpan.childNodes[0].nodeValue.trim();
 
             const tdLoadId = linhaSelecionada.querySelector('td.loadIdCol');
             const tdTransportadora = tdLoadId?.nextElementSibling?.nextElementSibling;
@@ -1089,27 +1089,46 @@
         const goodLaneSpan = linha.querySelector('span.goodLane');
         const rota = goodLaneSpan?.className.match(new RegExp(`lane${obterFC()}-([A-Z0-9]+)`))?.[1] || "";
 
-        const texto = [...document.querySelectorAll("tr")]
-        .find(tr => tr.textContent.includes("Critical Pull Time:"))
-        ?.querySelectorAll("td")[1]
-        ?.textContent.trim();
+        //Pega o índice da coluna de CPT
+        const tabela = linha.closest("table");
+
+        const indiceCpt = [...tabela.querySelectorAll("thead th")]
+        .filter(th => th.offsetParent !== null)
+        .findIndex(th => th.textContent.toLowerCase().includes("cpt"));
+
+        const texto = linha.cells[indiceCpt]?.textContent.trim();
 
         function toMillis(dataStr) {
             const [datePart, timePart] = dataStr.split(" ");
-            const [day, monStr, yy] = datePart.split("-");
             const [hh, mm] = timePart.split(":");
 
-            const meses = {
-                Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-                Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-            };
+            let day, month, yy, monStr;
+
+            if (datePart.includes("/")) {
+                [day, month, yy] = datePart.split("/");
+                month = Number(month) - 1;
+            } else {
+                [day, monStr, yy] = datePart.split("-");
+                const meses = {
+                    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+                    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+                };
+                month = meses[monStr];
+            }
 
             const year = 2000 + Number(yy);
 
-            return new Date(year, meses[monStr], Number(day), Number(hh), Number(mm), 0).getTime();
+            return new Date(
+                year,
+                month,
+                Number(day),
+                Number(hh),
+                Number(mm),
+                0
+            ).getTime();
         }
 
-        const cpt = texto ? toMillis(texto) : null;
+        const cpt = toMillis(texto);
 
         softCamp.textContent = crispDados.find(
             item =>
@@ -1188,6 +1207,115 @@
         adicionarCrisp(linha);
     }
 
+    /// GEOFENCE ///
+    // Ícone de Geofence
+    function verificaLinhasGeofence(linhas, vrids){
+        //Pega o índice da coluna de alertas
+        const headers = document.querySelectorAll("thead th");
+        let indiceAlerts = 0;
+        for (let i = 0; i < headers.length; i++) {
+            const texto = headers[i].textContent.trim().toLowerCase();
+            if (texto.includes("alerts") || texto.includes("alertas")) {indiceAlerts = i}
+        }
+        const vrSet = new Set(vrids);
+        // Verifica se tem linhas com geofence
+        linhas.forEach(linha => {
+            const vrId = linha.querySelector('span.loadId')?.textContent.trim();
+            if (!vrId) return;
+
+            const td = linha.cells[indiceAlerts];
+            if (!td) return;
+
+            const icone = td.querySelector('#geofence');
+            const deveTerIcone = vrSet.has(vrId);
+
+            if (deveTerIcone && !icone) {
+                const img = document.createElement('img');
+                img.id = 'geofence';
+                img.src = 'https://raw.githubusercontent.com/Jhoni23/Outbound/refs/heads/main/Imagens/gpsIcon.png';
+                img.title = "Reported by Geofence";
+                img.width = 18;
+                img.height = 28;
+
+                td.appendChild(img);
+            }
+            else if (!deveTerIcone && icone) {
+                icone.remove();
+            }
+        });
+    }
+
+    // Consulta no FMC
+    function geofence(){
+        let searchIds = [];
+
+        const linhas = document.querySelectorAll("table tbody tr");
+
+        linhas.forEach(linha => {
+            const vrid = linha.querySelector('span.loadId')?.textContent.trim();
+            if(vrid) {searchIds.push(vrid)};
+        });
+
+        const payload = {
+            bookmarkedSavedSearch: false,
+            executionViewModePreference: "vrs",
+            page: 0,
+            pageSize: 100,
+            searchByIds: true,
+            searchIds: searchIds,
+            sortOrder: null,
+            originalCriteria: JSON.stringify({
+                searchIds: searchIds,
+                pageSize: 100
+            }),
+            dashboardPreferences: JSON.stringify({
+                length: 100,
+                order: [[100, "desc"]],
+                search: { search: "", smart: true, regex: false, caseInsensitive: true },
+                columns: [],
+                childTable: {
+                    hiddenColumns: ["estimatedArrival", "estimatedDelay"],
+                    shownColumns: []
+                },
+                columnNames: []
+            })
+        };
+
+        GM_xmlhttpRequest({
+            method: "POST",
+            url: "https://trans-logistics.amazon.com/fmc/search/execution/by-id",
+
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+
+            data: JSON.stringify(payload),
+
+            timeout: 3000,
+
+            onload: function (response) {
+                const data = JSON.parse(response.responseText);
+                let geofenceVrids = [];
+                data.returnedObject.records.forEach(item => {
+                    const checkType = item.aggregatedStops[0].actions[0].actualYardArrivalTimeSource;
+                    if(checkType == "GEOFENCE"){
+                        geofenceVrids.push(item.vehicleRunId);
+                    }
+                });
+                verificaLinhasGeofence(linhas, geofenceVrids);
+            },
+
+            onerror: function () {
+                console.error("Erro na requisição FMC ❌");
+            },
+
+            ontimeout: function () {
+                console.error("Timeout na requisição FMC ⏱️");
+            }
+        });
+    }
+
 
     /// Monitora as requisições HTTP //
     const send = XMLHttpRequest.prototype.send;
@@ -1204,6 +1332,7 @@
                 traduzirCampos();
                 aplicarMeridianDesign();
                 observerDivRight();
+                geofence();
 
                 const check = setInterval(() => {
                     if (document.querySelector('input[dataname="FromDate"]').value) {
