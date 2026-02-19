@@ -1086,9 +1086,21 @@
         const hardCamp = document.getElementById("hardCamp");
         const processed = document.getElementById("processed");
 
-        const goodLaneSpan = linha.querySelector('span.goodLane');
-        const rota = goodLaneSpan?.className.match(new RegExp(`lane${obterFC()}-([A-Z0-9]+)`))?.[1] || "";
+        const match = linha
+        .querySelector('span.goodLane')
+        ?.className.match(new RegExp(`lane${obterFC()}-([A-Z0-9-]+)`))
+        ?.at(1);
 
+        const rota = match
+        ? (() => {
+            const partes = match.split("-");
+            if (partes.length === 1) return partes[0];
+            if (partes.length === 2) return /^[A-Z]{3,4}\d$/.test(partes[1]) ? partes[1] : partes[0];
+            return "";
+        })()
+        : "";
+
+        console.log(rota);
         //Pega o índice da coluna de CPT
         const tabela = linha.closest("table");
 
