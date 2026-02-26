@@ -76,11 +76,11 @@ Adiciona o Soft e Hard Cap de cada rota no menu lateral para análise de volume 
 > [!WARNING]
 > Antes de tomadas de decisões importantes como AdHoc, confirme os valores diretamente no CRISP.
 
-### Monitoramento via GPS
+### Alerta Geofence
 
-Quando o veículo entrar na área de proximidade do FC e o FMC constar como reported via GPS (G), um sinal aparecerá na linha do VRID.
+Quando o veículo entra na área de proximidade do FC e no FMC o mesmo consta como reported via Geofence (G), um sinal aparece na linha do VRID.
 
-Sinalizando que o veículo está nas proximidades, porém não foi realizadoo check-in.
+Sinalizando que o veículo está nas proximidades, porém não foi realizado o check-in.
 
 <img width="285" height="186" src="https://github.com/user-attachments/assets/1f2a0636-0588-4582-9c9f-e1fee1e3bdca" />
 
