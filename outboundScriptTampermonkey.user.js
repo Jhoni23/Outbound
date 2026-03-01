@@ -4,7 +4,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      6.2
+// @version      6.3
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -477,14 +477,6 @@
                 const ano = match[3];
                 const hora = match[4];
                 td.textContent = `${dia}/${mes}/${ano} ${hora}`;
-            }
-        });
-
-        //Remove ícone bandeira
-        document.querySelectorAll('td span').forEach(span => {
-            const title = span.getAttribute('title')?.toLowerCase() || '';
-            if (title.includes('última carga') || title.includes('last load for cpt') || span.classList.contains('driverPresent')) {
-                span.remove();
             }
         });
     }
