@@ -1320,6 +1320,33 @@
         });
     }
 
+    // LINKS VRIDS
+    function linksFMC(){
+        document.querySelectorAll('span.loadId').forEach(span => {
+            const vrid = span.getAttribute('data-vrid');
+
+            const link = document.createElement('a');
+
+            [...span.attributes].forEach(attr => {
+                link.setAttribute(attr.name, attr.value);
+            });
+
+            link.href = `https://trans-logistics.amazon.com/fmc/execution/search/${vrid}`;
+            link.target = "_blank";
+
+            link.textContent = span.textContent;
+
+            link.style.fontSize = '12px';
+            link.style.color = '#666666';
+            link.style.textDecoration = 'underline';
+
+            const style = document.createElement("style");
+            style.textContent = `.loadId:hover{color:#0073e6 !important;}`;
+            document.head.appendChild(style);
+
+            span.replaceWith(link);
+        });
+    }
 
     /// Monitora as requisições HTTP //
     const send = XMLHttpRequest.prototype.send;
@@ -1336,8 +1363,9 @@
                 traduzirCampos();
                 aplicarMeridianDesign();
                 observerDivRight();
-                geofence();
+                linksFMC();
 
+                geofence();
                 const check = setInterval(() => {
                     if (document.querySelector('input[dataname="FromDate"]').value) {
                         clearInterval(check);
