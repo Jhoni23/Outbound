@@ -1363,7 +1363,7 @@
                 traduzirCampos();
                 aplicarMeridianDesign();
                 observerDivRight();
-                linksFMC();
+                //linksFMC();
 
                 geofence();
                 const check = setInterval(() => {
