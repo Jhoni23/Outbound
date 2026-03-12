@@ -4,7 +4,7 @@
 // @namespace    http://tampermonkey.net/
 // @updateURL    https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
 // @downloadURL  https://github.com/Jhoni23/Outbound/raw/refs/heads/main/outboundScriptTampermonkey.user.js
-// @version      6.3
+// @version      6.4
 // @description  Update Outbound Management System
 // @author       rsanjhon
 // @match        https://trans-logistics.amazon.com/ssp/dock/hrz/ob
@@ -487,12 +487,23 @@
             method: "GET",
             url: "https://trans-logistics.amazon.com/dashboard/v2",
             onload: function(response) {
+
                 const htmlDaPagina = response.responseText;
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlDaPagina, "text/html");
+
                 const inputFullName = doc.querySelector('input#fullName');
-                const nome = inputFullName ? inputFullName.value.toUpperCase() : null;
-                callback(nome.replace(/\[C\]/g, ""));
+
+                let nome = inputFullName ? inputFullName.value.toUpperCase() : null;
+
+                if (nome) {
+                    nome = nome.replace(/\[C\]/g, "").trim();
+                    const partes = nome.split(/\s+/);
+                    if (partes.length > 1) {
+                        nome = `${partes[0]} ${partes[partes.length - 1]}`;
+                    }
+                }
+                callback(nome);
             },
             onerror: function(err) {
                 console.error("Erro ao buscar a página:", err);
@@ -617,7 +628,7 @@
                 let pallet = tdAnterior?.querySelector('a')?.textContent.trim() || "";
                 if (pallet == "") {pallet = "0"};
 
-                const spanVrid = linhaSelecionada.querySelector('span.loadId');
+                const spanVrid = linhaSelecionada.querySelector('a.loadId');
                 const vrid = spanVrid?.textContent.trim() || "";
 
                 let scuttles = gaylordCount;
@@ -671,23 +682,49 @@
                         document.body.appendChild(iframe);
 
                         const doc = iframe.contentWindow.document;
+
                         doc.open();
-                        doc.write(html);
+                        doc.write(`
+            <html>
+            <head>
+            <style>
+                @page {
+                    size: A4 portrait;
+                    margin-top: 10mm;
+                }
+
+                @media print {
+  @page { margin: 0; }
+    body{
+    margin:0;
+    padding-top:1.5cm;
+    transform: scale(1.08);
+    transform-origin: top center;
+  }
+}
+            </style>
+            </head>
+            <body>
+            ${html}
+            </body>
+            </html>
+        `);
                         doc.close();
 
                         iframe.onload = function () {
                             iframe.contentWindow.focus();
                             iframe.contentWindow.print();
-                            setTimeout(() => document.body.removeChild(iframe), 1000);
+
+                            setTimeout(() => {
+                                document.body.removeChild(iframe);
+                            }, 1000);
                         };
+
                         novoBotao.textContent = "Vale Pallet";
-                        novoBotao.style.width = "";
-                        novoBotao.style.display = "";
-                        novoBotao.style.justifyContent = "";
-                        novoBotao.style.alignItems = "";
                         novoBotao.style.pointerEvents = "auto";
                         novoBotao.style.opacity = "1";
                     },
+
                     onerror: function (err) {
                         console.error("Erro ao buscar HTML para impressão:", err);
                         alert("Erro ao carregar conteúdo da impressão.");
@@ -1363,7 +1400,7 @@
                 traduzirCampos();
                 aplicarMeridianDesign();
                 observerDivRight();
-                //linksFMC();
+                linksFMC();
 
                 geofence();
                 const check = setInterval(() => {
