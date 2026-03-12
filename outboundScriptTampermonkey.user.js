@@ -1235,18 +1235,6 @@
 
         observerCreated = true;
     }
-    function processarLinhaSelecionada() {
-        const linha = document.querySelector("tr.selectedTableRow");
-
-        const linhaId = linha.dataset?.id || linha.rowIndex;
-
-        if (linhaId === ultimaLinhaId) return;
-
-        ultimaLinhaId = linhaId;
-
-        adicionarBotaoValePallet(linha);
-        adicionarCrisp(linha);
-    }
 
     /// GEOFENCE ///
     // Ícone de Geofence
@@ -1261,7 +1249,7 @@
         const vrSet = new Set(vrids);
         // Verifica se tem linhas com geofence
         linhas.forEach(linha => {
-            const vrId = linha.querySelector('span.loadId')?.textContent.trim();
+            const vrId = linha.querySelector('a.loadId')?.textContent.trim();
             if (!vrId) return;
 
             const td = linha.cells[indiceAlerts];
@@ -1293,7 +1281,7 @@
         const linhas = document.querySelectorAll("table tbody tr");
 
         linhas.forEach(linha => {
-            const vrid = linha.querySelector('span.loadId')?.textContent.trim();
+            const vrid = linha.querySelector('a.loadId')?.textContent.trim();
             if(vrid) {searchIds.push(vrid)};
         });
 
@@ -1383,6 +1371,43 @@
 
             span.replaceWith(link);
         });
+    }
+
+    /// BOTÕES DE TICKETS
+    function seccaoTicket(){
+        if (!document.querySelector("#accordionLinks")) {
+            const novaSecao = `
+                <div id="accordion4" class="ui-accordion ui-widget ui-helper-reset ui-accordion-icons backGroundNone" role="tablist">
+                    <h3 class="ui-accordion-header ui-helper-reset ui-state-default ui-state-active ui-corner-top backGroundNone" role="tab" aria-expanded="true" aria-selected="true" tabindex="0"><span class="ui-icon ui-icon-triangle-1-s"></span>Tickets</h3>
+
+                    <div class="col-md-12 ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active heightAuto backGroundNone" style="height: 78.2px;" role="tabpanel">
+                        <div class="actionButtonItems col-md-12 backGroundNone">
+                            <a target="_blank" href="https://t.corp.amazon.com/create/templates/0b3f55bc-bb26-4fc7-b422-d988674d3fe0" class="aluiBtn standardBtn floatL">Late Position</a>
+                            <a target="_blank" href="https://t.corp.amazon.com/create/templates/c3781c89-ec93-4971-873e-493ead3be195" class="aluiBtn standardBtn floatL">Late Departure</a>
+                            <a target="_blank" href="https://t.corp.amazon.com/create/templates/c666a4a0-e024-41b2-9869-2e88664cecf8" class="aluiBtn standardBtn floatL">AdHoc</a>
+                            <a target="_blank" href="https://t.corp.amazon.com/create/templates/3664ca81-e002-4fe7-9a4c-293aaf7ac55f" class="aluiBtn standardBtn floatL">Cancel VRID</a>
+                            <a target="_blank" href="https://w.amazon.com/bin/view/BR-ROC/TicketSLA" class="aluiBtn standardBtn floatL">Outros</a>
+                        </div>
+                    </div>
+                </div>`;
+            document.querySelector("#accordion3").insertAdjacentHTML("afterend", novaSecao);
+        }
+        document.querySelectorAll('.vrIdLinkCopyBtn').forEach(el => {
+            el.style.display = "none";
+        });
+    }
+    function processarLinhaSelecionada() {
+        const linha = document.querySelector("tr.selectedTableRow");
+
+        const linhaId = linha.dataset?.id || linha.rowIndex;
+
+        if (linhaId === ultimaLinhaId) return;
+
+        ultimaLinhaId = linhaId;
+
+        adicionarBotaoValePallet(linha);
+        adicionarCrisp(linha);
+        seccaoTicket();
     }
 
     /// Monitora as requisições HTTP //
